@@ -1,4 +1,4 @@
-<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Cache-Control" content="no-cache"><meta name="theme-color" content="#06070f"><meta name="mobile-web-app-capable" content="yes"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta http-equiv="Cache-Control" content="no-cache"><meta name="theme-color" content="#06070f"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Fuel Run"><link rel="apple-touch-icon" href="icon-180.png"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html,body{background:#06070f}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
 <title>Fuel Run</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,9 +24,11 @@ h1{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.08e
 html.land,html.land body{overflow:hidden;height:100%}
 html.land body{padding:0}
 html.land .cab{max-width:none;display:block}
-html.land .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:1;width:auto!important;height:auto!important}
+html.land .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:1;width:auto!important;height:auto!important;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+html{touch-action:manipulation}
+.screen,.pad,.btn,.stick{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 html.land .screen{border:none;border-radius:0;box-shadow:none}
-html.land .hint{display:none}
+html.land .hint:not(.gstat){display:none}
 html.land h1{display:none}
 html.land header{position:fixed;z-index:4;left:50%;transform:translateX(-50%);bottom:max(8px,env(safe-area-inset-bottom,0px))}
 html.land .snd{opacity:.75;padding:5px 8px;font-size:10px;background:rgba(18,20,42,.7)}
@@ -104,7 +106,7 @@ html.land .btn{opacity:.6}
   </div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>Z + X</b> vasthouden: schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Houd vuur en bom tegelijk ingedrukt voor een schild van 5 seconden, ook 3 keer per ronde. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 13 · altijd volledig scherm</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 14 · volledig scherm ook op iPhone (via beginscherm)</p>
 </div>
 
 <script>
@@ -120,7 +122,7 @@ function layout(){
   const vw=window.innerWidth,vh=window.innerHeight,coarse=matchMedia('(pointer:coarse)').matches,land=(coarse||isFS())&&vw>vh;
   rootEl.classList.toggle('land',land);
   let bw,bh;
-  if(land){bw=vw;bh=vh;}
+  if(land){const ins=safeInsets();bw=vw-ins.l-ins.r;bh=vh-ins.t;}
   else{const cab=document.querySelector('.cab'),head=document.querySelector('header').offsetHeight+12,pad=document.getElementById('pad');
     bw=Math.min(cab.clientWidth||vw-32,vw-32);const below=coarse?pad.offsetHeight+24:70;bh=Math.max(180,vh-head-below-24);}
   const a=bw/bh;let nW,nH;
@@ -132,6 +134,8 @@ function layout(){
   try{for(const st of stars){if(st.x>W)st.x=Math.random()*W;if(st.y>H)st.y=TOP+Math.random()*(H-TOP)*.75;}}catch(e){}
   fit();
 }
+function safeInsets(){try{const c=getComputedStyle(insetProbe);return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0};}catch(e){return{t:0,r:0,b:0,l:0};}}
+const insetProbe=document.createElement('div');insetProbe.style.cssText='position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)';document.body.appendChild(insetProbe);
 layout();addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,250));
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
 if(window.ResizeObserver)new ResizeObserver(fit).observe(cv);
@@ -243,6 +247,13 @@ fsBtn.addEventListener('click',e=>{e.stopPropagation();if(isFS()){fsWanted=false
 document.addEventListener('pointerdown',e=>{if(canFS&&fsWanted&&!isFS()&&matchMedia('(pointer:coarse)').matches&&e.target!==fsBtn)goFS();},true);
 const onFs=()=>{setFsUI();layout();setTimeout(layout,120);setTimeout(layout,400);};
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
+
+/* ---------- iPhone: home-screen app = full screen ---------- */
+(()=>{const ios=/iPhone|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches;
+  let top=true;try{top=window.top===window;}catch(e){top=false;}
+  if(ios&&!standalone&&top){const st=document.getElementById('gstat');st.textContent='Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies "Zet op beginscherm". Start het spel daarna via het Fuel Run-icoon.';st.hidden=false;
+    const hide=()=>{if(st.textContent.startsWith('Volledig scherm op iPhone'))st.hidden=true;};setTimeout(hide,12000);st.addEventListener('click',hide);}
+})();
 
 /* ---------- gyro ---------- */
 const gyroBtn=document.getElementById('gyro'),gstat=document.getElementById('gstat');
