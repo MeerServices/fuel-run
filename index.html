@@ -207,7 +207,7 @@ function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
   if(a===90){tx=b;ty=-g;}else if(a===-90||a===270){tx=-b;ty=g;}else if(a===180){tx=-g;ty=-b;}else{tx=g;ty=b;}
   if(gyro.need){gyro.zx=tx;gyro.zy=ty;gyro.need=false;}
   const f=d=>{const m=Math.abs(d);return m<3?0:Math.sign(d)*Math.min(1,(m-3)/14);};
-  gyro.ax=f(tx-gyro.zx);gyro.ay=-f(ty-gyro.zy);}
+  gyro.ax=f(tx-gyro.zx);gyro.ay=f(ty-gyro.zy);}
 function setGyroUI(){gyroBtn.textContent=gyro.on?'GYRO AAN':'GYRO UIT';gyroBtn.setAttribute('aria-pressed',String(gyro.on));}
 function gyroOff(){gyro.on=false;gyro.ax=gyro.ay=0;removeEventListener('deviceorientation',onOri);setGyroUI();}
 async function gyroOn(){
