@@ -106,7 +106,7 @@ html.land .btn{opacity:.6}
   </div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>Z + X</b> vasthouden: schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Houd vuur en bom tegelijk ingedrukt voor een schild van 5 seconden, ook 3 keer per ronde. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 14 · volledig scherm ook op iPhone (via beginscherm)</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 15 · startscherm en highscores wisselen om de 5 seconden</p>
 </div>
 
 <script>
@@ -518,8 +518,8 @@ function update(dt){
   frame+=dt;shake*=Math.pow(.88,dt);if(shake<.05)shake=0;
   const inp=input();
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
-  if(state==='title'){titleIdle+=dt;if(titleIdle>1500){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
-  if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=360;}}stepFx(dt);return;}
+  if(state==='title'){titleIdle+=dt;if(titleIdle>1800){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
+  if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
   if(state==='name'){stepFx(dt);return;}
   if(state==='scores'){timer-=dt;if(timer<=0||(timer<600&&inp.press)){toTitle();}stepFx(dt);return;}
   if(state==='intro'){if(inp.press){toTitle();return;}introUpdate(dt);if(state!=='intro')return;}
@@ -988,7 +988,7 @@ function draw(){
   if(flashW>0){ctx.fillStyle=`rgba(255,248,235,${Math.min(1,flashW*1.2)})`;ctx.fillRect(0,TOP,W,H-TOP);}
   if(state==='intro')drawIntro();
   drawHUD();
-  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/360)%2===1)){drawBoard(state==='scores');
+  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%2===1)){drawBoard(state==='scores');
     if((frame|0)%60<38)text(state==='scores'?'DRUK OP VUUR OM VERDER TE GAAN':(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN'),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
   else if(state==='title'){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
