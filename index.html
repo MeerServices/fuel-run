@@ -47,6 +47,20 @@ html.land .btn{opacity:.6}
 .entry input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .entry .row{display:flex;gap:8px;width:100%}
 [hidden]{display:none!important}
+.settings{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(4,6,15,.72);border-radius:8px;z-index:6}
+.settings form{background:var(--panel);border:1px solid var(--rim);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;width:min(100%,540px);max-height:100%;box-sizing:border-box;overflow:auto;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.settings h2{font-family:var(--display);font-weight:400;font-size:15px;margin:0;color:var(--cyan);letter-spacing:.06em}
+.settings .sub{font-size:12px;color:var(--dim);margin:0;line-height:1.4}
+.settings h3{font-family:var(--display);font-weight:400;font-size:11px;letter-spacing:.08em;color:var(--amber);margin:6px 0 0}
+.settings .set{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,150px) 46px;gap:8px;align-items:center}
+.settings .set label{font-size:13px;color:var(--ink);min-width:0}
+.settings input[type=range]{width:100%;accent-color:var(--cyan)}
+.settings output{font-size:13px;color:var(--cyan);text-align:right;font-variant-numeric:tabular-nums}
+.settings .row{display:flex;gap:8px;margin-top:4px}
+.settings button{flex:1;font-family:var(--display);font-size:11px;letter-spacing:.06em;padding:9px 6px;border-radius:4px;cursor:pointer}
+.settings .save{background:var(--cyan);color:#06221f;border:1px solid var(--cyan)}
+.settings .skip{background:transparent;color:var(--dim);border:1px solid var(--rim)}
+.settings button:focus-visible,.settings input:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .entry button{flex:1;font-family:var(--display);font-size:12px;letter-spacing:.06em;padding:9px 8px;border-radius:4px;cursor:pointer}
 .entry .save{background:var(--cyan);color:#06221f;border:1px solid var(--cyan)}
 .entry .skip{background:transparent;color:var(--dim);border:1px solid var(--rim)}
@@ -86,6 +100,14 @@ html.land .btn{opacity:.6}
   <p class="hint gstat" id="gstat" hidden></p>
   <div class="stage">
     <canvas class="screen" id="screen" width="1280" height="800" aria-label="Fuel Run spelscherm"></canvas>
+    <div class="settings" id="settings" hidden>
+      <form id="setForm" autocomplete="off">
+        <h2>INSTELLINGEN</h2>
+        <p class="sub">Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.</p>
+        <div id="setGrid"></div>
+        <div class="row"><button type="button" class="skip" id="setDef">STANDAARD</button><button type="button" class="skip" id="setCancel">ANNULEREN</button><button type="submit" class="save">OPSLAAN</button></div>
+      </form>
+    </div>
     <div class="entry" id="entry" hidden>
       <form id="entryForm" autocomplete="off">
         <h2>NIEUWE HIGH SCORE</h2>
@@ -106,7 +128,7 @@ html.land .btn{opacity:.6}
   </div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>Z + X</b> vasthouden: schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Houd vuur en bom tegelijk ingedrukt voor een schild van 5 seconden, ook 3 keer per ronde. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 15 · startscherm en highscores wisselen om de 5 seconden</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 16 · instellingen (toets G) en lineaire besturing</p>
 </div>
 
 <script>
@@ -212,7 +234,7 @@ function genWorld(){
 let state='title',scroll=0,speed=.9,score=0,hi=0,lives=3,nextLife=10000,fuel=100,flags=0,curStage=0;
 let p={x:48,y:100},lasers=[],bombs=[],enemies=[],parts=[],flashes=[],pops=[],banner=null,shake=0;
 let fireCd=0,bombCd=0,spawnT=60,timer=0,frame=0,paused=false,lowBeep=0;
-let shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
+let bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
 try{hi=+localStorage.getItem('fuelrun.hi')||0}catch(e){}
 const saveHi=()=>{try{localStorage.setItem('fuelrun.hi',hi)}catch(e){}};
 const stars=Array.from({length:90},()=>({x:Math.random()*W,y:TOP+Math.random()*(H-TOP)*.75,z:.05+Math.random()*.2,r:.35+Math.random()*.7,p:Math.random()*6}));
@@ -255,6 +277,45 @@ document.addEventListener('fullscreenchange',onFs);document.addEventListener('we
     const hide=()=>{if(st.textContent.startsWith('Volledig scherm op iPhone'))st.hidden=true;};setTimeout(hide,12000);st.addEventListener('click',hide);}
 })();
 
+/* ---------- settings (key G) ---------- */
+const DEF={v0:.6,acc:2.4,vmax:2.6,gyroDeg:14,bombs:0,bombAir:2,lasers:3,nukes:3,shields:3,shieldSec:5,lives:3,speed:100,fuel:100,enemies:100};
+const SPEC=[['Besturing'],['v0','Startsnelheid',.2,2,.1,''],['acc','Versnelling per seconde',0,6,.2,''],['vmax','Topsnelheid',.5,5,.1,''],['gyroDeg','Gyro: kantelen voor topsnelheid',5,40,1,'°'],
+  ['Wapens'],['bombs','Bommen per ronde (0 = onbeperkt)',0,99,1,''],['bombAir','Bommen tegelijk in de lucht',1,6,1,''],['lasers','Laserschoten tegelijk',1,8,1,''],
+  ['nukes','Nukes per ronde',0,9,1,''],['shields','Schilden per ronde',0,9,1,''],['shieldSec','Duur van het schild',1,20,1,' s'],
+  ['Spel'],['lives','Levens',1,9,1,''],['speed','Spelsnelheid',50,200,10,'%'],['fuel','Brandstofverbruik',0,300,10,'%'],['enemies','Aantal vijanden',25,300,25,'%']];
+let cfg={...DEF};
+try{const st=JSON.parse(localStorage.getItem('fuelrun.cfg')||'{}');for(const k in DEF)if(typeof st[k]==='number'&&isFinite(st[k]))cfg[k]=st[k];}catch(e){}
+const setEl=document.getElementById('settings'),setGrid=document.getElementById('setGrid');
+const fmtV=(k,v,u)=>(Number.isInteger(v)?String(v):v.toFixed(1))+u;
+for(const sp of SPEC){
+  if(sp.length===1){const h=document.createElement('h3');h.textContent=sp[0];setGrid.appendChild(h);continue;}
+  const[k,label,min,max,step,u]=sp,row=document.createElement('div');row.className='set';
+  const lb=document.createElement('label');lb.htmlFor='set_'+k;lb.textContent=label;
+  const inp=document.createElement('input');inp.type='range';inp.id='set_'+k;inp.min=min;inp.max=max;inp.step=step;
+  const out=document.createElement('output');out.id='out_'+k;out.htmlFor='set_'+k;
+  inp.addEventListener('input',()=>{out.textContent=fmtV(k,+inp.value,u);});
+  row.append(lb,inp,out);setGrid.appendChild(row);}
+function fillForm(c){for(const sp of SPEC){if(sp.length===1)continue;const[k,, , , ,u]=sp,i=document.getElementById('set_'+k);i.value=c[k];document.getElementById('out_'+k).textContent=fmtV(k,+i.value,u);}}
+let setOpen=false,setPaused=false;
+function openSettings(){if(setOpen)return;setOpen=true;fillForm(cfg);setEl.hidden=false;if(state==='play'&&!paused){paused=true;setPaused=true;}
+  for(const k in keys)keys[k]=false;setTimeout(()=>{try{document.getElementById('set_v0').focus();}catch(e){}},30);}
+function closeSettings(){if(!setOpen)return;setOpen=false;setEl.hidden=true;if(setPaused){paused=false;setPaused=false;}try{document.activeElement.blur();}catch(e){}}
+document.getElementById('setForm').addEventListener('submit',e=>{e.preventDefault();
+  for(const sp of SPEC){if(sp.length===1)continue;cfg[sp[0]]=+document.getElementById('set_'+sp[0]).value;}
+  if(cfg.vmax<cfg.v0)cfg.vmax=cfg.v0;
+  try{localStorage.setItem('fuelrun.cfg',JSON.stringify(cfg));}catch(_){}closeSettings();});
+document.getElementById('setCancel').addEventListener('click',closeSettings);
+document.getElementById('setDef').addEventListener('click',()=>fillForm(DEF));
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+  if(setOpen){if(k==='escape'||k==='g'){e.preventDefault();e.stopImmediatePropagation();closeSettings();}return;}
+  if(k==='g'&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();openSettings();}},true);
+let hudTaps=[];
+cv.addEventListener('pointerdown',e=>{const r=cv.getBoundingClientRect();if((e.clientY-r.top)/r.height*H>TOP)return;const now=performance.now();
+  hudTaps=hudTaps.filter(t=>now-t<2000);hudTaps.push(now);if(hudTaps.length>=5){hudTaps=[];openSettings();}});
+const mvx={t:0,d:0},mvy={t:0,d:0};
+function axisVel(a,st,dt){if(!a){st.t=0;st.d=0;return 0;}const d=Math.sign(a);if(d!==st.d){st.t=0;st.d=d;}st.t+=dt/60;
+  return a*Math.min(Math.max(cfg.vmax,cfg.v0),cfg.v0+cfg.acc*st.t);}
+
 /* ---------- gyro ---------- */
 const gyroBtn=document.getElementById('gyro'),gstat=document.getElementById('gstat');
 const gyro={on:false,ax:0,ay:0,zx:0,zy:0,need:true,got:false};
@@ -264,7 +325,7 @@ function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
   const a=(screen.orientation&&screen.orientation.angle)??window.orientation??0,b=e.beta,g=e.gamma;let tx,ty;
   if(a===90){tx=b;ty=-g;}else if(a===-90||a===270){tx=-b;ty=g;}else if(a===180){tx=-g;ty=-b;}else{tx=g;ty=b;}
   if(gyro.need){gyro.zx=tx;gyro.zy=ty;gyro.need=false;}
-  const f=d=>{const m=Math.abs(d);return m<3?0:Math.sign(d)*Math.min(1,(m-3)/14);};
+  const f=d=>{const m=Math.abs(d);return m<3?0:Math.sign(d)*Math.min(1,(m-3)/Math.max(1,cfg.gyroDeg-3));};
   gyro.ax=f(tx-gyro.zx);gyro.ay=f(ty-gyro.zy);}
 function setGyroUI(){gyroBtn.textContent=gyro.on?'GYRO AAN':'GYRO UIT';gyroBtn.setAttribute('aria-pressed',String(gyro.on));}
 function gyroOff(){gyro.on=false;gyro.ax=gyro.ay=0;removeEventListener('deviceorientation',onOri);setGyroUI();}
@@ -305,14 +366,14 @@ function input(){
 /* ---------- game flow ---------- */
 function addScore(n){if(state==='intro')return;score+=n;if(score>=nextLife){lives++;nextLife+=10000;tone('square',660,1320,.3,.05);}if(score>hi){hi=score;}}
 function show(text,sub){banner={text,sub,t:130};}
-function newGame(){gyroZero();playTime=0;nukes=3;shields=3;score=0;lives=3;nextLife=10000;flags=0;loop=0;curStage=0;speed=.9;respawn(0);}
+function newGame(){gyroZero();playTime=0;nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;score=0;lives=cfg.lives;nextLife=10000;flags=0;loop=0;curStage=0;speed=.9*cfg.speed/100;respawn(0);}
 function respawn(s){
   genWorld();curStage=s;
   scroll=Math.max(0,starts[s]*COL-48);p.x=48;
   let lo=TOP,hiF=H;const c0=Math.floor((scroll+p.x-12)/COL);
   for(let c=c0;c<c0+6;c++){lo=Math.max(lo,ceilA[c]);hiF=Math.min(hiF,floorA[c]);}
   p.y=Math.round((lo+hiF)/2);
-  lasers=[];bombs=[];enemies=[];nukesFly=[];nukeFx=[];flashW=0;shieldT=0;comboT=0;comboUsed=false;fuel=100;fireCd=bombCd=0;spawnT=60;missileT=200;state='play';
+  lasers=[];bombs=[];enemies=[];nukesFly=[];nukeFx=[];flashW=0;shieldT=0;comboT=0;comboUsed=false;mvx.t=mvy.t=0;fuel=100;fireCd=bombCd=0;spawnT=60;missileT=200;state='play';
   show(`FASE ${s+1}  ${STAGES[s].name}`,loop?`RONDE ${loop+1}`:'');
 }
 function die(){
@@ -361,7 +422,7 @@ function drawShield(x,y){
   ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
   ctx.strokeStyle=`rgba(190,248,255,${.65*a})`;ctx.lineWidth=.6;
   for(let i=0;i<6;i++){const q=frame*.05+i*Math.PI/3;ctx.beginPath();ctx.arc(x,y,r+.8,q,q+.55);ctx.stroke();}
-  ctx.strokeStyle='rgba(215,255,63,.85)';ctx.lineWidth=.9;ctx.beginPath();ctx.arc(x,y,r+2.6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,shieldT/300));ctx.stroke();
+  ctx.strokeStyle='rgba(215,255,63,.85)';ctx.lineWidth=.9;ctx.beginPath();ctx.arc(x,y,r+2.6,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,shieldT/(state==='intro'?300:cfg.shieldSec*60)));ctx.stroke();
   ctx.globalCompositeOperation='source-over';
 }
 function crater(x,r,d,big){
@@ -517,6 +578,7 @@ function drawIntro(){
 function update(dt){
   frame+=dt;shake*=Math.pow(.88,dt);if(shake<.05)shake=0;
   const inp=input();
+  if(setOpen)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
   if(state==='title'){titleIdle+=dt;if(titleIdle>1800){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
@@ -530,37 +592,39 @@ function update(dt){
     scroll+=speed*dt;
     const col=Math.floor((scroll+p.x)/COL);
     {let s=0;for(let i=0;i<4;i++)if(col>=starts[i])s=i;if(s!==curStage){curStage=s;show(`FASE ${s+1}  ${STAGES[s].name}`,'');tone('square',440,880,.25,.04);}}
-    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15);genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=3;shields=3;show(`RONDE ${loop+1}`,'SNELLER · NUKES EN SCHILDEN AANGEVULD');}
+    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;show(`RONDE ${loop+1}`,'SNELLER · WAPENS AANGEVULD');}
 
-    const sp=1.7;
-    p.x+=inp.ax*sp*dt;
-    if(fuel>0)p.y+=inp.ay*sp*dt;else p.y+=Math.max(.9,inp.ay*sp)*dt;
+    const vx=axisVel(inp.ax,mvx,dt),vy=axisVel(inp.ay,mvy,dt);
+    p.x+=vx*dt;
+    if(fuel>0)p.y+=vy*dt;else p.y+=Math.max(.9,vy)*dt;
     p.x=Math.max(12,Math.min(170,p.x));p.y=Math.max(TOP+5,Math.min(H-4,p.y));
     if(Math.random()<.5*dt)parts.push({k:1,x:scroll+p.x-9,y:p.y+(Math.random()-.5),vx:-.3,vy:0,life:22,max:22,r:.6,g:.05,a:.18});
 
     playTime+=dt/60;
-    fuel-=.042*(1+loop*.1)*dt;
+    fuel-=.042*(1+loop*.1)*dt*cfg.fuel/100;
     if(fuel<0)fuel=0;
     if(fuel<22&&(lowBeep-=dt)<=0){lowBeep=36;tone('square',220,200,.08,.04);}
 
     fireCd-=dt;bombCd-=dt;
     if(inp.fire&&inp.bomb){comboT+=dt;if(comboT>=12&&!comboUsed){comboUsed=true;
-        if(shieldT>0){}else if(shields>0){shields--;shieldT=300;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
+        if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
         else pop(scroll+p.x+14,p.y-12,'GEEN SCHILDEN MEER','#ff5f7a');}}
     else{comboT=0;comboUsed=false;}
-    if(inp.fire&&fireCd<=0&&lasers.length<3){lasers.push({x:scroll+p.x+8,y:p.y});fireCd=9;tone('square',1400,300,.07,.035);}
+    if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push({x:scroll+p.x+8,y:p.y});fireCd=9;tone('square',1400,300,.07,.035);}
     if(inp.nuke){if(nukes>0&&!nukesFly.length){nukes--;nukesFly.push({x:scroll+p.x,y:p.y+4,vx:speed+1.6,vy:-.3});tone('sawtooth',220,70,.7,.06);}
       else if(!nukes)pop(scroll+p.x+14,p.y-10,'GEEN NUKES MEER','#ff5f7a');}
-    if(inp.bomb&&bombCd<=0&&bombs.length<2){bombs.push({x:scroll+p.x,y:p.y+4,vx:speed+1.1,vy:.3});bombCd=20;tone('triangle',700,140,.3,.06);}
+    if(inp.bomb&&bombCd<=0&&bombs.length<cfg.bombAir){
+      if(cfg.bombs>0&&bombsLeft<=0){bombCd=40;pop(scroll+p.x+14,p.y+10,'GEEN BOMMEN MEER','#ff5f7a');}
+      else{if(cfg.bombs>0)bombsLeft--;bombs.push({x:scroll+p.x,y:p.y+4,vx:speed+1.1,vy:.3});bombCd=20;tone('triangle',700,140,.3,.06);}}
 
     const st=curStage,into=col-starts[st],len=STAGES[st].cols;
     if((spawnT-=dt)<=0&&into>10&&into<len-12&&col<starts[3]+STAGES[3].cols){
       const sx=scroll+W+10,c2=clampI(Math.floor(sx/COL));
-      if(st===1){const f=floorA[c2],c=ceilA[c2];enemies.push({t:'saucer',x:sx,base:(f+c)/2,y:(f+c)/2,amp:Math.max(4,Math.min(16,(f-c)/2-12)),ph:Math.random()*6,vx:-.45,alive:true});spawnT=55+Math.random()*50;}
-      else if(st===2){enemies.push({t:'fireball',x:sx,y:TOP+10+Math.random()*58,vx:-2.2-loop*.3,alive:true});spawnT=45+Math.random()*45;}
+      if(st===1){const f=floorA[c2],c=ceilA[c2];enemies.push({t:'saucer',x:sx,base:(f+c)/2,y:(f+c)/2,amp:Math.max(4,Math.min(16,(f-c)/2-12)),ph:Math.random()*6,vx:-.45,alive:true});spawnT=(55+Math.random()*50)*100/cfg.enemies;}
+      else if(st===2){enemies.push({t:'fireball',x:sx,y:TOP+10+Math.random()*58,vx:-2.2-loop*.3,alive:true});spawnT=(45+Math.random()*45)*100/cfg.enemies;}
       else spawnT=60;
     }
-    if(st===3&&into>10&&col<starts[3]+STAGES[3].cols-6&&(missileT-=dt)<=0){missileT=spawnMissile()?150/(1+loop*.3)*(.7+Math.random()*.6):30;}
+    if(st===3&&into>10&&col<starts[3]+STAGES[3].cols-6&&(missileT-=dt)<=0){missileT=spawnMissile()?150/(1+loop*.3)*(.7+Math.random()*.6)*100/cfg.enemies:30;}
   } else if(state==='dying'){
     timer-=dt;
     if(timer<=0){if(lives>0)respawn(curStage);else{state='over';timer=170;if(score>=hi)saveHi();}}
@@ -943,8 +1007,10 @@ function drawHUD(){
     if((frame|0)%60<40)text(matchMedia('(pointer:coarse)').matches?'TIK OM OVER TE SLAAN':'DRUK OP VUUR OM OVER TE SLAAN',W-5,8,'#8d93bd','right',SMALL);
     return;}
   text('1UP',5,2.5,'#ff5fa8');text(pad6(score),24,2.5,'#eef1ff');
-  for(let i=0;i<3;i++)trefoil(68+i*9,7,3.3,i<nukes);
-  for(let i=0;i<3;i++)shieldIcon(102+i*8.5,7,i<shields);
+  trefoil(68,7,3.3,nukes>0);text('×'+nukes,72.6,3.6,nukes>0?'#ffd84f':'#5a5f80','left',SMALL);
+  shieldIcon(88,7,shields>0);text('×'+shields,92.4,3.6,shields>0?'#5fe6ff':'#5a5f80','left',SMALL);
+  if(cfg.bombs>0){ctx.fillStyle=bombsLeft>0?'#c9cdd8':'#3a3f5a';ctx.beginPath();ctx.ellipse(107,7,2.6,1.6,0,0,7);ctx.fill();ctx.fillRect(103.6,5.4,1,3.2);
+    text('×'+bombsLeft,111,3.6,bombsLeft>0?'#eef1ff':'#5a5f80','left',SMALL);}
   text('HI',W/2-24,2.5,'#ff5fa8');text(pad6(hi),W/2-11,2.5,'#eef1ff');
   const n=Math.min(lives-(state==='play'||state==='dying'?1:0),6);
   for(let i=0;i<n;i++){ctx.save();ctx.translate(W-12-i*14,7);ctx.scale(.6,.6);drawShip(0,0,true);ctx.restore();}
@@ -997,8 +1063,8 @@ function draw(){
     text('PUNTENTABEL',160,58,'#8d93bd','center',SMALL);
     const rows=[['rocket','50  /  80 IN DE LUCHT','#eef1ff'],['fuel','150  +  BRANDSTOF','#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile','100  AANVALSRAKET','#ff9a6a'],['core','1000  BASIS','#ff6fb3']];
     rows.forEach(([t,s,c],i)=>{const y=78+i*14.5;if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else{ctx.save();if(t==='core'){ctx.translate(104,y);ctx.scale(.23,.23);ctx.translate(-104,-y);}drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
-    trefoil(104,160,3.6,true);text('NUKE  ·  3 PER RONDE  ·  NODIG VOOR DE BASIS',124,157,'#d7ff3f','left',SMALL);
-    shieldIcon(104,169.5,true);text('SCHILD  ·  VUUR + BOM VASTHOUDEN  ·  5 SEC  ·  3×',124,167,'#5fe6ff','left',SMALL);
+    trefoil(104,160,3.6,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,157,'#d7ff3f','left',SMALL);
+    shieldIcon(104,169.5,true);text(`SCHILD  ·  VUUR + BOM VASTHOUDEN  ·  ${cfg.shieldSec} SEC  ·  ${cfg.shields}×`,124,167,'#5fe6ff','left',SMALL);
     if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN',160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
