@@ -37,7 +37,9 @@ html.land .pad{position:fixed;left:0;right:0;bottom:0;z-index:3;pointer-events:n
 html.land .pad>*{pointer-events:auto}
 html.land .stick{opacity:.5;background:radial-gradient(circle,rgba(18,20,42,.6) 55%,rgba(10,11,28,.6))}
 html.land .btn{opacity:.6}
-.entry{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(4,6,15,.55);border-radius:8px}
+html.modal .pad{visibility:hidden}
+html.land.modal header{display:none}
+.entry{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(4,6,15,.55);border-radius:8px}
 .entry form{background:var(--panel);border:1px solid var(--rim);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(100%,300px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .entry h2{font-family:var(--display);font-weight:400;font-size:15px;margin:0;color:var(--amber);letter-spacing:.06em;text-align:center}
 .entry p{font-size:13px;color:var(--dim);margin:0;text-align:center;font-variant-numeric:tabular-nums}
@@ -95,10 +97,10 @@ html.three .lay{display:block}
   <header>
     <h1>FUEL RUN</h1>
     <div class="hbtns">
-      <button class="snd" id="b3d" aria-pressed="false">3D UIT</button>
-      <button class="snd" id="fsb" aria-pressed="false">VOL SCHERM</button>
-      <button class="snd" id="gyro" aria-pressed="false">GYRO UIT</button>
-      <button class="snd" id="snd" aria-pressed="true">GELUID AAN</button>
+      <button class="snd" id="b3d" title="3D-weergave aan of uit" aria-pressed="false">3D</button>
+      <button class="snd" id="fsb" title="Volledig scherm aan of uit" aria-pressed="false">SCHERM</button>
+      <button class="snd" id="gyro" title="Besturen door kantelen aan of uit" aria-pressed="false">GYRO</button>
+      <button class="snd" id="snd" title="Geluid aan of uit" aria-pressed="true">GELUID</button>
     </div>
   </header>
   <p class="hint gstat" id="gstat" hidden></p>
@@ -136,7 +138,7 @@ html.three .lay{display:block}
   </div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>Z + X</b> vasthouden: schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Houd vuur en bom tegelijk ingedrukt voor een schild van 5 seconden, ook 3 keer per ronde. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 17 · 3D-weergave (knop 3D)</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 18 · kortere knoppen, highscore loopt niet meer vast</p>
 </div>
 
 <script>
@@ -152,6 +154,8 @@ const stageEl=document.querySelector('.stage'),rootEl=document.documentElement;
 const isFS=()=>!!(document.fullscreenElement||document.webkitFullscreenElement);
 function layout(){
   const vw=window.innerWidth,vh=window.innerHeight,coarse=matchMedia('(pointer:coarse)').matches,land=(coarse||isFS())&&vw>vh;
+  const typing=document.activeElement&&document.activeElement.tagName==='INPUT'&&document.activeElement.type!=='range';
+  if(typing&&rootEl.classList.contains('land')!==land)return;
   rootEl.classList.toggle('land',land);
   let bw,bh;
   if(land){const ins=safeInsets();bw=vw-ins.l-ins.r;bh=vh-ins.t;}
@@ -268,17 +272,17 @@ function tone(type,f1,f2,dur,vol){if(!ac||muted)return;const t=ac.currentTime,o=
 function boom(dur,vol){if(!ac||muted)return;if(!noiseBuf){noiseBuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
   const t=ac.currentTime,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noiseBuf;fl.type='lowpass';fl.frequency.setValueAtTime(2000,t);fl.frequency.exponentialRampToValueAtTime(100,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(fl).connect(g).connect(ac.destination);s.start(t);s.stop(t+dur);}
 const sndBtn=document.getElementById('snd');
-sndBtn.onclick=()=>{ensureAudio();muted=!muted;sndBtn.textContent=muted?'GELUID UIT':'GELUID AAN';sndBtn.setAttribute('aria-pressed',String(!muted));sndBtn.blur();};
+sndBtn.onclick=()=>{ensureAudio();muted=!muted;sndBtn.textContent='GELUID';sndBtn.setAttribute('aria-pressed',String(!muted));sndBtn.blur();};
 
 /* ---------- fullscreen ---------- */
 const fsBtn=document.getElementById('fsb');let fsWanted=true;
 const canFS=!!(rootEl.requestFullscreen||rootEl.webkitRequestFullscreen);
 function goFS(){try{const f=rootEl.requestFullscreen||rootEl.webkitRequestFullscreen;const r=f.call(rootEl,{navigationUI:'hide'});if(r&&r.catch)r.catch(()=>{});}catch(e){}}
 function exitFS(){try{const f=document.exitFullscreen||document.webkitExitFullscreen;const r=f.call(document);if(r&&r.catch)r.catch(()=>{});}catch(e){}}
-function setFsUI(){fsBtn.setAttribute('aria-pressed',String(isFS()));fsBtn.textContent=isFS()?'VOL SCHERM UIT':'VOL SCHERM';}
+function setFsUI(){fsBtn.setAttribute('aria-pressed',String(isFS()));fsBtn.textContent='SCHERM';}
 if(!canFS)fsBtn.hidden=true;
 fsBtn.addEventListener('click',e=>{e.stopPropagation();if(isFS()){fsWanted=false;exitFS();}else{fsWanted=true;goFS();}fsBtn.blur();});
-document.addEventListener('pointerdown',e=>{if(canFS&&fsWanted&&!isFS()&&matchMedia('(pointer:coarse)').matches&&e.target!==fsBtn)goFS();},true);
+document.addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('.entry,.settings,header'))return;if(canFS&&fsWanted&&!isFS()&&matchMedia('(pointer:coarse)').matches)goFS();},true);
 const onFs=()=>{setFsUI();layout();setTimeout(layout,120);setTimeout(layout,400);};
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 
@@ -309,9 +313,9 @@ for(const sp of SPEC){
   row.append(lb,inp,out);setGrid.appendChild(row);}
 function fillForm(c){for(const sp of SPEC){if(sp.length===1)continue;const[k,, , , ,u]=sp,i=document.getElementById('set_'+k);i.value=c[k];document.getElementById('out_'+k).textContent=fmtV(k,+i.value,u);}}
 let setOpen=false,setPaused=false;
-function openSettings(){if(setOpen)return;setOpen=true;fillForm(cfg);setEl.hidden=false;if(state==='play'&&!paused){paused=true;setPaused=true;}
+function openSettings(){if(setOpen)return;setOpen=true;rootEl.classList.add('modal');fillForm(cfg);setEl.hidden=false;if(state==='play'&&!paused){paused=true;setPaused=true;}
   for(const k in keys)keys[k]=false;setTimeout(()=>{try{document.getElementById('set_v0').focus();}catch(e){}},30);}
-function closeSettings(){if(!setOpen)return;setOpen=false;setEl.hidden=true;if(setPaused){paused=false;setPaused=false;}try{document.activeElement.blur();}catch(e){}}
+function closeSettings(){if(!setOpen)return;setOpen=false;if(entryEl.hidden)rootEl.classList.remove('modal');setEl.hidden=true;if(setPaused){paused=false;setPaused=false;}try{document.activeElement.blur();}catch(e){}}
 document.getElementById('setForm').addEventListener('submit',e=>{e.preventDefault();
   for(const sp of SPEC){if(sp.length===1)continue;cfg[sp[0]]=+document.getElementById('set_'+sp[0]).value;}
   if(cfg.vmax<cfg.v0)cfg.vmax=cfg.v0;
@@ -339,7 +343,7 @@ function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
   if(gyro.need){gyro.zx=tx;gyro.zy=ty;gyro.need=false;}
   const f=d=>{const m=Math.abs(d);return m<3?0:Math.sign(d)*Math.min(1,(m-3)/Math.max(1,cfg.gyroDeg-3));};
   gyro.ax=f(tx-gyro.zx);gyro.ay=f(ty-gyro.zy);}
-function setGyroUI(){gyroBtn.textContent=gyro.on?'GYRO AAN':'GYRO UIT';gyroBtn.setAttribute('aria-pressed',String(gyro.on));}
+function setGyroUI(){gyroBtn.textContent='GYRO';gyroBtn.setAttribute('aria-pressed',String(gyro.on));}
 function gyroOff(){gyro.on=false;gyro.ax=gyro.ay=0;removeEventListener('deviceorientation',onOri);setGyroUI();}
 async function gyroOn(){
   if(!('DeviceOrientationEvent' in window)){say('Dit apparaat heeft geen bewegingssensor die het spel kan lezen.');return;}
@@ -471,28 +475,30 @@ const fmtDate=ms=>{const d=new Date(ms),z=n=>String(n).padStart(2,'0');return `$
 const cleanName=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9 \-]/g,'').trim().slice(0,10);
 function validEntry(e){return e&&typeof e.score==='number'&&isFinite(e.score);}
 function loadLocal(){try{board.list=(JSON.parse(localStorage.getItem('fuelrun.scores')||'[]')||[]).filter(validEntry);}catch(e){board.list=[];}hi=Math.max(hi,board.list[0]?.score||0);}
-function saveLocal(e){const l=[...board.list,e].sort((a,b)=>b.score-a.score).slice(0,10);if(!board.db)board.list=l;try{localStorage.setItem('fuelrun.scores',JSON.stringify(l));}catch(_){}}
+function saveLocal(e){let l=[];try{l=(JSON.parse(localStorage.getItem('fuelrun.scores')||'[]')||[]).filter(validEntry);}catch(_){}l=[...l,e].sort((a,b)=>b.score-a.score).slice(0,10);if(!board.db)board.list=l;try{localStorage.setItem('fuelrun.scores',JSON.stringify(l));}catch(_){}}
 loadLocal();
 (async()=>{try{if(!window.claude||!window.claude.use)return;const db=await window.claude.use('db');if(!db)return;board.db=db;
-  db.collection('scores').orderBy('score','desc').limit(10).onSnapshot(snap=>{board.list=snap.docs.map(d=>d.data()).filter(validEntry);hi=Math.max(hi,board.list[0]?.score||0);},()=>{board.db=null;loadLocal();});}catch(e){}})();
+  board.unsub=db.collection('scores').orderBy('score','desc').limit(10).onSnapshot(snap=>{board.list=snap.docs.map(d=>d.data()).filter(validEntry);hi=Math.max(hi,board.list[0]?.score||0);},()=>{board.db=null;loadLocal();});}catch(e){}})();
 function qualifies(){return score>0&&(board.list.length<10||score>board.list[board.list.length-1].score);}
 async function prune(){try{const sn=await board.db.collection('scores').orderBy('score','desc').get();for(const d of sn.docs.slice(30))await board.db.collection('scores').doc(d.id).delete();}catch(e){}}
 async function saveScore(name){
   const e={name,score,time:Math.round(playTime),at:Date.now()};lastEntry=e;
-  if(board.db){try{await board.db.collection('scores').add(e);prune();return;}catch(err){}}
-  board.db=null;saveLocal(e);loadLocal();
+  board.list=[...board.list,e].sort((a,b)=>b.score-a.score).slice(0,10);
+  if(board.db){try{await Promise.race([board.db.collection('scores').add(e),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))]);prune();return;}
+    catch(err){try{board.unsub&&board.unsub();}catch(_){}board.db=null;loadLocal();}}
+  saveLocal(e);
 }
 function openEntry(){
   state='name';document.getElementById('eScore').textContent=pad6(score);document.getElementById('eTime').textContent=fmtTime(playTime);
   let last='';try{last=localStorage.getItem('fuelrun.name')||'';}catch(e){}
-  nameIn.value=cleanName(last);entryEl.hidden=false;
+  nameIn.value=cleanName(last);entryEl.hidden=false;rootEl.classList.add('modal');
   if(!matchMedia('(pointer:coarse)').matches)setTimeout(()=>{try{nameIn.focus();nameIn.select();}catch(e){}},50);
 }
 nameIn.addEventListener('input',()=>{const c=cleanName(nameIn.value.toUpperCase());if(c!==nameIn.value.trim())nameIn.value=c;});
 entryForm.addEventListener('submit',async ev=>{ev.preventDefault();const n=cleanName(nameIn.value)||'ANONIEM';
   try{localStorage.setItem('fuelrun.name',n);}catch(e){}
-  entryEl.hidden=true;nameIn.blur();await saveScore(n);state='scores';timer=720;});
-document.getElementById('eSkip').addEventListener('click',()=>{entryEl.hidden=true;nameIn.blur();toTitle();});
+  entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();state='scores';timer=720;saveScore(n);});
+document.getElementById('eSkip').addEventListener('click',()=>{entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();toTitle();});
 function drawBoard(hl){
   ctx.fillStyle='rgba(4,6,15,.8)';ctx.fillRect(0,TOP,W,H-TOP);
   ctx.save();ctx.translate((W-320)/2,(H-200)/2);
@@ -595,7 +601,7 @@ function update(dt){
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
   if(state==='title'){titleIdle+=dt;if(titleIdle>1800){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
-  if(state==='name'){stepFx(dt);return;}
+  if(state==='name'){if(entryEl.hidden){rootEl.classList.remove('modal');toTitle();}stepFx(dt);return;}
   if(state==='scores'){timer-=dt;if(timer<=0||(timer<600&&inp.press)){toTitle();}stepFx(dt);return;}
   if(state==='intro'){if(inp.press){toTitle();return;}introUpdate(dt);if(state!=='intro')return;}
   if(paused){if(inp.press)paused=false;return;}
@@ -1097,11 +1103,11 @@ function draw(){
 /* ---------- 3D mode (three.js) ---------- */
 const CH3=40;
 const b3d=document.getElementById('b3d');
-function set3dUI(){b3d.setAttribute('aria-pressed',String(mode3d));b3d.textContent=mode3d?'3D AAN':'3D UIT';}
+function set3dUI(){b3d.setAttribute('aria-pressed',String(mode3d));b3d.textContent='3D';}
 function loadThree(){return new Promise((res,rej)=>{if(window.THREE)return res();const sc=document.createElement('script');
   sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=()=>window.THREE?res():rej(new Error('three'));sc.onerror=()=>rej(new Error('load'));document.head.appendChild(sc);});}
 async function enable3d(){
-  b3d.textContent='3D LADEN…';
+  b3d.textContent='3D…';
   try{await loadThree();if(!three)three=init3d();}catch(e){mode3d=false;set3dUI();say('3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.');return;}
   mode3d=true;rootEl.classList.add('three');set3dUI();three.world=null;layout();
 }
