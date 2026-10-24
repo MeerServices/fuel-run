@@ -145,9 +145,9 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <header>
     <h1>FUEL RUN</h1>
     <div class="hbtns">
-      <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar">SCORES</button>
-      <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten">CONFIG</button>
-      <button class="snd" id="fsb" title="Volledig scherm aan of uit" aria-pressed="false">SCHERM</button>
+      <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar" data-i18n-title="Highscores per dag, week, maand en jaar" data-i18n="SCORES">SCORES</button>
+      <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten" data-i18n-title="Knoppen en joystick naar je hand zetten" data-i18n="CONFIG">CONFIG</button>
+      <button class="snd" id="fsb" title="Volledig scherm aan of uit" data-i18n-title="Volledig scherm aan of uit" aria-pressed="false" data-i18n="SCHERM">SCHERM</button>
     </div>
   </header>
   <p class="hint gstat" id="gstat" hidden></p>
@@ -155,85 +155,96 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
     <div class="layers" id="layers">
       <canvas class="lay" id="sky" width="640" height="400" aria-hidden="true"></canvas>
       <canvas class="lay" id="gl" width="640" height="400" aria-hidden="true"></canvas>
-      <canvas class="screen" id="screen" width="1280" height="800" aria-label="Fuel Run spelscherm"></canvas>
+      <canvas class="screen" id="screen" width="1280" height="800" aria-label="Fuel Run spelscherm" data-i18n-aria="Fuel Run spelscherm"></canvas>
       <div class="bonus" id="bonus" hidden role="status" aria-live="polite"><canvas id="fx3d" width="640" height="400" aria-hidden="true"></canvas>
-        <div class="btxt"><div class="bt1" id="bLabel">NIEUWE HIGHSCORE</div><div class="bt2" id="bName"></div><div class="bt3" id="bScore"></div></div></div>
+        <div class="btxt"><div class="bt1" id="bLabel" data-i18n="NIEUWE HIGHSCORE">NIEUWE HIGHSCORE</div><div class="bt2" id="bName"></div><div class="bt3" id="bScore"></div></div></div>
     </div>
     <div class="settings" id="settings" hidden>
       <form id="setForm" autocomplete="off">
-        <h2>INSTELLINGEN</h2>
-        <p class="sub">Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.</p>
+        <h2 data-i18n="INSTELLINGEN">INSTELLINGEN</h2>
+        <p class="sub" data-i18n="Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.">Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.</p>
         <div id="setGrid"></div>
-        <div class="row"><button type="button" class="skip" id="setScores">HIGHSCORES BEHEREN</button></div>
-        <div class="row"><button type="button" class="skip" id="setDef">STANDAARD</button><button type="button" class="skip" id="setCancel">ANNULEREN</button><button type="submit" class="save">OPSLAAN</button></div>
+        <div class="row"><button type="button" class="skip" id="setScores" data-i18n="HIGHSCORES BEHEREN">HIGHSCORES BEHEREN</button></div>
+        <div class="row"><button type="button" class="skip" id="setDef" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="skip" id="setCancel" data-i18n="ANNULEREN">ANNULEREN</button><button type="submit" class="save" data-i18n="OPSLAAN">OPSLAAN</button></div>
       </form>
     </div>
     <div class="entry" id="entry" hidden>
       <form id="entryForm" autocomplete="off">
-        <h2>NIEUWE HIGH SCORE</h2>
-        <p>Score <b id="eScore">0</b> · levensduur <b id="eTime">0:00</b></p>
-        <label for="naam">Je naam (max. 10 tekens)</label>
+        <h2 data-i18n="NIEUWE HIGH SCORE">NIEUWE HIGH SCORE</h2>
+        <p><span data-i18n="Score">Score</span> <b id="eScore">0</b> · <span data-i18n="levensduur">levensduur</span> <b id="eTime">0:00</b></p>
+        <label for="naam" data-i18n="Je naam (max. 10 tekens)">Je naam (max. 10 tekens)</label>
         <input id="naam" name="naam" maxlength="10" required autocapitalize="characters" spellcheck="false" enterkeyhint="done">
-        <div class="row"><button type="button" class="skip" id="eSkip">OVERSLAAN</button><button type="submit" class="save">OPSLAAN</button></div>
+        <div class="row"><button type="button" class="skip" id="eSkip" data-i18n="OVERSLAAN">OVERSLAAN</button><button type="submit" class="save" data-i18n="OPSLAAN">OPSLAAN</button></div>
       </form>
     </div>
   </div>
   <div class="pad" id="pad">
-    <div class="stick" id="stick" aria-label="Bewegen"><div class="knob" id="knob"></div></div>
+    <div class="stick" id="stick" aria-label="Bewegen" data-i18n-aria="Bewegen"><div class="knob" id="knob"></div></div>
     <div class="btns">
-      <button class="btn shield" id="bShield">SCHILD</button>
-      <button class="btn bomb" id="bBomb">BOM</button>
-      <button class="btn fire" id="bFire">VUUR</button>
-      <button class="btn nuke" id="bNuke">NUKE</button>
+      <button class="btn shield" id="bShield" data-i18n="SCHILD">SCHILD</button>
+      <button class="btn bomb" id="bBomb" data-i18n="BOM">BOM</button>
+      <button class="btn fire" id="bFire" data-i18n="VUUR">VUUR</button>
+      <button class="btn nuke" id="bNuke" data-i18n="NUKE">NUKE</button>
     </div>
   </div>
   <div class="settings uicfg" id="uicfg" hidden>
     <form id="uiForm" autocomplete="off">
-      <h2>CONFIG</h2>
-      <p class="sub">Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.</p>
-      <h3>Besturing</h3>
-      <label class="chk" for="ui_gyro"><input type="checkbox" id="ui_gyro"> Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.</label>
-      <label class="chk" for="ui_float"><input type="checkbox" id="ui_float"> Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt</label>
+      <h2 data-i18n="CONFIG">CONFIG</h2>
+      <p class="sub" data-i18n="Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.">Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.</p>
+      <h3 data-i18n="Besturing">Besturing</h3>
+      <label class="chk" for="ui_gyro"><input type="checkbox" id="ui_gyro"> <span data-i18n="Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.">Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.</span></label>
+      <label class="chk" for="ui_float"><input type="checkbox" id="ui_float"> <span data-i18n="Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt">Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt</span></label>
       <p class="sub" id="uiMsg" hidden></p>
-      <h3>Weergave en geluid</h3>
-      <label class="chk" for="ui_3d"><input type="checkbox" id="ui_3d"> <span>3D-weergave <span id="ui3dState" class="dim"></span></span></label>
-      <label class="chk" for="ui_snd"><input type="checkbox" id="ui_snd" checked> Geluid</label>
-      <h3>Dag en nacht</h3>
-      <div class="seg" id="uiTime"><button type="button" data-v="auto">AUTOMATISCH</button><button type="button" data-v="day">DAG</button><button type="button" data-v="night">NACHT</button></div>
+      <h3 data-i18n="Weergave en geluid">Weergave en geluid</h3>
+      <label class="chk" for="ui_3d"><input type="checkbox" id="ui_3d"> <span><span data-i18n="3D-weergave">3D-weergave</span> <span id="ui3dState" class="dim"></span></span></label>
+      <label class="chk" for="ui_snd"><input type="checkbox" id="ui_snd" checked> <span data-i18n="Geluid">Geluid</span></label>
+      <h3 data-i18n="Taal">Taal</h3>
+      <div class="seg" id="uiLang"><button type="button" data-v="nl">NEDERLANDS</button><button type="button" data-v="en">ENGLISH</button></div>
+      <h3 data-i18n="Dag en nacht">Dag en nacht</h3>
+      <div class="seg" id="uiTime"><button type="button" data-v="auto" data-i18n="AUTOMATISCH">AUTOMATISCH</button><button type="button" data-v="day" data-i18n="DAG">DAG</button><button type="button" data-v="night" data-i18n="NACHT">NACHT</button></div>
       <p class="sub" id="uiSun"></p>
-      <h3>Knoppen</h3>
+      <h3 data-i18n="Knoppen">Knoppen</h3>
       <div id="uiRows"></div>
-      <div class="row"><button type="button" class="skip" id="uiMove">KNOPPEN VERPLAATSEN</button></div>
-      <div class="row"><button type="button" class="skip" id="uiDef">STANDAARD</button><button type="button" class="save" id="uiDone">KLAAR</button></div>
+      <div class="row"><button type="button" class="skip" id="uiMove" data-i18n="KNOPPEN VERPLAATSEN">KNOPPEN VERPLAATSEN</button></div>
+      <div class="row"><button type="button" class="skip" id="uiDef" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="uiDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
   <div class="settings uicfg scorep" id="scorep" hidden>
     <form id="scForm" autocomplete="off">
-      <h2>HIGH SCORES</h2>
-      <div class="seg" id="scSrc"><button type="button" data-v="pers">PERSOONLIJK</button><button type="button" data-v="pub">OPENBAAR</button></div>
+      <h2 data-i18n="HIGH SCORES">HIGH SCORES</h2>
+      <div class="seg" id="scSrc"><button type="button" data-v="pers" data-i18n="PERSOONLIJK">PERSOONLIJK</button><button type="button" data-v="pub" data-i18n="OPENBAAR">OPENBAAR</button></div>
       <div class="seg" id="scPer"></div>
       <p class="sub" id="scNote"></p>
-      <div class="tbl"><table><thead><tr><th>#</th><th>SCORE</th><th>LEVENSDUUR</th><th>NAAM</th><th>DATUM · TIJD</th></tr></thead><tbody id="scBody"></tbody></table></div>
-      <div class="row"><button type="button" class="save" id="scDone">KLAAR</button></div>
+      <div class="tbl"><table><thead><tr><th>#</th><th data-i18n="SCORE">SCORE</th><th data-i18n="LEVENSDUUR">LEVENSDUUR</th><th data-i18n="NAAM">NAAM</th><th data-i18n="DATUM · TIJD">DATUM · TIJD</th></tr></thead><tbody id="scBody"></tbody></table></div>
+      <div class="row"><button type="button" class="save" id="scDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
   <div class="settings uicfg" id="mgr" hidden>
     <form id="mgrForm" autocomplete="off">
-      <h2>HIGHSCORES BEHEREN</h2>
-      <div class="seg" id="mgrSrc"><button type="button" data-v="pers">PERSOONLIJK</button><button type="button" data-v="pub">OPENBAAR</button></div>
+      <h2 data-i18n="HIGHSCORES BEHEREN">HIGHSCORES BEHEREN</h2>
+      <div class="seg" id="mgrSrc"><button type="button" data-v="pers" data-i18n="PERSOONLIJK">PERSOONLIJK</button><button type="button" data-v="pub" data-i18n="OPENBAAR">OPENBAAR</button></div>
       <p class="sub" id="mgrNote"></p>
-      <div class="tbl"><table class="mgrt"><thead><tr><th>SCORE</th><th>NAAM</th><th>DATUM · TIJD</th><th></th></tr></thead><tbody id="mgrBody"></tbody></table></div>
-      <div class="row"><button type="button" class="skip" id="mgrClear">ALLES WISSEN</button><button type="button" class="save" id="mgrDone">KLAAR</button></div>
+      <div class="tbl"><table class="mgrt"><thead><tr><th data-i18n="SCORE">SCORE</th><th data-i18n="NAAM">NAAM</th><th data-i18n="DATUM · TIJD">DATUM · TIJD</th><th></th></tr></thead><tbody id="mgrBody"></tbody></table></div>
+      <div class="row"><button type="button" class="skip" id="mgrClear" data-i18n="ALLES WISSEN">ALLES WISSEN</button><button type="button" class="save" id="mgrDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
-  <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
-  <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
-  <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 31 · highscores beheren in het instellingenmenu, geen wit scherm meer</p>
+  <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
+  <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
+  <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 32 · Nederlands of Engels (CONFIG)</p>
 </div>
 
 <script>
 (()=>{
+let LANG=(()=>{try{const u=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(u&&(u.lang==='nl'||u.lang==='en'))return u.lang;}catch(e){}return /^nl/i.test(navigator.language||'')?'nl':'en';})();
+const EN={"SCORES": "SCORES", "CONFIG": "CONFIG", "SCHERM": "SCREEN", "NIEUWE HIGHSCORE": "NEW HIGH SCORE", "INSTELLINGEN": "SETTINGS", "Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.": "Open and close with G. Your ship speeds up linearly from the start speed to the top speed while you hold a direction. Lives, bombs, nukes, shields and game speed apply from the next game.", "HIGHSCORES BEHEREN": "MANAGE HIGH SCORES", "STANDAARD": "DEFAULT", "ANNULEREN": "CANCEL", "OPSLAAN": "SAVE", "NIEUWE HIGH SCORE": "NEW HIGH SCORE", "Score": "Score", "levensduur": "survived", "Je naam (max. 10 tekens)": "Your name (max. 10 characters)", "OVERSLAAN": "SKIP", "SCHILD": "SHIELD", "BOM": "BOMB", "VUUR": "FIRE", "NUKE": "NUKE", "Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.": "Personal to this device. Changes show right away.", "Besturing": "Controls", "Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.": "Gyro: steer by tilting your phone. The position at the start of the game is the zero point.", "Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt": "Floating joystick: touch the left half of the screen and steer from that point", "Weergave en geluid": "Display and sound", "3D-weergave": "3D view", "Geluid": "Sound", "Taal": "Language", "Dag en nacht": "Day and night", "AUTOMATISCH": "AUTOMATIC", "DAG": "DAY", "NACHT": "NIGHT", "Knoppen": "Buttons", "KNOPPEN VERPLAATSEN": "MOVE BUTTONS", "KLAAR": "DONE", "HIGH SCORES": "HIGH SCORES", "PERSOONLIJK": "PERSONAL", "OPENBAAR": "PUBLIC", "SCORE": "SCORE", "LEVENSDUUR": "TIME ALIVE", "NAAM": "NAME", "DATUM · TIJD": "DATE · TIME", "ALLES WISSEN": "CLEAR ALL", "Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.": "Drag the buttons to where you like them. Landscape and portrait are remembered separately.", "Highscores per dag, week, maand en jaar": "High scores per day, week, month and year", "Knoppen en joystick naar je hand zetten": "Set up buttons and joystick", "Volledig scherm aan of uit": "Full screen on or off", "Fuel Run spelscherm": "Fuel Run game screen", "Bewegen": "Move", "Startsnelheid": "Start speed", "Versnelling per seconde": "Acceleration per second", "Topsnelheid": "Top speed", "Gyro: kantelen voor topsnelheid": "Gyro: tilt for top speed", "Bommen per ronde (0 = onbeperkt)": "Bombs per round (0 = unlimited)", "Bommen tegelijk in de lucht": "Bombs in the air at once", "Laserschoten tegelijk": "Laser shots at once", "Schiethoek bij volle snelheid omhoog/omlaag": "Firing angle at full speed up/down", "Nukes per ronde": "Nukes per round", "Schilden per ronde": "Shields per round", "Duur van het schild": "Shield duration", "Levens": "Lives", "Spelsnelheid": "Game speed", "Brandstofverbruik": "Fuel use", "Aantal vijanden": "Number of enemies", "Wapens": "Weapons", "Spel": "Game", "WEEK": "WEEK", "MAAND": "MONTH", "JAAR": "YEAR", "ALTIJD": "ALL TIME", "50  /  80 IN DE LUCHT": "50  /  80 IN FLIGHT", "150  +  BRANDSTOF": "150  +  FUEL", "100  AANVALSRAKET": "100  ATTACK MISSILE", "1000  BASIS": "1000  BASE", "3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.": "3D could not be loaded. Check your internet connection; the game stays in 2D.", "3D werkt niet goed op dit apparaat. Het spel staat weer in 2D.": "3D does not work well on this device. The game is back in 2D.", "ALLEEN EEN NUKE HELPT": "ONLY A NUKE WORKS", "ANONIEM": "ANONYMOUS", "Aanpassen is niet gelukt.": "Could not change the score.", "BASIS NADERT": "BASE AHEAD", "BASIS VERNIETIGD": "BASE DESTROYED", "BRANDSTOF": "FUEL", "DE BASIS": "THE BASE", "DRUK OP VUUR OM OVER TE SLAAN": "PRESS FIRE TO SKIP", "DRUK OP VUUR OM TE STARTEN": "PRESS FIRE TO START", "DRUK OP VUUR OM VERDER TE GAAN": "PRESS FIRE TO CONTINUE", "De bewegingssensor kan hier niet worden gebruikt. Gyro blijft uit.": "The motion sensor cannot be used here. Gyro stays off.", "De gedeelde lijst in de Claude-app. Wat je hier aanpast of wist, geldt voor iedereen.": "The shared list in the Claude app. What you change or delete here applies to everyone.", "De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.": "The public list cannot be reached right now. Check your internet connection.", "De openbare lijst op GitHub staat in Firebase en kan vanuit het spel niet worden aangepast. Wissen of aanpassen doe je in de Firebase-console: Firestore Database → Data → scores.": "The public list on GitHub is stored in Firebase and cannot be changed from the game. Delete or edit scores in the Firebase console: Firestore Database → Data → scores.", "Dit apparaat heeft geen bewegingssensor die het spel kan lezen.": "This device has no motion sensor the game can read.", "Duik de donkere grotten in": "Dive into the dark caves", "Er komen geen gyro-gegevens binnen. Deze weergave blokkeert de bewegingssensor. Open het spel als los bestand in de browser van je telefoon.": "No gyro data is coming in. This view blocks the motion sensor. Open the game on its own in your phone’s browser.", "FASE": "STAGE", "FINALE": "FINALE", "GEEN BOMMEN MEER": "NO BOMBS LEFT", "GEEN NUKES MEER": "NO NUKES LEFT", "GEEN SCHILDEN MEER": "NO SHIELDS LEFT", "GEPAUZEERD": "PAUSED", "GROTTEN": "CAVES", "HEUVELS": "HILLS", "STAD": "CITY", "OERWOUD": "JUNGLE", "Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. ": "Shared with everyone who plays Fuel Run at meerservices.github.io/fuel-run. ", "Geen scores.": "No scores.", "Geen toestemming voor de bewegingssensor. Gyro blijft uit.": "No permission for the motion sensor. Gyro stays off.", "HOUD EEN NUKE KLAAR": "KEEP A NUKE READY", "INTRO": "INTRO", "JE HEBT GEEN NUKES MEER": "YOU HAVE NO NUKES LEFT", "JOUW PLEK  ·  ": "YOUR RANK  ·  ", "Je eigen scores op dit apparaat.": "Your own scores on this device.", "Je eigen scores op dit apparaat. Pas een naam of score aan, of wis een regel.": "Your own scores on this device. Change a name or score, or delete a row.", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.": "Your score is in your personal list, but could not be added to the public list.", "Niet beschikbaar.": "Not available.", "Nog geen scores in deze periode.": "No scores in this period yet.", "NODIG VOOR DE BASIS": "NEEDED FOR THE BASE", "PER RONDE": "PER ROUND", "Ontwijk vuurballen boven de stad": "Dodge fireballs over the city", "Ontwijk zoekende raketten in het oerwoud": "Dodge homing missiles in the jungle", "Openbare scores zijn hier niet beschikbaar.": "Public scores are not available here.", "PUNTENTABEL": "SCORE TABLE", "Probleem: ": "Problem: ", "RONDE": "ROUND", "SNELLER · WAPENS AANGEVULD": "FASTER · WEAPONS RESTOCKED", "SPEL VOORBIJ": "GAME OVER", "Scheer laag over de heuvels": "Skim low over the hills", "TIK OM OVER TE SLAAN": "TAP TO SKIP", "TIK OP VUUR OM TE STARTEN": "TAP FIRE TO START", "TOPSCORE": "TOP SCORE", "VIER FASES · ÉÉN TANK BRANDSTOF": "FOUR STAGES · ONE TANK OF FUEL", "VUUR OM VERDER TE GAAN": "FIRE TO CONTINUE", "Vernietig het hoofdkwartier": "Destroy the headquarters", "Verwijderen is niet gelukt.": "Could not delete the score.", "WIS": "DELETE", "ZEKER?": "SURE?", "ZEKER? TIK NOG EENS": "SURE? TAP AGAIN", "opslaan: ": "saving: ", "NIEUWE TOPSCORE": "NEW TOP SCORE", "PUNTEN": "POINTS", "Bijgewerkt om ": "Updated at ", "(laden…)": "(loading…)", "Kleur ": "Colour ", "Grootte ": "Size ", "Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies \"Zet op beginscherm\". Start het spel daarna via het Fuel Run-icoon.": "Full screen on iPhone: in Safari tap Share (the square with an arrow) and choose \"Add to Home Screen\". Then start the game from the Fuel Run icon.", "De openbare lijst is niet bereikbaar (": "The public list cannot be reached (", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet (": "Your score is in your personal list, but could not be added to the public list (", "Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.": "Shared with everyone you share this game with in the Claude app."};
+const HTMLK={"hintKeys": ["<b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze", "<b>Arrows / WASD</b> fly · <b>Z or space</b> laser · <b>X</b> bombs · <b>N</b> nuke · <b>V</b> shield · <b>P</b> pause"], "hintMain": ["Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.", "Hit fuel tanks to refuel. You have 3 nukes per round; only a nuke destroys the base at the end, so save one. The SHIELD button (key V) gives you a shield for 5 seconds, also 3 times per round. With 3 nukes on board your ship responds 20% slower, with 2 nukes 10%. Homing missiles only appear in the jungle. If your tank runs dry, you crash. Four stages, then bomb the base and go again, faster. In CONFIG you turn on gyro steering and choose day, night or automatic, following the real sun and moon."]};
+const T=x=>LANG==='en'&&EN[x]!==undefined?EN[x]:x;
+function applyLang(){document.documentElement.lang=LANG;
+  for(const el of document.querySelectorAll('[data-i18n]'))el.textContent=T(el.dataset.i18n);
+  for(const el of document.querySelectorAll('[data-i18n-html]')){const v=HTMLK[el.dataset.i18nHtml];if(v)el.innerHTML=v[LANG==='en'?1:0];}
+  for(const el of document.querySelectorAll('[data-i18n-title]'))el.title=T(el.dataset.i18nTitle);
+  for(const el of document.querySelectorAll('[data-i18n-aria]'))el.setAttribute('aria-label',T(el.dataset.i18nAria));}
 const cv=document.getElementById('screen'),mainCtx=cv.getContext('2d');let ctx=mainCtx;
 let mode3d=false,three=null;
 const skyCv=document.getElementById('sky'),glCv=document.getElementById('gl'),skyCtx=skyCv.getContext('2d');
@@ -383,8 +394,8 @@ document.addEventListener('fullscreenchange',onFs);document.addEventListener('we
 /* ---------- iPhone: home-screen app = full screen ---------- */
 (()=>{const ios=/iPhone|iPod/.test(navigator.userAgent),standalone=navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches;
   let top=true;try{top=window.top===window;}catch(e){top=false;}
-  if(ios&&!standalone&&top){const st=document.getElementById('gstat');st.textContent='Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies "Zet op beginscherm". Start het spel daarna via het Fuel Run-icoon.';st.hidden=false;
-    const hide=()=>{if(st.textContent.startsWith('Volledig scherm op iPhone'))st.hidden=true;};setTimeout(hide,12000);st.addEventListener('click',hide);}
+  if(ios&&!standalone&&top){const st=document.getElementById('gstat');st.textContent=T('Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies "Zet op beginscherm". Start het spel daarna via het Fuel Run-icoon.');st.hidden=false;st.dataset.ios='1';
+    const hide=()=>{if(st.dataset.ios==='1')st.hidden=true;};setTimeout(hide,12000);st.addEventListener('click',hide);}
 })();
 
 /* ---------- settings (key G) ---------- */
@@ -398,9 +409,9 @@ try{const st=JSON.parse(localStorage.getItem('fuelrun.cfg')||'{}');for(const k i
 const setEl=document.getElementById('settings'),setGrid=document.getElementById('setGrid');
 const fmtV=(k,v,u)=>(Number.isInteger(v)?String(v):v.toFixed(1))+u;
 for(const sp of SPEC){
-  if(sp.length===1){const h=document.createElement('h3');h.textContent=sp[0];setGrid.appendChild(h);continue;}
+  if(sp.length===1){const h=document.createElement('h3');h.textContent=sp[0];h.dataset.i18n=sp[0];setGrid.appendChild(h);continue;}
   const[k,label,min,max,step,u]=sp,row=document.createElement('div');row.className='set';
-  const lb=document.createElement('label');lb.htmlFor='set_'+k;lb.textContent=label;
+  const lb=document.createElement('label');lb.htmlFor='set_'+k;lb.textContent=label;lb.dataset.i18n=label;
   const inp=document.createElement('input');inp.type='range';inp.id='set_'+k;inp.min=min;inp.max=max;inp.step=step;
   const out=document.createElement('output');out.id='out_'+k;out.htmlFor='set_'+k;
   inp.addEventListener('input',()=>{out.textContent=fmtV(k,+inp.value,u);});
@@ -429,7 +440,7 @@ function axisVel(a,st,dt){if(!a){st.t=0;st.d=0;return 0;}const d=Math.sign(a);if
 /* ---------- gyro ---------- */
 const gyroChk=document.getElementById('ui_gyro'),gstat=document.getElementById('gstat');
 const gyro={on:false,ax:0,ay:0,zx:0,zy:0,need:true,got:false};
-function say(m){gstat.textContent=m;gstat.hidden=!m;const um=document.getElementById('uiMsg');if(um){um.textContent=m;um.hidden=!m;}}
+function say(m){gstat.textContent=m;gstat.hidden=!m;delete gstat.dataset.ios;const um=document.getElementById('uiMsg');if(um){um.textContent=m;um.hidden=!m;}}
 function gyroZero(){gyro.need=true;}
 function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
   const a=(screen.orientation&&screen.orientation.angle)??window.orientation??0,b=e.beta,g=e.gamma;let tx,ty;
@@ -440,11 +451,11 @@ function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
 function setGyroUI(){gyroChk.checked=gyro.on;}
 function gyroOff(){gyro.on=false;gyro.ax=gyro.ay=0;removeEventListener('deviceorientation',onOri);setGyroUI();}
 async function gyroOn(){
-  if(!('DeviceOrientationEvent' in window)){say('Dit apparaat heeft geen bewegingssensor die het spel kan lezen.');setGyroUI();return;}
-  try{if(typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){say('Geen toestemming voor de bewegingssensor. Gyro blijft uit.');setGyroUI();return;}}}
-  catch(e){say('De bewegingssensor kan hier niet worden gebruikt. Gyro blijft uit.');setGyroUI();return;}
+  if(!('DeviceOrientationEvent' in window)){say(T('Dit apparaat heeft geen bewegingssensor die het spel kan lezen.'));setGyroUI();return;}
+  try{if(typeof DeviceOrientationEvent.requestPermission==='function'){const r=await DeviceOrientationEvent.requestPermission();if(r!=='granted'){say(T('Geen toestemming voor de bewegingssensor. Gyro blijft uit.'));setGyroUI();return;}}}
+  catch(e){say(T('De bewegingssensor kan hier niet worden gebruikt. Gyro blijft uit.'));setGyroUI();return;}
   gyro.on=true;gyro.got=false;gyro.need=true;addEventListener('deviceorientation',onOri);setGyroUI();say('');
-  setTimeout(()=>{if(gyro.on&&!gyro.got){gyroOff();say('Er komen geen gyro-gegevens binnen. Deze weergave blokkeert de bewegingssensor. Open het spel als los bestand in de browser van je telefoon.');}},1500);
+  setTimeout(()=>{if(gyro.on&&!gyro.got){gyroOff();say(T('Er komen geen gyro-gegevens binnen. Deze weergave blokkeert de bewegingssensor. Open het spel als los bestand in de browser van je telefoon.'));}},1500);
 }
 gyroChk.addEventListener('change',()=>{ensureAudio();if(gyroChk.checked)gyroOn();else{gyroOff();say('');}});
 
@@ -467,10 +478,10 @@ function bindBtn(el,k){const on=e=>{e.preventDefault();try{el.setPointerCapture(
 bindBtn(document.getElementById('bFire'),'fire');bindBtn(document.getElementById('bNuke'),'nuke');bindBtn(document.getElementById('bBomb'),'bomb');bindBtn(document.getElementById('bShield'),'shield');
 
 /* ---------- personal config: buttons + floating joystick ---------- */
-const UIDEF={floatStick:false,time:'auto',btn:{fire:{c:'#ff4fa3',s:0,pos:{}},bomb:{c:'#ffb23e',s:0,pos:{}},nuke:{c:'#d7ff3f',s:0,pos:{}},shield:{c:'#5fe6ff',s:0,pos:{}}}};
+const UIDEF={floatStick:false,time:'auto',lang:'',btn:{fire:{c:'#ff4fa3',s:0,pos:{}},bomb:{c:'#ffb23e',s:0,pos:{}},nuke:{c:'#d7ff3f',s:0,pos:{}},shield:{c:'#5fe6ff',s:0,pos:{}}}};
 const BTN=[['fire','VUUR','bFire',76],['bomb','BOM','bBomb',76],['nuke','NUKE','bNuke',58],['shield','SCHILD','bShield',58]];
 let cfgUI=JSON.parse(JSON.stringify(UIDEF)),editing=false,uiOpen=false,uiPaused=false,drag=null;
-try{const st=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(st&&typeof st==='object'){cfgUI.floatStick=!!st.floatStick;if(['auto','day','night'].includes(st.time))cfgUI.time=st.time;
+try{const st=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(st&&typeof st==='object'){cfgUI.floatStick=!!st.floatStick;if(['auto','day','night'].includes(st.time))cfgUI.time=st.time;if(st.lang==='nl'||st.lang==='en')cfgUI.lang=st.lang;
   for(const[k]of BTN){const b=st.btn&&st.btn[k];if(!b)continue;const t=cfgUI.btn[k];if(/^#[0-9a-f]{6}$/i.test(b.c||''))t.c=b.c;if(typeof b.s==='number')t.s=Math.max(0,Math.min(140,b.s));
     for(const o of['land','port']){const q=b.pos&&b.pos[o];if(q&&isFinite(q.x)&&isFinite(q.y))t.pos[o]={x:Math.max(3,Math.min(97,q.x)),y:Math.max(3,Math.min(97,q.y))};}}}}catch(e){}
 const saveUI=()=>{try{localStorage.setItem('fuelrun.ui',JSON.stringify(cfgUI));}catch(e){}};
@@ -486,14 +497,14 @@ function dragMove(e,el){if(!drag||drag.id!==e.pointerId)return;const x=Math.max(
 function dragEnd(e,el,k){if(!drag||drag.id!==e.pointerId)return;if(drag.x!==undefined)cfgUI.btn[k].pos[orient()]={x:+drag.x.toFixed(1),y:+drag.y.toFixed(1)};drag=null;saveUI();applyUI();}
 const uiEl=document.getElementById('uicfg'),uiRows=document.getElementById('uiRows'),floatIn=document.getElementById('ui_float'),edbar=document.getElementById('edbar');
 for(const[k,label,,def]of BTN){const row=document.createElement('div');row.className='uirow';
-  const sp=document.createElement('span');sp.textContent=label;
-  const col=document.createElement('input');col.type='color';col.id='uic_'+k;col.setAttribute('aria-label','Kleur '+label);
-  const rg=document.createElement('input');rg.type='range';rg.id='uis_'+k;rg.min=40;rg.max=130;rg.step=2;rg.setAttribute('aria-label','Grootte '+label);
+  const sp=document.createElement('span');sp.textContent=label;sp.dataset.i18n=label;
+  const col=document.createElement('input');col.type='color';col.id='uic_'+k;col.setAttribute('aria-label',T('Kleur ')+label);
+  const rg=document.createElement('input');rg.type='range';rg.id='uis_'+k;rg.min=40;rg.max=130;rg.step=2;rg.setAttribute('aria-label',T('Grootte ')+label);
   const out=document.createElement('output');out.id='uio_'+k;
   col.addEventListener('input',()=>{cfgUI.btn[k].c=col.value;applyUI();saveUI();});
   rg.addEventListener('input',()=>{cfgUI.btn[k].s=+rg.value;out.textContent=rg.value;applyUI();saveUI();});
   row.append(sp,col,rg,out);uiRows.appendChild(row);}
-function fillUI(){floatIn.checked=cfgUI.floatStick;document.getElementById('ui_3d').checked=mode3d;document.getElementById('ui_snd').checked=!muted;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
+function fillUI(){renderLangUI();floatIn.checked=cfgUI.floatStick;document.getElementById('ui_3d').checked=mode3d;document.getElementById('ui_snd').checked=!muted;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
   const sz=c.s||Math.round(document.getElementById(id).getBoundingClientRect().width)||def;document.getElementById('uis_'+k).value=sz;document.getElementById('uio_'+k).textContent=sz;}}
 floatIn.addEventListener('change',()=>{cfgUI.floatStick=floatIn.checked;saveUI();});
 function pauseFor(){if(state==='play'&&!paused){paused=true;uiPaused=true;}}
@@ -537,7 +548,7 @@ function respawn(s){
   for(let c=c0;c<c0+6;c++){lo=Math.max(lo,ceilA[c]);hiF=Math.min(hiF,floorA[c]);}
   p.y=Math.round((lo+hiF)/2);
   lasers=[];bombs=[];enemies=[];nukesFly=[];nukeFx=[];flashW=0;shieldT=0;comboT=0;comboUsed=false;mvx.t=mvy.t=0;fuel=100;fireCd=bombCd=0;spawnT=60;missileT=200;state='play';
-  show(`FASE ${s+1}  ${STAGES[s].name}`,loop?`RONDE ${loop+1}`:'');
+  show(`${T('FASE')} ${s+1}  ${T(STAGES[s].name)}`,loop?`${T('RONDE')} ${loop+1}`:'');
 }
 function die(){
   if(state!=='play')return;
@@ -561,11 +572,11 @@ function kill(o){
   o.alive=false;const x=o.wx??o.x;
   switch(o.t){
     case'rocket':addScore(o.launched?80:50);burst(x,o.y-6,18,['#fff','#ffd27a','#ff8a3d'],1.5);break;
-    case'fuel':addScore(150);fuel=Math.min(100,fuel+14);burst(x,o.y-5,22,['#ffffff','#ffe08a','#ff9a3d','#3fe0d0'],1.7);pop(x,o.y-14,'BRANDSTOF','#5ff0dc');tone('sine',520,1040,.18,.06);break;
+    case'fuel':addScore(150);fuel=Math.min(100,fuel+14);burst(x,o.y-5,22,['#ffffff','#ffe08a','#ff9a3d','#3fe0d0'],1.7);pop(x,o.y-14,T('BRANDSTOF'),'#5ff0dc');tone('sine',520,1040,.18,.06);break;
     case'myst':{const v=[100,200,300][Math.floor(Math.random()*3)];addScore(v);burst(x,o.y-5,16,['#fff','#ffd84f'],1.4);pop(x,o.y-14,String(v),'#ffd84f');break;}
     case'missile':addScore(100);burst(x,o.y,16,['#fff','#ffd27a','#ff8a3d'],1.4);break;
     case'saucer':addScore(100);burst(x,o.y,16,['#fff','#c6ff9a','#9dff6a'],1.4);break;
-    case'core':{const v=1000+loop*500;addScore(v);if(state!=='intro')flags++;burst(x,o.y-14,90,['#fff','#ffd27a','#ff4fa3','#3fe0d0'],3.2,true);for(let k=0;k<5;k++)burst(x-30+Math.random()*60,o.y-Math.random()*45,26,['#fff','#ffd27a','#ff8a3d'],1.8,true);shake=9;pop(x,o.y-62,String(v),'#fff');show('BASIS VERNIETIGD','');boom(1.2,.4);return;}
+    case'core':{const v=1000+loop*500;addScore(v);if(state!=='intro')flags++;burst(x,o.y-14,90,['#fff','#ffd27a','#ff4fa3','#3fe0d0'],3.2,true);for(let k=0;k<5;k++)burst(x-30+Math.random()*60,o.y-Math.random()*45,26,['#fff','#ffd27a','#ff8a3d'],1.8,true);shake=9;pop(x,o.y-62,String(v),'#fff');show(T('BASIS VERNIETIGD'),'');boom(1.2,.4);return;}
   }
   boom(.35,.18);
 }
@@ -575,7 +586,7 @@ function spawnMissile(){const sx=scroll+W+6,c=clampI(Math.floor(sx/COL)),lo=ceil
 
 function aimLaser(){const a=shipPitch,c=Math.cos(a),sn=Math.sin(a);return{x:scroll+p.x+c*8,y:p.y+sn*8,vx:speed+c*5,vy:sn*5,a};}
 function armor(o,x,y){for(let i=0;i<6;i++)parts.push({k:0,x,y,vx:-Math.random()*1.5,vy:(Math.random()-.5)*1.5,life:12,max:12,c:'#cfe8ff',r:.6});
-  tone('square',1800,1200,.05,.02);if(!o.msg||frame-o.msg>90){o.msg=frame;pop(o.wx,o.y-62,'ALLEEN EEN NUKE HELPT','#d7ff3f');}}
+  tone('square',1800,1200,.05,.02);if(!o.msg||frame-o.msg>90){o.msg=frame;pop(o.wx,o.y-62,T('ALLEEN EEN NUKE HELPT'),'#d7ff3f');}}
 function shieldHit(){shieldHitT=12;tone('square',1600,700,.12,.04);}
 function shieldIcon(x,y,on){ctx.fillStyle=on?'#5fe6ff':'#262a44';ctx.beginPath();ctx.moveTo(x-3,y-3.6);ctx.lineTo(x+3,y-3.6);ctx.lineTo(x+3,y);ctx.quadraticCurveTo(x+3,y+2.8,x,y+4);ctx.quadraticCurveTo(x-3,y+2.8,x-3,y);ctx.closePath();ctx.fill();
   if(on){ctx.fillStyle='rgba(255,255,255,.45)';ctx.fillRect(x-2,y-2.8,1,4);}}
@@ -639,8 +650,11 @@ function computeEnv(){const now=Date.now(),sn=sunAt(now),mn=moonAt(sn),mode=cfgU
   if(mode==='night'){sun={alt:-25,az:0};if(moon.alt<12){moon.alt=34;moon.az=212;}moon.k=Math.max(moon.k,.35);}
   const L=Math.max(0,Math.min(1,(sun.alt+6)/14)),tw=Math.max(0,1-Math.abs(sun.alt-1)/9);env={L:L*L*(3-2*L),tw,sun,moon};}
 function skyXY(alt,az){const hy=H*.76,x=W*(.08+.84*Math.max(0,Math.min(1,(az-90)/180))),y=hy-Math.max(-.08,alt)/60*(hy-TOP-16);return{x,y:Math.max(TOP+12,y)};}
+function renderLangUI(){for(const bt of document.querySelectorAll('#uiLang button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===LANG));}
+function setLang(v){LANG=v;cfgUI.lang=v;saveUI();applyLang();renderLangUI();renderTimeUI();try{if(scOpen)renderScores();if(!mgrEl.hidden)renderMgr();}catch(e){}}
+document.getElementById('uiLang').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v)setLang(v);});
 function renderTimeUI(){for(const bt of document.querySelectorAll('#uiTime button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===cfgUI.time));
-  const st=sunTimes(),now=sunAt(Date.now()).alt;document.getElementById('uiSun').textContent=`Vandaag in ${GEO.name}: zon op ${hhmm(st.rise)}, onder ${hhmm(st.set)}. Nu is het ${now>-.833?'dag':now>-6?'schemer':'nacht'}.`;}
+  const st=sunTimes(),now=sunAt(Date.now()).alt;document.getElementById('uiSun').textContent=LANG==='en'?`Today in ${GEO.name==='jouw tijdzone'?'your time zone':GEO.name}: sunrise ${hhmm(st.rise)}, sunset ${hhmm(st.set)}. It is ${now>-.833?'day':now>-6?'twilight':'night'} now.`:`Vandaag in ${GEO.name}: zon op ${hhmm(st.rise)}, onder ${hhmm(st.set)}. Nu is het ${now>-.833?'dag':now>-6?'schemer':'nacht'}.`;}
 document.getElementById('uiTime').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(!v)return;cfgUI.time=v;saveUI();envAt=-1e9;renderTimeUI();});
 const mixC=(a,b,k)=>a.map((v,i)=>v+(b[i]-v)*k),rgbS=(c,a)=>a===undefined?`rgb(${c.map(Math.round)})`:`rgba(${c.map(Math.round)},${a})`;
 const SKY={night:[[3,5,13],[14,21,49],[42,37,80]],day:[[52,118,206],[118,170,226],[205,226,242]],dusk:[[40,52,110],[190,104,128],[255,160,96]]};
@@ -696,9 +710,9 @@ async function saveScore(name){
   if(board.db||board.fb){pub.year=[...pub.year,e];pub.all=[...pub.all,e].sort(byScore).slice(0,10);}
   bumpHi();const v=bestView(e);boardView={src:v.src,per:v.per};
   if(board.db){try{await Promise.race([board.db.collection('scores').add(e),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))]);prune();}
-    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.');}}
+    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);say(T('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.'));}}
   else if(board.fb){try{await fbAdd(e);setTimeout(fbRefresh,1500);}
-    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);board.fbErr='opslaan: '+(err.message||err);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet ('+(err.message||err)+').');}}
+    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);board.fbErr=T('opslaan: ')+(err.message||err);say(T('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet (')+(err.message||err)+').');}}
 }
 function openEntry(){
   state='name';document.getElementById('eScore').textContent=pad6(score);document.getElementById('eTime').textContent=fmtTime(playTime);
@@ -707,7 +721,7 @@ function openEntry(){
   if(!matchMedia('(pointer:coarse)').matches)setTimeout(()=>{try{nameIn.focus();nameIn.select();}catch(e){}},50);
 }
 nameIn.addEventListener('input',()=>{const c=cleanName(nameIn.value.toUpperCase());if(c!==nameIn.value.trim())nameIn.value=c;});
-entryForm.addEventListener('submit',async ev=>{ev.preventDefault();const n=cleanName(nameIn.value)||'ANONIEM';
+entryForm.addEventListener('submit',async ev=>{ev.preventDefault();const n=cleanName(nameIn.value)||T('ANONIEM');
   try{localStorage.setItem('fuelrun.name',n);}catch(e){}
   entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();state='scores';timer=720;saveScore(n);});
 document.getElementById('eSkip').addEventListener('click',()=>{entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();toTitle();});
@@ -715,23 +729,23 @@ function attractBoards(){const out=[];for(const[k]of PERIODS)for(const sr of sou
 function drawBoard(src,per,hl){
   ctx.fillStyle='rgba(4,6,15,.82)';ctx.fillRect(0,TOP,W,H-TOP);
   ctx.save();ctx.translate((W-320)/2,(H-200)/2);
-  ctx.save();ctx.shadowColor='rgba(255,178,62,.7)';ctx.shadowBlur=10*S;text('HIGH SCORES',160,27,'#ffb23e','center',LOGO);ctx.restore();
-  const sc=src==='pub'?'#5fe6ff':'#d7ff3f';text(SRCN[src],14,51,sc,'left',SMALL);
-  let x=306;for(let i=PERIODS.length-1;i>=0;i--){const[k,lab]=PERIODS[i];ctx.font=SMALL;const w=ctx.measureText(lab).width+7;x-=w;const act=k===per;
+  ctx.save();ctx.shadowColor='rgba(255,178,62,.7)';ctx.shadowBlur=10*S;text(T('HIGH SCORES'),160,27,'#ffb23e','center',LOGO);ctx.restore();
+  const sc=src==='pub'?'#5fe6ff':'#d7ff3f';text(T(SRCN[src]),14,51,sc,'left',SMALL);
+  let x=306;for(let i=PERIODS.length-1;i>=0;i--){const[k,lab0]=PERIODS[i],lab=T(lab0);ctx.font=SMALL;const w=ctx.measureText(lab).width+7;x-=w;const act=k===per;
     if(act){ctx.fillStyle=sc;rr(x,49.4,w,9,2);ctx.fill();}text(lab,x+w/2,51,act?'#06221f':'#8d93bd','center',SMALL);x-=3;}
   const hy=63;
-  text('#',24,hy,'#8d93bd','right',SMALL);text('SCORE',84,hy,'#8d93bd','right',SMALL);text('LEVENSDUUR',140,hy,'#8d93bd','right',SMALL);
-  text('NAAM',152,hy,'#8d93bd','left',SMALL);text('DATUM · TIJD',304,hy,'#8d93bd','right',SMALL);
+  text('#',24,hy,'#8d93bd','right',SMALL);text(T('SCORE'),84,hy,'#8d93bd','right',SMALL);text(T('LEVENSDUUR'),140,hy,'#8d93bd','right',SMALL);
+  text(T('NAAM'),152,hy,'#8d93bd','left',SMALL);text(T('DATUM · TIJD'),304,hy,'#8d93bd','right',SMALL);
   ctx.fillStyle='rgba(140,150,210,.3)';ctx.fillRect(14,hy+8.5,292,.5);
   const l=listFor(src,per);
-  if(!l.length)text(src==='pub'&&!board.pubOK?'Openbare scores zijn hier niet beschikbaar.':'Nog geen scores in deze periode.',160,112,'#c9cdee','center',HUDF);
+  if(!l.length)text(src==='pub'&&!board.pubOK?T('Openbare scores zijn hier niet beschikbaar.'):T('Nog geen scores in deze periode.'),160,112,'#c9cdee','center',HUDF);
   l.forEach((e,i)=>{const y=hy+12+i*9.6,me=hl&&same(e,lastEntry);
     if(me){ctx.fillStyle='rgba(215,255,63,.12)';ctx.fillRect(14,y-1.4,292,9.4);}
     const c=me?'#d7ff3f':i===0?'#ffd84f':i<3?'#ffe3a8':'#eef1ff';
     text(String(i+1),24,y,c,'right',HUDF);text(pad6(e.score|0),84,y,c,'right',HUDF);text(fmtTime(e.time||0),140,y,c,'right',HUDF);
-    text(cleanName(e.name)||'ANONIEM',152,y,c,'left',HUDF);text(fmtDate(e.at),304,y,c,'right',HUDF);});
-  if(hl&&lastEntry){const parts=PERIODS.map(([k,lab])=>{const r=rankIn(src,k,lastEntry);return r<99?lab+' #'+r:null;}).filter(Boolean);
-    if(parts.length)text('JOUW PLEK  ·  '+parts.join('  ·  '),160,171.5,'#d7ff3f','center',SMALL);}
+    text(cleanName(e.name)||T('ANONIEM'),152,y,c,'left',HUDF);text(fmtDate(e.at),304,y,c,'right',HUDF);});
+  if(hl&&lastEntry){const parts=PERIODS.map(([k,lab])=>{const r=rankIn(src,k,lastEntry);return r<99?T(lab)+' #'+r:null;}).filter(Boolean);
+    if(parts.length)text(T('JOUW PLEK  ·  ')+parts.join('  ·  '),160,171.5,'#d7ff3f','center',SMALL);}
   ctx.restore();
 }
 addEventListener('keydown',e=>{if(state!=='scores'||(e.target&&e.target.tagName==='INPUT'))return;const k=e.key,pi=PERIODS.findIndex(q=>q[0]===boardView.per);
@@ -739,15 +753,15 @@ addEventListener('keydown',e=>{if(state!=='scores'||(e.target&&e.target.tagName=
   if((k==='ArrowUp'||k==='ArrowDown')&&board.pubOK){boardView.src=boardView.src==='pub'?'pers':'pub';timer=Math.max(timer,600);}});
 // scores panel (button SCORES)
 const scEl=document.getElementById('scorep'),scBody=document.getElementById('scBody'),scNote=document.getElementById('scNote');let scView={src:'pers',per:'day'};
-const scPer=document.getElementById('scPer');for(const[k,lab]of PERIODS){const bt=document.createElement('button');bt.type='button';bt.dataset.v=k;bt.textContent=lab;scPer.appendChild(bt);}
+const scPer=document.getElementById('scPer');for(const[k,lab]of PERIODS){const bt=document.createElement('button');bt.type='button';bt.dataset.v=k;bt.textContent=lab;bt.dataset.i18n=lab;scPer.appendChild(bt);}
 function renderScores(){
   for(const bt of document.querySelectorAll('#scSrc button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.src));
   for(const bt of scPer.querySelectorAll('button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.per));
-  scNote.textContent=scView.src==='pers'?'Je eigen scores op dit apparaat.':board.fb?'Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. '+(board.fbErr?'Probleem: '+board.fbErr+'.':board.fbAt?'Bijgewerkt om '+fmtDate(board.fbAt).slice(9)+'.':''):(!window.claude&&board.fbErr)?'De openbare lijst is niet bereikbaar ('+board.fbErr+').':board.pubOK?'Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.':'De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.';
+  scNote.textContent=scView.src==='pers'?T('Je eigen scores op dit apparaat.'):board.fb?T('Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. ')+(board.fbErr?T('Probleem: ')+board.fbErr+'.':board.fbAt?T('Bijgewerkt om ')+fmtDate(board.fbAt).slice(9)+'.':''):(!window.claude&&board.fbErr)?T('De openbare lijst is niet bereikbaar (')+board.fbErr+').':board.pubOK?T('Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.'):T('De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.');
   scBody.textContent='';const l=listFor(scView.src,scView.per);
-  if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=scView.src==='pub'&&!board.pubOK?'Niet beschikbaar.':'Nog geen scores in deze periode.';tr.appendChild(td);scBody.appendChild(tr);return;}
+  if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=scView.src==='pub'&&!board.pubOK?T('Niet beschikbaar.'):T('Nog geen scores in deze periode.');tr.appendChild(td);scBody.appendChild(tr);return;}
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
-    for(const v of[i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||'ANONIEM',fmtDate(e.at)]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td);}scBody.appendChild(tr);});
+    for(const v of[i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||T('ANONIEM'),fmtDate(e.at)]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td);}scBody.appendChild(tr);});
 }
 document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;renderScores();}});
 scPer.addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.per=v;renderScores();}});
@@ -761,31 +775,31 @@ const mgrEl=document.getElementById('mgr'),mgrBody=document.getElementById('mgrB
 const pubEditable=()=>!!board.db;
 function mgrRows(){if(mgrSrc==='pers')return[...pers].sort(byScore).slice(0,200);const m=new Map();for(const e of[...pub.all,...pub.year])m.set(e._id||(e.at+'|'+e.name+'|'+e.score),e);return[...m.values()].sort(byScore).slice(0,200);}
 function savePers(){try{localStorage.setItem('fuelrun.scores.all',JSON.stringify(pers));}catch(_){}hi=0;bumpHi();saveHi();}
-async function editEntry(e,name,sc){const n=cleanName(name)||'ANONIEM',v=Math.max(0,Math.min(9999999,Math.round(+sc||0)));
+async function editEntry(e,name,sc){const n=cleanName(name)||T('ANONIEM'),v=Math.max(0,Math.min(9999999,Math.round(+sc||0)));
   if(mgrSrc==='pers'){e.name=n;e.score=v;savePers();}
-  else if(pubEditable()&&e._id){try{await board.db.collection('scores').doc(e._id).update({name:n,score:v});}catch(err){say('Aanpassen is niet gelukt.');}}
+  else if(pubEditable()&&e._id){try{await board.db.collection('scores').doc(e._id).update({name:n,score:v});}catch(err){say(T('Aanpassen is niet gelukt.'));}}
   renderMgr();if(scOpen)renderScores();}
 async function delEntry(e){if(mgrSrc==='pers'){pers=pers.filter(x=>x!==e);savePers();}
-  else if(pubEditable()&&e._id){try{await board.db.collection('scores').doc(e._id).delete();pub.all=pub.all.filter(x=>x!==e);pub.year=pub.year.filter(x=>x!==e);}catch(err){say('Verwijderen is niet gelukt.');}}
+  else if(pubEditable()&&e._id){try{await board.db.collection('scores').doc(e._id).delete();pub.all=pub.all.filter(x=>x!==e);pub.year=pub.year.filter(x=>x!==e);}catch(err){say(T('Verwijderen is niet gelukt.'));}}
   renderMgr();if(scOpen)renderScores();}
 function armButton(bt,label,armed,act){if(bt.dataset.arm){delete bt.dataset.arm;bt.textContent=label;act();return;}bt.dataset.arm='1';bt.textContent=armed;setTimeout(()=>{if(bt.dataset.arm){delete bt.dataset.arm;bt.textContent=label;}},3000);}
 function renderMgr(){
   for(const bt of document.querySelectorAll('#mgrSrc button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===mgrSrc));
   const editable=mgrSrc==='pers'||pubEditable();
-  mgrNote.textContent=mgrSrc==='pers'?'Je eigen scores op dit apparaat. Pas een naam of score aan, of wis een regel.':pubEditable()?'De gedeelde lijst in de Claude-app. Wat je hier aanpast of wist, geldt voor iedereen.':'De openbare lijst op GitHub staat in Firebase en kan vanuit het spel niet worden aangepast. Wissen of aanpassen doe je in de Firebase-console: Firestore Database → Data → scores.';
+  mgrNote.textContent=mgrSrc==='pers'?T('Je eigen scores op dit apparaat. Pas een naam of score aan, of wis een regel.'):pubEditable()?T('De gedeelde lijst in de Claude-app. Wat je hier aanpast of wist, geldt voor iedereen.'):T('De openbare lijst op GitHub staat in Firebase en kan vanuit het spel niet worden aangepast. Wissen of aanpassen doe je in de Firebase-console: Firestore Database → Data → scores.');
   mgrClear.hidden=mgrSrc!=='pers';mgrBody.textContent='';const rows=mgrRows();
-  if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.className='empty';td.textContent='Geen scores.';tr.appendChild(td);mgrBody.appendChild(tr);return;}
+  if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.className='empty';td.textContent=T('Geen scores.');tr.appendChild(td);mgrBody.appendChild(tr);return;}
   for(const e of rows){const tr=document.createElement('tr'),c1=document.createElement('td'),c2=document.createElement('td'),c3=document.createElement('td'),c4=document.createElement('td');
     if(editable){const si=document.createElement('input');si.type='number';si.inputMode='numeric';si.min=0;si.max=9999999;si.value=e.score;si.className='num';si.setAttribute('aria-label','Score');
       const ni=document.createElement('input');ni.type='text';ni.maxLength=10;ni.value=e.name||'';ni.setAttribute('aria-label','Naam');
       const commit=()=>{if(cleanName(ni.value)!==e.name||Math.round(+si.value)!==e.score)editEntry(e,ni.value,si.value);};
       si.addEventListener('change',commit);ni.addEventListener('change',commit);c1.append(si);c2.append(ni);
-      const del=document.createElement('button');del.type='button';del.className='del';del.textContent='WIS';del.addEventListener('click',()=>armButton(del,'WIS','ZEKER?',()=>delEntry(e)));c4.append(del);}
-    else{c1.textContent=pad6(e.score|0);c2.textContent=cleanName(e.name)||'ANONIEM';}
+      const del=document.createElement('button');del.type='button';del.className='del';del.textContent=T('WIS');del.addEventListener('click',()=>armButton(del,T('WIS'),T('ZEKER?'),()=>delEntry(e)));c4.append(del);}
+    else{c1.textContent=pad6(e.score|0);c2.textContent=cleanName(e.name)||T('ANONIEM');}
     c3.textContent=fmtDate(e.at);tr.append(c1,c2,c3,c4);mgrBody.appendChild(tr);}
 }
 document.getElementById('mgrSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){mgrSrc=v;renderMgr();}});
-mgrClear.addEventListener('click',()=>armButton(mgrClear,'ALLES WISSEN','ZEKER? TIK NOG EENS',()=>{pers=[];savePers();renderMgr();}));
+mgrClear.addEventListener('click',()=>armButton(mgrClear,T('ALLES WISSEN'),T('ZEKER? TIK NOG EENS'),()=>{pers=[];savePers();renderMgr();}));
 document.getElementById('setScores').addEventListener('click',()=>{mgrSrc='pers';renderMgr();mgrEl.hidden=false;});
 document.getElementById('mgrDone').addEventListener('click',()=>{mgrEl.hidden=true;});
 
@@ -815,7 +829,7 @@ function buildBonusGL(T,cvx){
 async function showBonus(e,label){const attract=!!label;
   if(bonusOn)return;bonusOn=true;
   const el=document.getElementById('bonus'),cvx=document.getElementById('fx3d');
-  document.getElementById('bLabel').textContent=label||'NIEUWE HIGHSCORE';document.getElementById('bName').textContent=cleanName(e.name)||'ANONIEM';document.getElementById('bScore').textContent=pad6(e.score|0)+' PUNTEN';
+  document.getElementById('bLabel').textContent=label||T('NIEUWE HIGHSCORE');document.getElementById('bName').textContent=cleanName(e.name)||T('ANONIEM');document.getElementById('bScore').textContent=pad6(e.score|0)+' '+T('PUNTEN');
   el.hidden=false;void el.offsetWidth;el.classList.add('show');
   if(!attract&&ac&&!muted)[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone('square',f,f*1.01,.22,.05),i*130));
   let fin=false,stop3d=()=>{};
@@ -904,10 +918,10 @@ function drawIntro(){
     const dur=seg<4?SEG:SEGF,inE=easeOut(Math.min(1,lt/18)),outA=Math.max(0,Math.min(1,(dur-lt)/12));
     const col=seg<4?STAGES[seg].hud:'#ff5fa8',x=18-(1-inE)*60;
     ctx.globalAlpha=outA*inE;
-    text(seg<4?`FASE ${seg+1} / 4`:'FINALE',x,140,'#c9cdee','left',SMALL);
-    ctx.save();ctx.shadowColor=col;ctx.shadowBlur=8*S;text(seg<4?STAGES[seg].name:'DE BASIS',x,147,col,'left',LOGO);ctx.restore();
+    text(seg<4?`${T('FASE')} ${seg+1} / 4`:T('FINALE'),x,140,'#c9cdee','left',SMALL);
+    ctx.save();ctx.shadowColor=col;ctx.shadowBlur=8*S;text(seg<4?T(STAGES[seg].name):T('DE BASIS'),x,147,col,'left',LOGO);ctx.restore();
     ctx.fillStyle=col;ctx.fillRect(x,169.5,44*inE,.7);
-    text(TAGS[seg],x,172.5,'#eef1ff','left',HUDF);
+    text(T(TAGS[seg]),x,172.5,'#eef1ff','left',HUDF);
     ctx.restore();ctx.globalAlpha=1;
   }
   if(seg===5){
@@ -916,7 +930,7 @@ function drawIntro(){
     ctx.globalAlpha=Math.min(1,lt/14);
     ctx.save();ctx.translate(0,(H-200)/2);ctx.translate(W/2,40);ctx.scale(sc,sc);ctx.translate(-W/2,-40);ctx.shadowColor='rgba(255,79,163,.8)';ctx.shadowBlur=(10+20*(1-k))*S;text('FUEL RUN',W/2,30,'#ff4fa3','center',LOGO);ctx.restore();
     ctx.globalAlpha=Math.max(0,Math.min(1,(lt-50)/25))*Math.max(0,Math.min(1,(LOGOT-lt)/15));
-    text('VIER FASES · ÉÉN TANK BRANDSTOF',W/2,62+(H-200)/2,'#c9cdee','center',HUDF);
+    text(T('VIER FASES · ÉÉN TANK BRANDSTOF'),W/2,62+(H-200)/2,'#c9cdee','center',HUDF);
     ctx.globalAlpha=1;
   }
   const lb=seg===5?12*(1-Math.min(1,lt/30)):12;
@@ -932,7 +946,7 @@ function update(dt){
   const inp=input();
   if(setOpen||uiOpen||editing||scOpen)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
-  if(state==='title'){titleIdle+=dt;{const pg=Math.floor(titleIdle/300);if(pg!==lastTitlePage){lastTitlePage=pg;if(pg%3===2&&!bonusOn){const top=pub.all[0]||listFor('pers','all')[0];if(top)showBonus(top,'TOPSCORE');}}}
+  if(state==='title'){titleIdle+=dt;{const pg=Math.floor(titleIdle/300);if(pg!==lastTitlePage){lastTitlePage=pg;if(pg%3===2&&!bonusOn){const top=pub.all[0]||listFor('pers','all')[0];if(top)showBonus(top,T('TOPSCORE'));}}}
     if(titleIdle>3000&&!bonusOn){startIntro();return;}scroll+=.6*dt;if(scroll>(total-150)*COL)scroll=0;if(inp.press){if(bonusKill)bonusKill();newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
   if(state==='name'){if(entryEl.hidden){rootEl.classList.remove('modal');toTitle();}stepFx(dt);return;}
@@ -944,8 +958,8 @@ function update(dt){
   if(state==='play'){
     scroll+=speed*dt;
     const col=Math.floor((scroll+p.x)/COL);
-    {let s=0;for(let i=0;i<4;i++)if(col>=starts[i])s=i;if(s!==curStage){curStage=s;show(`FASE ${s+1}  ${STAGES[s].name}`,'');tone('square',440,880,.25,.04);}}
-    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;show(`RONDE ${loop+1}`,'SNELLER · WAPENS AANGEVULD');}
+    {let s=0;for(let i=0;i<4;i++)if(col>=starts[i])s=i;if(s!==curStage){curStage=s;show(`${T('FASE')} ${s+1}  ${T(STAGES[s].name)}`,'');tone('square',440,880,.25,.04);}}
+    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;show(`${T('RONDE')} ${loop+1}`,T('SNELLER · WAPENS AANGEVULD'));}
 
     const vx=axisVel(inp.ax,mvx,dt),vy=axisVel(inp.ay,mvy,dt);
     const wf=nukes>=3?.8:nukes===2?.9:1;
@@ -961,16 +975,16 @@ function update(dt){
 
     fireCd-=dt;bombCd-=dt;
     if(inp.shield){if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
-        else pop(scroll+p.x+14,p.y-12,'GEEN SCHILDEN MEER','#ff5f7a');}
+        else pop(scroll+p.x+14,p.y-12,T('GEEN SCHILDEN MEER'),'#ff5f7a');}
     if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push(aimLaser());fireCd=9;tone('square',1400,300,.07,.035);}
     if(inp.nuke){if(nukes>0&&!nukesFly.length){nukes--;nukesFly.push({x:scroll+p.x,y:p.y+4,vx:speed+1.6,vy:-.3});tone('sawtooth',220,70,.7,.06);}
-      else if(!nukes)pop(scroll+p.x+14,p.y-10,'GEEN NUKES MEER','#ff5f7a');}
+      else if(!nukes)pop(scroll+p.x+14,p.y-10,T('GEEN NUKES MEER'),'#ff5f7a');}
     if(inp.bomb&&bombCd<=0&&bombs.length<cfg.bombAir){
-      if(cfg.bombs>0&&bombsLeft<=0){bombCd=40;pop(scroll+p.x+14,p.y+10,'GEEN BOMMEN MEER','#ff5f7a');}
+      if(cfg.bombs>0&&bombsLeft<=0){bombCd=40;pop(scroll+p.x+14,p.y+10,T('GEEN BOMMEN MEER'),'#ff5f7a');}
       else{if(cfg.bombs>0)bombsLeft--;bombs.push({x:scroll+p.x,y:p.y+4,vx:speed+1.1,vy:.3});bombCd=20;tone('triangle',700,140,.3,.06);}}
 
     if(!baseWarned){const cb=objs[objs.length-1];if(cb&&cb.t==='core'&&cb.alive&&cb.wx-scroll<W+260){baseWarned=true;
-      show('BASIS NADERT',nukes>0?'HOUD EEN NUKE KLAAR':'JE HEBT GEEN NUKES MEER');tone('square',520,260,.25,.05);setTimeout(()=>tone('square',520,260,.25,.05),300);}}
+      show(T('BASIS NADERT'),nukes>0?T('HOUD EEN NUKE KLAAR'):T('JE HEBT GEEN NUKES MEER'));tone('square',520,260,.25,.05);setTimeout(()=>tone('square',520,260,.25,.05),300);}}
     const st=curStage,into=col-starts[st],len=STAGES[st].cols;
     if((spawnT-=dt)<=0&&into>10&&into<len-12&&col<starts[3]+STAGES[3].cols){
       const sx=scroll+W+10,c2=clampI(Math.floor(sx/COL));
@@ -1378,9 +1392,9 @@ function drawHUD(){
   ctx.fillStyle=lg(0,0,0,TOP,['#0c0e1c','#05060d']);ctx.fillRect(0,0,W,TOP);
   ctx.fillStyle='rgba(140,150,210,.35)';ctx.fillRect(0,TOP-.5,W,.5);
   if(state==='intro'){
-    text('INTRO',5,2.5,'#ff5fa8');
+    text(T('INTRO'),5,2.5,'#ff5fa8');
     for(let i=0;i<5;i++){const c=i<4?STAGES[i].hud:'#ff5fa8';ctx.fillStyle=i<=introSeg?c:'#1a1d33';rr(5+i*21,14,19,6,1.5);ctx.fill();}
-    if((frame|0)%60<40)text(matchMedia('(pointer:coarse)').matches?'TIK OM OVER TE SLAAN':'DRUK OP VUUR OM OVER TE SLAAN',W-5,8,'#8d93bd','right',SMALL);
+    if((frame|0)%60<40)text(matchMedia('(pointer:coarse)').matches?T('TIK OM OVER TE SLAAN'):T('DRUK OP VUUR OM OVER TE SLAAN'),W-5,8,'#8d93bd','right',SMALL);
     return;}
   text('1UP',5,2.5,'#ff5fa8');text(pad6(score),24,2.5,'#eef1ff');
   trefoil(68,7,3.3,nukes>0);text('×'+nukes,72.6,3.6,nukes>0?'#ffd84f':'#5a5f80','left',SMALL);
@@ -1407,7 +1421,7 @@ function draw(){
   const m3=mode3d&&three;
   if(m3){ctx=skyCtx;const ss=skyCv.width/W;ctx.setTransform(ss,0,0,ss,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
     ctx.save();ctx.beginPath();ctx.rect(0,TOP,W,H-TOP);ctx.clip();drawSky();ctx.restore();ctx=mainCtx;
-    try{render3d();}catch(err){console.error(err);disable3d();say('3D werkt niet goed op dit apparaat. Het spel staat weer in 2D.');}}
+    try{render3d();}catch(err){console.error(err);disable3d();say(T('3D werkt niet goed op dit apparaat. Het spel staat weer in 2D.'));}}
   ctx.setTransform(S,0,0,S,0,0);
   if(m3)ctx.clearRect(0,0,W,H);else{ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);}
   ctx.save();
@@ -1440,23 +1454,23 @@ function draw(){
   drawHUD();
   if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%3===1)){
     if(state==='scores')drawBoard(boardView.src,boardView.per,true);else{const cb=attractBoards(),v=cb[Math.floor(titleIdle/900)%cb.length];drawBoard(v.src,v.per,false);}
-    if((frame|0)%60<38)text(state==='scores'?'DRUK OP VUUR OM VERDER TE GAAN':(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN'),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
+    if((frame|0)%60<38)text(state==='scores'?T('DRUK OP VUUR OM VERDER TE GAAN'):(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN')),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
   else if(state==='title'&&!(bonusOn&&Math.floor(titleIdle/300)%3===2)){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
     ctx.save();ctx.translate((W-320)/2,(H-200)/2);
     ctx.save();ctx.shadowColor='rgba(255,79,163,.7)';ctx.shadowBlur=10*S;text('FUEL RUN',160,30,'#ff4fa3','center',LOGO);ctx.restore();
-    text('PUNTENTABEL',160,53,'#8d93bd','center',SMALL);
-    const rows=[['rocket','50  /  80 IN DE LUCHT','#eef1ff'],['fuel','150  +  BRANDSTOF','#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile','100  AANVALSRAKET','#ff9a6a'],['core','1000  BASIS','#ff6fb3']];
+    text(T('PUNTENTABEL'),160,53,'#8d93bd','center',SMALL);
+    const rows=[['rocket',T('50  /  80 IN DE LUCHT'),'#eef1ff'],['fuel',T('150  +  BRANDSTOF'),'#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile',T('100  AANVALSRAKET'),'#ff9a6a'],['core',T('1000  BASIS'),'#ff6fb3']];
     rows.forEach(([t,s,c],i)=>{const y=75+i*12.7;{const k=t==='core'?.2:.8,cy=y-4;ctx.save();ctx.translate(104,cy);ctx.scale(k,k);ctx.translate(-104,-cy);if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
-    {const y=75+6*12.7;trefoil(104,y-5.4,3.8,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,y-9,'#d7ff3f','left',HUDF);}
-    {const y=75+7*12.7;ctx.save();ctx.translate(104,y-5.6);ctx.scale(1.15,1.15);shieldIcon(0,0,true);ctx.restore();text(`SCHILD  ·  ${cfg.shields} PER RONDE  ·  ${cfg.shieldSec} SEC`,124,y-9,'#5fe6ff','left',HUDF);}
-    if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN',160,180,'#eef1ff','center',MID);
+    {const y=75+6*12.7;trefoil(104,y-5.4,3.8,true);text(`NUKE  ·  ${cfg.nukes} ${T('PER RONDE')}  ·  ${T('NODIG VOOR DE BASIS')}`,124,y-9,'#d7ff3f','left',HUDF);}
+    {const y=75+7*12.7;ctx.save();ctx.translate(104,y-5.6);ctx.scale(1.15,1.15);shieldIcon(0,0,true);ctx.restore();text(`${T('SCHILD')}  ·  ${cfg.shields} ${T('PER RONDE')}  ·  ${cfg.shieldSec} SEC`,124,y-9,'#5fe6ff','left',HUDF);}
+    if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN'),160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
   if(banner&&state==='play'){panel(84,banner.sub?30:20,150);text(banner.text,W/2,89,'#eef1ff','center',MID);if(banner.sub)text(banner.sub,W/2,101,'#ffb23e','center',SMALL);}
   if(state==='name'){ctx.fillStyle='rgba(4,6,15,.6)';ctx.fillRect(0,TOP,W,H-TOP);}
-  if(state==='over'){panel(84,40);text('SPEL VOORBIJ',W/2,89,'#ff5fa8','center',BIG);text(score>=hi&&score>0?'NIEUWE TOPSCORE':`SCORE ${pad6(score)}`,W/2,110,'#ffd84f','center',HUDF);}
-  if(paused){panel(86,28,150);text('GEPAUZEERD',W/2,90,'#eef1ff','center',MID);text('VUUR OM VERDER TE GAAN',W/2,102,'#8d93bd','center',SMALL);}
+  if(state==='over'){panel(84,40);text(T('SPEL VOORBIJ'),W/2,89,'#ff5fa8','center',BIG);text(score>=hi&&score>0?T('NIEUWE TOPSCORE'):`SCORE ${pad6(score)}`,W/2,110,'#ffd84f','center',HUDF);}
+  if(paused){panel(86,28,150);text(T('GEPAUZEERD'),W/2,90,'#eef1ff','center',MID);text(T('VUUR OM VERDER TE GAAN'),W/2,102,'#8d93bd','center',SMALL);}
 }
 
 /* ---------- 3D mode (three.js) ---------- */
@@ -1466,8 +1480,8 @@ function set3dUI(){b3d.checked=mode3d;b3dState.textContent='';}
 function loadThree(){return new Promise((res,rej)=>{if(window.THREE)return res();const sc=document.createElement('script');
   sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=()=>window.THREE?res():rej(new Error('three'));sc.onerror=()=>rej(new Error('load'));document.head.appendChild(sc);});}
 async function enable3d(){
-  b3d.checked=true;b3dState.textContent='(laden…)';
-  try{await loadThree();if(!three)three=init3d();}catch(e){mode3d=false;set3dUI();say('3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.');return;}
+  b3d.checked=true;b3dState.textContent=T('(laden…)');
+  try{await loadThree();if(!three)three=init3d();}catch(e){mode3d=false;set3dUI();say(T('3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.'));return;}
   mode3d=true;rootEl.classList.add('three');set3dUI();three.world=null;layout();
 }
 function disable3d(){mode3d=false;rootEl.classList.remove('three');set3dUI();}
@@ -1636,6 +1650,7 @@ function render3d(){
 try{if(localStorage.getItem('fuelrun.3d')==='1')enable3d();}catch(e){}
 
 /* ---------- loop ---------- */
+applyLang();
 startIntro();
 let last=performance.now();
 function tick(t){const dt=Math.max(0,Math.min(3,(t-last)/16.667));last=t;try{update(dt);draw();}catch(err){console.error(err);ctx=mainCtx;try{mainCtx.reset&&mainCtx.reset();}catch(_){}}requestAnimationFrame(tick);}
