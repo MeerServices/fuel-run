@@ -200,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 25 · lasers schieten in de richting van het schip</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 26 · status van de openbare lijst zichtbaar in SCORES</p>
 </div>
 
 <script>
@@ -645,7 +645,7 @@ async function fbQuery(field,limit){const r=await fetch(FBURL+':runQuery',{metho
   body:JSON.stringify({structuredQuery:{from:[{collectionId:'scores'}],orderBy:[{field:{fieldPath:field},direction:'DESCENDING'}],limit}})});
   if(!r.ok)throw new Error('fb '+r.status);const j=await r.json();return(Array.isArray(j)?j:[]).filter(x=>x.document).map(x=>fbDecode(x.document)).filter(validEntry);}
 async function fbRefresh(){try{const[recent,top]=await Promise.all([fbQuery('at',1000),fbQuery('score',10)]);const ys=periodStart('year');
-  pub.year=recent.filter(e=>e.at>=ys);pub.all=top;board.fb=true;board.pubOK=true;bumpHi();if(scOpen)renderScores();}catch(e){if(!board.fb)board.pubOK=false;}}
+  pub.year=recent.filter(e=>e.at>=ys);pub.all=top;board.fb=true;board.pubOK=true;board.fbAt=Date.now();board.fbErr='';bumpHi();if(scOpen)renderScores();}catch(e){board.fbErr=String(e.message||e);if(!board.fb)board.pubOK=false;if(scOpen)renderScores();}}
 async function fbAdd(e){const r=await fetch(FBURL+'/scores',{method:'POST',headers:{'Content-Type':'application/json'},
   body:JSON.stringify({fields:{name:{stringValue:e.name},score:{integerValue:String(Math.round(e.score))},time:{integerValue:String(Math.round(e.time))},at:{integerValue:String(Math.round(e.at))}}})});
   if(!r.ok)throw new Error('fb '+r.status);}
@@ -667,7 +667,7 @@ async function saveScore(name){
   if(board.db){try{await Promise.race([board.db.collection('scores').add(e),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))]);prune();}
     catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.');}}
   else if(board.fb){try{await fbAdd(e);setTimeout(fbRefresh,1500);}
-    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet. Controleer je internetverbinding.');}}
+    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);board.fbErr='opslaan: '+(err.message||err);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet ('+(err.message||err)+').');}}
 }
 function openEntry(){
   state='name';document.getElementById('eScore').textContent=pad6(score);document.getElementById('eTime').textContent=fmtTime(playTime);
@@ -712,7 +712,7 @@ const scPer=document.getElementById('scPer');for(const[k,lab]of PERIODS){const b
 function renderScores(){
   for(const bt of document.querySelectorAll('#scSrc button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.src));
   for(const bt of scPer.querySelectorAll('button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.per));
-  scNote.textContent=scView.src==='pers'?'Je eigen scores op dit apparaat.':board.fb?'Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run.':board.pubOK?'Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.':'De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.';
+  scNote.textContent=scView.src==='pers'?'Je eigen scores op dit apparaat.':board.fb?'Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. '+(board.fbErr?'Probleem: '+board.fbErr+'.':board.fbAt?'Bijgewerkt om '+fmtDate(board.fbAt).slice(9)+'.':''):(!window.claude&&board.fbErr)?'De openbare lijst is niet bereikbaar ('+board.fbErr+').':board.pubOK?'Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.':'De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.';
   scBody.textContent='';const l=listFor(scView.src,scView.per);
   if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=scView.src==='pub'&&!board.pubOK?'Niet beschikbaar.':'Nog geen scores in deze periode.';tr.appendChild(td);scBody.appendChild(tr);return;}
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
