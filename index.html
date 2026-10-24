@@ -80,12 +80,30 @@ html.three .lay{display:block}
 .stick::before,.stick::after{content:"";position:absolute;background:var(--rim);left:50%;top:50%;transform:translate(-50%,-50%)}
 .stick::before{width:2px;height:70%}.stick::after{width:70%;height:2px}
 .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:var(--ink);box-shadow:inset 0 -5px 0 #b9b2e6;z-index:1;pointer-events:none}
-.btns{display:flex;gap:14px;align-items:flex-end}
+.btns{display:flex;gap:14px;align-items:flex-end;margin-left:auto}
 .btn{width:76px;height:76px;border-radius:50%;border:none;font-family:var(--display);font-size:12px;letter-spacing:.06em;color:#14112f;touch-action:none;cursor:pointer}
 .btn.bomb{background:var(--amber);box-shadow:0 5px 0 #8a5a12}
 .btn.fire{background:var(--pink);box-shadow:0 5px 0 #8a1f55;margin-bottom:22px}
 .btn.nuke{width:58px;height:58px;font-size:11px;background:#d7ff3f;box-shadow:0 5px 0 #6a7d12;margin-bottom:56px}
-@media (max-width:440px){.stick{width:116px;height:116px}.btns{gap:9px}.btn{width:64px;height:64px;font-size:11px}.btn.nuke{width:52px;height:52px;font-size:10px;margin-bottom:48px}}
+.btn.shield{width:58px;height:58px;font-size:11px;background:#5fe6ff;box-shadow:0 5px 0 #1d7486;margin-bottom:56px}
+.btn.placed{position:fixed;margin:0!important;transform:translate(-50%,-50%);z-index:4}
+.btn.placed.on{transform:translate(-50%,calc(-50% + 4px))}
+.stick.floating{position:fixed;z-index:9;margin:0;opacity:.9}
+.uicfg{position:fixed;inset:0;z-index:8;border-radius:0;background:rgba(4,6,15,.4);padding:12px max(12px,env(safe-area-inset-right,0px)) 12px max(12px,env(safe-area-inset-left,0px))}
+.uicfg form{max-height:calc(100dvh - 24px)}
+.uicfg .chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);line-height:1.4;cursor:pointer}
+.uicfg .chk input{width:20px;height:20px;flex:none;accent-color:var(--cyan);margin-top:1px}
+.uirow{display:grid;grid-template-columns:62px 46px minmax(0,1fr) 46px;gap:8px;align-items:center}
+.uirow span{font-family:var(--display);font-size:11px;letter-spacing:.06em;color:var(--ink)}
+.uirow input[type=color]{width:46px;height:30px;padding:0;border:1px solid var(--rim);border-radius:4px;background:none;cursor:pointer}
+.uirow output{font-size:13px;color:var(--cyan);text-align:right;font-variant-numeric:tabular-nums}
+.edbar{position:fixed;z-index:10;top:max(10px,env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);width:min(94vw,560px);box-sizing:border-box;display:flex;gap:8px;align-items:center;background:var(--panel);border:1px solid var(--cyan);border-radius:8px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.edbar span{flex:1;font-size:12px;color:var(--ink);line-height:1.35}
+.edbar button{font-family:var(--display);font-size:11px;padding:8px 10px;border-radius:4px;cursor:pointer}
+.edbar .save{background:var(--cyan);color:#06221f;border:1px solid var(--cyan)}.edbar .skip{background:transparent;color:var(--dim);border:1px solid var(--rim)}
+html.editing .pad{display:flex!important;visibility:visible!important}
+html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opacity:1!important;cursor:grab}
+@media (max-width:440px){.stick{width:108px;height:108px}.btns{gap:8px}.btn{width:60px;height:60px;font-size:11px}.btn.nuke,.btn.shield{width:48px;height:48px;font-size:9px;margin-bottom:46px}}
 .btn.on{transform:translateY(4px);box-shadow:0 1px 0 #000}
 @media (pointer:coarse){
   .pad{display:flex}
@@ -97,6 +115,7 @@ html.three .lay{display:block}
   <header>
     <h1>FUEL RUN</h1>
     <div class="hbtns">
+      <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten">CONFIG</button>
       <button class="snd" id="b3d" title="3D-weergave aan of uit" aria-pressed="false">3D</button>
       <button class="snd" id="fsb" title="Volledig scherm aan of uit" aria-pressed="false">SCHERM</button>
       <button class="snd" id="gyro" title="Besturen door kantelen aan of uit" aria-pressed="false">GYRO</button>
@@ -131,14 +150,27 @@ html.three .lay{display:block}
   <div class="pad" id="pad">
     <div class="stick" id="stick" aria-label="Bewegen"><div class="knob" id="knob"></div></div>
     <div class="btns">
+      <button class="btn shield" id="bShield">SCHILD</button>
       <button class="btn bomb" id="bBomb">BOM</button>
       <button class="btn fire" id="bFire">VUUR</button>
       <button class="btn nuke" id="bNuke">NUKE</button>
     </div>
   </div>
-  <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>Z + X</b> vasthouden: schild · <b>P</b> pauze</p>
-  <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Houd vuur en bom tegelijk ingedrukt voor een schild van 5 seconden, ook 3 keer per ronde. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 18 · kortere knoppen, highscore loopt niet meer vast</p>
+  <div class="settings uicfg" id="uicfg" hidden>
+    <form id="uiForm" autocomplete="off">
+      <h2>CONFIG</h2>
+      <p class="sub">Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.</p>
+      <label class="chk" for="ui_float"><input type="checkbox" id="ui_float"> Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt</label>
+      <h3>Knoppen</h3>
+      <div id="uiRows"></div>
+      <div class="row"><button type="button" class="skip" id="uiMove">KNOPPEN VERPLAATSEN</button></div>
+      <div class="row"><button type="button" class="skip" id="uiDef">STANDAARD</button><button type="button" class="save" id="uiDone">KLAAR</button></div>
+    </form>
+  </div>
+  <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
+  <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
+  <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 19 · CONFIG, knop SCHILD, zwevende joystick, nukes maken je zwaarder</p>
 </div>
 
 <script>
@@ -169,6 +201,7 @@ function layout(){
   stageEl.style.width=land?'':Math.floor(cw)+'px';stageEl.style.height=land?'':Math.floor(ch)+'px';
   {const sw=Math.max(320,Math.round(cw*Math.min(window.devicePixelRatio||1,2)*.6));skyCv.width=sw;skyCv.height=Math.round(sw*nH/nW);}
   if(three)resize3d(Math.floor(cw),Math.floor(ch));
+  try{applyUI();}catch(e){}
   try{for(const st of stars){if(st.x>W)st.x=Math.random()*W;if(st.y>H)st.y=TOP+Math.random()*(H-TOP)*.75;}}catch(e){}
   fit();
 }
@@ -282,7 +315,7 @@ function exitFS(){try{const f=document.exitFullscreen||document.webkitExitFullsc
 function setFsUI(){fsBtn.setAttribute('aria-pressed',String(isFS()));fsBtn.textContent='SCHERM';}
 if(!canFS)fsBtn.hidden=true;
 fsBtn.addEventListener('click',e=>{e.stopPropagation();if(isFS()){fsWanted=false;exitFS();}else{fsWanted=true;goFS();}fsBtn.blur();});
-document.addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('.entry,.settings,header'))return;if(canFS&&fsWanted&&!isFS()&&matchMedia('(pointer:coarse)').matches)goFS();},true);
+document.addEventListener('pointerdown',e=>{if(e.target&&e.target.closest&&e.target.closest('.entry,.settings,header,.edbar,.btn'))return;if(canFS&&fsWanted&&!isFS()&&matchMedia('(pointer:coarse)').matches)goFS();},true);
 const onFs=()=>{setFsUI();layout();setTimeout(layout,120);setTimeout(layout,400);};
 document.addEventListener('fullscreenchange',onFs);document.addEventListener('webkitfullscreenchange',onFs);
 
@@ -355,7 +388,7 @@ async function gyroOn(){
 gyroBtn.onclick=()=>{ensureAudio();gyroBtn.blur();if(gyro.on){gyroOff();say('');}else gyroOn();};
 
 /* ---------- input ---------- */
-const keys={},touch={ax:0,ay:0,fire:false,bomb:false};let tap=false,prevFire=false;
+const keys={},touch={ax:0,ay:0,fire:false,bomb:false,shield:false};let tap=false,prevFire=false,prevShield=false;
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;ensureAudio();if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='p'&&state==='play')paused=!paused;});
 addEventListener('keyup',e=>{if(e.target&&e.target.tagName==='INPUT')return;keys[e.key.toLowerCase()]=false;});
 addEventListener('pointerdown',ensureAudio);
@@ -365,17 +398,70 @@ function moveStick(e){const r=stick.getBoundingClientRect(),Rr=r.width/2;let dx=
   knob.style.transform=`translate(${dx}px,${dy}px)`;const dz=v=>Math.abs(v)<.18?0:Math.max(-1,Math.min(1,v));touch.ax=dz(dx/(lim*.75));touch.ay=dz(dy/(lim*.75));}
 stick.addEventListener('pointerdown',e=>{e.preventDefault();sid=e.pointerId;stick.setPointerCapture(sid);moveStick(e);});
 stick.addEventListener('pointermove',e=>{if(e.pointerId===sid)moveStick(e);});
-const relStick=e=>{if(e.pointerId!==sid)return;sid=null;touch.ax=touch.ay=0;knob.style.transform='';};
+const relStick=e=>{if(e.pointerId!==sid)return;sid=null;touch.ax=touch.ay=0;knob.style.transform='';stick.classList.remove('floating');stick.style.left=stick.style.top='';};
 stick.addEventListener('pointerup',relStick);stick.addEventListener('pointercancel',relStick);
-function bindBtn(el,k){const on=e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(_){}touch[k]=true;el.classList.add('on');if(k==='fire')tap=true;},off=()=>{touch[k]=false;el.classList.remove('on');};
+function bindBtn(el,k){const on=e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(_){}if(editing){dragStart(e,el,k);return;}touch[k]=true;el.classList.add('on');if(k==='fire')tap=true;},off=e=>{if(editing){dragEnd(e,el,k);return;}touch[k]=false;el.classList.remove('on');};
+  el.addEventListener('pointermove',e=>{if(editing)dragMove(e,el);});
   el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('contextmenu',e=>e.preventDefault());}
-bindBtn(document.getElementById('bFire'),'fire');bindBtn(document.getElementById('bNuke'),'nuke');bindBtn(document.getElementById('bBomb'),'bomb');
+bindBtn(document.getElementById('bFire'),'fire');bindBtn(document.getElementById('bNuke'),'nuke');bindBtn(document.getElementById('bBomb'),'bomb');bindBtn(document.getElementById('bShield'),'shield');
+
+/* ---------- personal config: buttons + floating joystick ---------- */
+const UIDEF={floatStick:false,btn:{fire:{c:'#ff4fa3',s:0,pos:{}},bomb:{c:'#ffb23e',s:0,pos:{}},nuke:{c:'#d7ff3f',s:0,pos:{}},shield:{c:'#5fe6ff',s:0,pos:{}}}};
+const BTN=[['fire','VUUR','bFire',76],['bomb','BOM','bBomb',76],['nuke','NUKE','bNuke',58],['shield','SCHILD','bShield',58]];
+let cfgUI=JSON.parse(JSON.stringify(UIDEF)),editing=false,uiOpen=false,uiPaused=false,drag=null;
+try{const st=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(st&&typeof st==='object'){cfgUI.floatStick=!!st.floatStick;
+  for(const[k]of BTN){const b=st.btn&&st.btn[k];if(!b)continue;const t=cfgUI.btn[k];if(/^#[0-9a-f]{6}$/i.test(b.c||''))t.c=b.c;if(typeof b.s==='number')t.s=Math.max(0,Math.min(140,b.s));
+    for(const o of['land','port']){const q=b.pos&&b.pos[o];if(q&&isFinite(q.x)&&isFinite(q.y))t.pos[o]={x:Math.max(3,Math.min(97,q.x)),y:Math.max(3,Math.min(97,q.y))};}}}}catch(e){}
+const saveUI=()=>{try{localStorage.setItem('fuelrun.ui',JSON.stringify(cfgUI));}catch(e){}};
+function shadeHex(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;r=Math.round(r*k);g=Math.round(g*k);b=Math.round(b*k);return`rgb(${r},${g},${b})`;}
+function inkFor(h){const n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;return(.299*r+.587*g+.114*b)>150?'#14112f':'#ffffff';}
+const orient=()=>rootEl.classList.contains('land')?'land':'port';
+function applyUI(){for(const[k,,id]of BTN){const el=document.getElementById(id),c=cfgUI.btn[k];
+  el.style.background=c.c;el.style.boxShadow=`0 5px 0 ${shadeHex(c.c,.45)}`;el.style.color=inkFor(c.c);
+  if(c.s){el.style.width=el.style.height=c.s+'px';el.style.fontSize=Math.max(9,Math.round(c.s/6.4))+'px';}else el.style.width=el.style.height=el.style.fontSize='';
+  const q=c.pos[orient()];if(q){el.classList.add('placed');el.style.left=q.x+'%';el.style.top=q.y+'%';}else{el.classList.remove('placed');el.style.left=el.style.top='';}}}
+function dragStart(e,el,k){drag={id:e.pointerId,k};el.classList.add('placed');dragMove(e,el);}
+function dragMove(e,el){if(!drag||drag.id!==e.pointerId)return;const x=Math.max(3,Math.min(97,e.clientX/innerWidth*100)),y=Math.max(3,Math.min(97,e.clientY/innerHeight*100));el.style.left=x+'%';el.style.top=y+'%';drag.x=x;drag.y=y;}
+function dragEnd(e,el,k){if(!drag||drag.id!==e.pointerId)return;if(drag.x!==undefined)cfgUI.btn[k].pos[orient()]={x:+drag.x.toFixed(1),y:+drag.y.toFixed(1)};drag=null;saveUI();applyUI();}
+const uiEl=document.getElementById('uicfg'),uiRows=document.getElementById('uiRows'),floatIn=document.getElementById('ui_float'),edbar=document.getElementById('edbar');
+for(const[k,label,,def]of BTN){const row=document.createElement('div');row.className='uirow';
+  const sp=document.createElement('span');sp.textContent=label;
+  const col=document.createElement('input');col.type='color';col.id='uic_'+k;col.setAttribute('aria-label','Kleur '+label);
+  const rg=document.createElement('input');rg.type='range';rg.id='uis_'+k;rg.min=40;rg.max=130;rg.step=2;rg.setAttribute('aria-label','Grootte '+label);
+  const out=document.createElement('output');out.id='uio_'+k;
+  col.addEventListener('input',()=>{cfgUI.btn[k].c=col.value;applyUI();saveUI();});
+  rg.addEventListener('input',()=>{cfgUI.btn[k].s=+rg.value;out.textContent=rg.value;applyUI();saveUI();});
+  row.append(sp,col,rg,out);uiRows.appendChild(row);}
+function fillUI(){floatIn.checked=cfgUI.floatStick;for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
+  const sz=c.s||Math.round(document.getElementById(id).getBoundingClientRect().width)||def;document.getElementById('uis_'+k).value=sz;document.getElementById('uio_'+k).textContent=sz;}}
+floatIn.addEventListener('change',()=>{cfgUI.floatStick=floatIn.checked;saveUI();});
+function pauseFor(){if(state==='play'&&!paused){paused=true;uiPaused=true;}}
+function unpause(){if(uiPaused&&!editing&&!uiOpen){paused=false;uiPaused=false;}}
+function openUI(){if(uiOpen)return;uiOpen=true;fillUI();uiEl.hidden=false;pauseFor();}
+function closeUI(){uiOpen=false;uiEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
+document.getElementById('bcfg').addEventListener('click',e=>{e.currentTarget.blur();uiOpen?closeUI():openUI();});
+document.getElementById('uiDone').addEventListener('click',closeUI);
+document.getElementById('uiDef').addEventListener('click',()=>{cfgUI=JSON.parse(JSON.stringify(UIDEF));saveUI();applyUI();fillUI();});
+document.getElementById('uiMove').addEventListener('click',()=>{uiOpen=false;uiEl.hidden=true;editing=true;rootEl.classList.add('editing');edbar.hidden=false;pauseFor();applyUI();});
+function endEdit(){editing=false;drag=null;rootEl.classList.remove('editing');edbar.hidden=true;applyUI();unpause();}
+document.getElementById('edDone').addEventListener('click',endEdit);
+document.getElementById('edReset').addEventListener('click',()=>{const o=orient();for(const[k]of BTN)delete cfgUI.btn[k].pos[o];saveUI();applyUI();});
+// floating joystick: first touch on the left half becomes the centre
+document.addEventListener('pointerdown',e=>{
+  if(!cfgUI.floatStick||editing||uiOpen||sid!==null||e.pointerType==='mouse')return;
+  if(e.clientX>innerWidth/2)return;
+  if(e.target.closest&&e.target.closest('button,input,label,form,header,.edbar,.btn,.stick'))return;
+  if(!entryEl.hidden||!setEl.hidden)return;
+  const r=stick.getBoundingClientRect(),w=r.width||116;stick.classList.add('floating');stick.style.left=(e.clientX-w/2)+'px';stick.style.top=(e.clientY-w/2)+'px';
+  sid=e.pointerId;try{stick.setPointerCapture(sid);}catch(_){}moveStick(e);});
+applyUI();
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='play')paused=true;});
 function input(){
   const kx=(keys.arrowright||keys.d?1:0)-(keys.arrowleft||keys.a?1:0),ky=(keys.arrowdown||keys.s?1:0)-(keys.arrowup||keys.w?1:0);
   const fire=!!(keys.z||keys[' ']||keys.j||touch.fire);
   const r={ax:kx||touch.ax||(gyro.on?gyro.ax:0),ay:ky||touch.ay||(gyro.on?gyro.ay:0),fire,bomb:!!(keys.x||keys.k||keys.b||touch.bomb),press:(fire&&!prevFire)||tap||!!keys.enter};
   const nk=!!(keys.n||keys.c||touch.nuke);r.nuke=nk&&!prevNuke;prevNuke=nk;
+  const sh=!!(keys.v||touch.shield);r.shield=sh&&!prevShield;prevShield=sh;
   prevFire=fire;tap=false;return r;
 }
 
@@ -597,7 +683,7 @@ function drawIntro(){
 function update(dt){
   frame+=dt;shake*=Math.pow(.88,dt);if(shake<.05)shake=0;
   const inp=input();
-  if(setOpen)return;
+  if(setOpen||uiOpen||editing)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
   if(state==='title'){titleIdle+=dt;if(titleIdle>1800){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
@@ -614,8 +700,9 @@ function update(dt){
     if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;show(`RONDE ${loop+1}`,'SNELLER · WAPENS AANGEVULD');}
 
     const vx=axisVel(inp.ax,mvx,dt),vy=axisVel(inp.ay,mvy,dt);
-    p.x+=vx*dt;
-    if(fuel>0)p.y+=vy*dt;else p.y+=Math.max(.9,vy)*dt;
+    const wf=nukes>=3?.8:nukes===2?.9:1;
+    p.x+=vx*wf*dt;
+    if(fuel>0)p.y+=vy*wf*dt;else p.y+=Math.max(.9,vy*wf)*dt;
     p.x=Math.max(12,Math.min(170,p.x));p.y=Math.max(TOP+5,Math.min(H-4,p.y));
     if(Math.random()<.5*dt)parts.push({k:1,x:scroll+p.x-9,y:p.y+(Math.random()-.5),vx:-.3,vy:0,life:22,max:22,r:.6,g:.05,a:.18});
 
@@ -625,10 +712,8 @@ function update(dt){
     if(fuel<22&&(lowBeep-=dt)<=0){lowBeep=36;tone('square',220,200,.08,.04);}
 
     fireCd-=dt;bombCd-=dt;
-    if(inp.fire&&inp.bomb){comboT+=dt;if(comboT>=12&&!comboUsed){comboUsed=true;
-        if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
-        else pop(scroll+p.x+14,p.y-12,'GEEN SCHILDEN MEER','#ff5f7a');}}
-    else{comboT=0;comboUsed=false;}
+    if(inp.shield){if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
+        else pop(scroll+p.x+14,p.y-12,'GEEN SCHILDEN MEER','#ff5f7a');}
     if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push({x:scroll+p.x+8,y:p.y});fireCd=9;tone('square',1400,300,.07,.035);}
     if(inp.nuke){if(nukes>0&&!nukesFly.length){nukes--;nukesFly.push({x:scroll+p.x,y:p.y+4,vx:speed+1.6,vy:-.3});tone('sawtooth',220,70,.7,.06);}
       else if(!nukes)pop(scroll+p.x+14,p.y-10,'GEEN NUKES MEER','#ff5f7a');}
@@ -1090,7 +1175,7 @@ function draw(){
     const rows=[['rocket','50  /  80 IN DE LUCHT','#eef1ff'],['fuel','150  +  BRANDSTOF','#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile','100  AANVALSRAKET','#ff9a6a'],['core','1000  BASIS','#ff6fb3']];
     rows.forEach(([t,s,c],i)=>{const y=78+i*14.5;if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else{ctx.save();if(t==='core'){ctx.translate(104,y);ctx.scale(.23,.23);ctx.translate(-104,-y);}drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
     trefoil(104,160,3.6,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,157,'#d7ff3f','left',SMALL);
-    shieldIcon(104,169.5,true);text(`SCHILD  ·  VUUR + BOM VASTHOUDEN  ·  ${cfg.shieldSec} SEC  ·  ${cfg.shields}×`,124,167,'#5fe6ff','left',SMALL);
+    shieldIcon(104,169.5,true);text(`SCHILD  ·  KNOP SCHILD OF TOETS V  ·  ${cfg.shieldSec} SEC  ·  ${cfg.shields}×`,124,167,'#5fe6ff','left',SMALL);
     if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN',160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
