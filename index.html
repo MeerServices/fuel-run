@@ -200,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 24 · openbare highscores via Firebase</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 25 · lasers schieten in de richting van het schip</p>
 </div>
 
 <script>
@@ -313,7 +313,7 @@ function genWorld(){
 let state='title',scroll=0,speed=.9,score=0,hi=0,lives=3,nextLife=10000,fuel=100,flags=0,curStage=0;
 let p={x:48,y:100},lasers=[],bombs=[],enemies=[],parts=[],flashes=[],pops=[],banner=null,shake=0;
 let fireCd=0,bombCd=0,spawnT=60,timer=0,frame=0,paused=false,lowBeep=0;
-let baseWarned=false,bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
+let shipPitch=0,lastPX=null,lastPY=0,baseWarned=false,bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
 try{hi=+localStorage.getItem('fuelrun.hi')||0}catch(e){}
 const saveHi=()=>{try{localStorage.setItem('fuelrun.hi',hi)}catch(e){}};
 const stars=Array.from({length:90},()=>({x:Math.random()*W,y:TOP+Math.random()*(H-TOP)*.75,z:.05+Math.random()*.2,r:.35+Math.random()*.7,p:Math.random()*6}));
@@ -542,6 +542,7 @@ function kill(o){
 function spawnMissile(){const sx=scroll+W+6,c=clampI(Math.floor(sx/COL)),lo=ceilA[c]+8,hi2=floorA[c]-8;if(hi2-lo<10)return false;
   const y=Math.max(lo,Math.min(hi2,p.y+(Math.random()-.5)*30));enemies.push({t:'missile',x:sx,y,vx:0,vy:0,warn:50,alive:true});return true;}
 
+function aimLaser(){const a=shipPitch,c=Math.cos(a),sn=Math.sin(a);return{x:scroll+p.x+c*8,y:p.y+sn*8,vx:speed+c*5,vy:sn*5,a};}
 function armor(o,x,y){for(let i=0;i<6;i++)parts.push({k:0,x,y,vx:-Math.random()*1.5,vy:(Math.random()-.5)*1.5,life:12,max:12,c:'#cfe8ff',r:.6});
   tone('square',1800,1200,.05,.02);if(!o.msg||frame-o.msg>90){o.msg=frame;pop(o.wx,o.y-62,'ALLEEN EEN NUKE HELPT','#d7ff3f');}}
 function shieldHit(){shieldHitT=12;tone('square',1600,700,.12,.04);}
@@ -753,7 +754,7 @@ function introUpdate(dt){
   else ty=g.mid;
   p.y+=(ty-p.y)*Math.min(1,.14*dt);
   if(p.x<W+20){
-    if((introFire-=dt)<=0&&lasers.length<3){lasers.push({x:scroll+p.x+8,y:p.y});introFire=seg===4?14:8;}
+    if((introFire-=dt)<=0&&lasers.length<3){lasers.push(aimLaser());introFire=seg===4?14:8;}
     if(seg<4&&(introBomb-=dt)<=0&&bombs.length<2){bombs.push({x:scroll+p.x,y:p.y+4,vx:speed+1.1,vy:.3});introBomb=26;}
     if(Math.random()<.6*dt)parts.push({k:1,x:scroll+p.x-9,y:p.y+(Math.random()-.5),vx:-.3,vy:0,life:22,max:22,r:.6,g:.05,a:.18});
   }
@@ -836,7 +837,7 @@ function update(dt){
     fireCd-=dt;bombCd-=dt;
     if(inp.shield){if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
         else pop(scroll+p.x+14,p.y-12,'GEEN SCHILDEN MEER','#ff5f7a');}
-    if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push({x:scroll+p.x+8,y:p.y});fireCd=9;tone('square',1400,300,.07,.035);}
+    if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push(aimLaser());fireCd=9;tone('square',1400,300,.07,.035);}
     if(inp.nuke){if(nukes>0&&!nukesFly.length){nukes--;nukesFly.push({x:scroll+p.x,y:p.y+4,vx:speed+1.6,vy:-.3});tone('sawtooth',220,70,.7,.06);}
       else if(!nukes)pop(scroll+p.x+14,p.y-10,'GEEN NUKES MEER','#ff5f7a');}
     if(inp.bomb&&bombCd<=0&&bombs.length<cfg.bombAir){
@@ -877,12 +878,13 @@ function update(dt){
     else if(Math.random()<.9*dt)parts.push({k:0,x:e.x+3,y:e.y+(Math.random()-.5)*3,vx:.6,vy:(Math.random()-.5)*.2,life:14,max:14,c:Math.random()<.5?'#ff8a3d':'#ffd27a',r:.8+Math.random()});
     if(e.x-scroll<-20)e.alive=false;}
 
-  for(const l of lasers){l.x+=(speed+5)*dt;
-    if(l.x-scroll>W+8){l.dead=true;continue;}
-    if(solid(l.x+5,l.y)){l.dead=true;for(let i=0;i<5;i++)parts.push({k:0,x:l.x+5,y:l.y,vx:-Math.random()*1.2,vy:(Math.random()-.5)*1.2,life:10,max:10,c:'#ffd0ea',r:.5});continue;}
-    for(const o of objs)if(o.alive&&inBox(l.x+5,l.y,box(o))){if(o.t==='core')armor(o,l.x+5,l.y);else kill(o);l.dead=true;break;}
+  for(const l of lasers){if(l.vx===undefined){l.vx=speed+5;l.vy=0;l.a=0;}l.x+=l.vx*dt;l.y+=l.vy*dt;
+    const tx=l.x+Math.cos(l.a)*5,ty=l.y+Math.sin(l.a)*5;
+    if(l.x-scroll>W+8||ty<TOP-4||ty>H+4){l.dead=true;continue;}
+    if(solid(tx,ty)){l.dead=true;for(let i=0;i<5;i++)parts.push({k:0,x:tx,y:ty,vx:-Math.random()*1.2,vy:(Math.random()-.5)*1.2,life:10,max:10,c:'#ffd0ea',r:.5});continue;}
+    for(const o of objs)if(o.alive&&inBox(tx,ty,box(o))){if(o.t==='core')armor(o,tx,ty);else kill(o);l.dead=true;break;}
     if(l.dead)continue;
-    for(const e of enemies)if(e.alive&&inBox(l.x+5,l.y,box(e))){l.dead=true;if(e.t!=='fireball')kill(e);break;}
+    for(const e of enemies)if(e.alive&&inBox(tx,ty,box(e))){l.dead=true;if(e.t!=='fireball')kill(e);break;}
   }
   lasers=lasers.filter(l=>!l.dead);
   for(const b of bombs){b.vx*=Math.pow(.985,dt);b.vy+=.07*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;
@@ -892,6 +894,9 @@ function update(dt){
   }
   bombs=bombs.filter(b=>!b.dead);
   updateNukes(dt);
+  if(state==='play'||state==='intro'){if(dt>0&&lastPX!==null){const dyv=(p.y-lastPY)/dt,dxv=Math.max(.8,speed+(p.x-lastPX)/dt);
+      const tgt=Math.max(-.75,Math.min(.75,Math.atan2(dyv,dxv)));shipPitch+=(tgt-shipPitch)*Math.min(1,.3*dt);}
+    lastPX=p.x;lastPY=p.y;}else{lastPX=null;shipPitch=0;}
   if(state==='play'||state==='intro'){shieldT=Math.max(0,shieldT-dt);shieldHitT=Math.max(0,shieldHitT-dt);}
 
   if(state==='play'&&shieldT>0){
@@ -1286,11 +1291,11 @@ function draw(){
     ctx.fillStyle='#5b606c';ctx.fillRect(-3.2,-1.4,1,2.8);ctx.fillStyle=lg(0,-1.3,0,1.3,['#7a808d','#24262d']);ctx.beginPath();ctx.ellipse(0,0,2.3,1.25,0,0,7);ctx.fill();ctx.restore();}
   }
   ctx.globalCompositeOperation='lighter';
-  for(const l of lasers){const x=l.x-scroll;
-    ctx.fillStyle='rgba(255,80,160,.22)';ctx.fillRect(x-6,l.y-1.6,14,3.2);
-    ctx.fillStyle=lg(x-8,0,x+8,0,['rgba(255,80,160,0)',[.55,'rgba(255,90,170,.9)'],[1,'#ffffff']]);ctx.fillRect(x-8,l.y-.55,16,1.1);}
+  for(const l of lasers){ctx.save();ctx.translate(l.x-scroll,l.y);ctx.rotate(l.a||0);
+    ctx.fillStyle='rgba(255,80,160,.22)';ctx.fillRect(-6,-1.6,14,3.2);
+    ctx.fillStyle=lg(-8,0,8,0,['rgba(255,80,160,0)',[.55,'rgba(255,90,170,.9)'],[1,'#ffffff']]);ctx.fillRect(-8,-.55,16,1.1);ctx.restore();}
   ctx.globalCompositeOperation='source-over';
-  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y);if(shieldT>0)drawShield(p.x,p.y);}
+  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(shipPitch);drawShip(0,0);ctx.restore();}if(shieldT>0)drawShield(p.x,p.y);}
   for(const n of nukeFx)drawNukeFx(n);
   drawFx();
   for(const q of pops){ctx.globalAlpha=Math.min(1,q.life/20);text(q.text,q.x-scroll,q.y,q.c,'center',SMALL,true);}ctx.globalAlpha=1;
@@ -1488,7 +1493,7 @@ function render3d(){
   for(const b of bombs){const m=want(b,'bomb');m.position.set(b.x,-b.y,0);m.rotation.z=Math.atan2(-b.vy,b.vx);}
   for(const n of nukesFly){const m=want(n,'nuke');m.position.set(n.x,-n.y,0);m.rotation.z=Math.atan2(-n.vy,Math.max(.3,n.vx-speed));m.getObjectByName('blink').visible=(frame|0)%10<5;}
   if(state==='play'||(state==='intro'&&p.x<W+20)){const m=want('ship','ship');m.position.set(scroll+p.x,-p.y,0);
-    const vy=(mvy.d||0)*Math.min(1,mvy.t*2);m.rotation.z+=((-vy*.18)-m.rotation.z)*.15;m.rotation.x=Math.sin(frame*.05)*.12;
+    m.rotation.z=-shipPitch;m.rotation.x=Math.sin(frame*.05)*.12;
     m.getObjectByName('flame').scale.set(1,.7+Math.random()*.6,1);}
   for(const[k,m]of o.meshes)if(!seen.has(k)){o.dyn.remove(m);o.meshes.delete(k);}
   renderer.render(scene,camera);
