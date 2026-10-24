@@ -200,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 27 · beweging zoals versie 24, schieten in de vliegrichting</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 28 · schiethoek instelbaar (G), vloeiendere overgangen tussen zones</p>
 </div>
 
 <script>
@@ -275,13 +275,15 @@ function genWorld(){
     let i=0;
     while(i<P.cols){
       const run=P.runMin+Math.floor(R()*(P.runMax-P.runMin+1));
-      const lead=s===0&&i<24, tail=s===3&&i>=P.cols-14;
+      const lead=s===0&&i<24, tail=s===3&&i>=P.cols-14, exitCave=s===1&&i>=P.cols-18;
       if(!lead){
         if(tail) f+=Math.sign(176-f)*Math.min(16,Math.abs(176-f));
-        else if(P.city) f=R()<.2?184:96+Math.floor(R()*4)*24;
+        else if(exitCave) f+=Math.sign(176-f)*Math.min(10,Math.abs(176-f));
+        else if(P.city){f=R()<.2?184:96+Math.floor(R()*4)*24;const ramp=Math.max(0,Math.min(1,i/26,(P.cols-i)/20));f=Math.max(f,Math.round(184-88*ramp));}
         else {f=Math.round(f+(R()*2-1)*P.step);f=Math.max(P.fMin,Math.min(P.fMax,f));}
-        if(P.cave&&!tail){const tg=P.cMin+R()*(P.cMax-P.cMin);c=Math.round(c+Math.max(-10,Math.min(10,tg-c)));}
-        else c=Math.max(TOP,c-20);
+        if(exitCave)c=Math.max(TOP,c-12);
+        else if(P.cave&&!tail){const tg=P.cMin+R()*(P.cMax-P.cMin);c=Math.round(c+Math.max(-10,Math.min(10,tg-c)));}
+        else c=Math.max(TOP,c-(P.city?8:20));
         if(c>f-P.gap)c=f-P.gap;
         if(c<TOP)c=TOP;
       }
@@ -300,9 +302,9 @@ function genWorld(){
   // smooth natural terrain (city stays as buildings)
   const K=[1,2,3,2,1];
   for(let pass=0;pass<2;pass++){const sf=floorA.slice(),sc=ceilA.slice();
-    for(let i=0;i<total;i++){if(STAGES[stageA[i]].city)continue;let a=0,b=0,w=0;
-      for(let k=-2;k<=2;k++){const j=clampI(i+k);if(STAGES[stageA[j]].city)continue;a+=sf[j]*K[k+2];b+=sc[j]*K[k+2];w+=K[k+2];}
-      floorA[i]=a/w;ceilA[i]=b/w;}}
+    for(let i=0;i<total;i++){const ci=STAGES[stageA[i]].city;let a=0,b=0,w=0,wc=0;
+      for(let k=-2;k<=2;k++){const j=clampI(i+k);b+=sc[j]*K[k+2];wc+=K[k+2];if(STAGES[stageA[j]].city)continue;a+=sf[j]*K[k+2];w+=K[k+2];}
+      ceilA[i]=b/wc;if(!ci&&w)floorA[i]=a/w;}}
   for(let i=0;i<total;i++){if(STAGES[stageA[i]].city)continue;const g=STAGES[stageA[i]].gap*.9;
     if(ceilA[i]>floorA[i]-g)ceilA[i]=floorA[i]-g;if(ceilA[i]<TOP)ceilA[i]=TOP;}
   for(const o of objs)o.y=fAt(o.wx);
@@ -357,9 +359,9 @@ document.addEventListener('fullscreenchange',onFs);document.addEventListener('we
 })();
 
 /* ---------- settings (key G) ---------- */
-const DEF={v0:.6,acc:2.4,vmax:2.6,gyroDeg:14,bombs:0,bombAir:2,lasers:3,nukes:3,shields:3,shieldSec:5,lives:3,speed:100,fuel:100,enemies:100};
+const DEF={v0:.6,acc:2.4,vmax:2.6,gyroDeg:14,aimMax:45,bombs:0,bombAir:2,lasers:3,nukes:3,shields:3,shieldSec:5,lives:3,speed:100,fuel:100,enemies:100};
 const SPEC=[['Besturing'],['v0','Startsnelheid',.2,2,.1,''],['acc','Versnelling per seconde',0,6,.2,''],['vmax','Topsnelheid',.5,5,.1,''],['gyroDeg','Gyro: kantelen voor topsnelheid',5,40,1,'°'],
-  ['Wapens'],['bombs','Bommen per ronde (0 = onbeperkt)',0,99,1,''],['bombAir','Bommen tegelijk in de lucht',1,6,1,''],['lasers','Laserschoten tegelijk',1,8,1,''],
+  ['Wapens'],['bombs','Bommen per ronde (0 = onbeperkt)',0,99,1,''],['bombAir','Bommen tegelijk in de lucht',1,6,1,''],['lasers','Laserschoten tegelijk',1,8,1,''],['aimMax','Schiethoek bij volle snelheid omhoog/omlaag',0,90,5,'°'],
   ['nukes','Nukes per ronde',0,9,1,''],['shields','Schilden per ronde',0,9,1,''],['shieldSec','Duur van het schild',1,20,1,' s'],
   ['Spel'],['lives','Levens',1,9,1,''],['speed','Spelsnelheid',50,200,10,'%'],['fuel','Brandstofverbruik',0,300,10,'%'],['enemies','Aantal vijanden',25,300,25,'%']];
 let cfg={...DEF};
@@ -895,7 +897,7 @@ function update(dt){
   bombs=bombs.filter(b=>!b.dead);
   updateNukes(dt);
   if(state==='play'||state==='intro'){if(dt>0&&lastPX!==null){const dyv=(p.y-lastPY)/dt,dxv=Math.max(.8,speed+(p.x-lastPX)/dt);
-      const tgt=Math.max(-.75,Math.min(.75,Math.atan2(dyv,dxv)));shipPitch+=(tgt-shipPitch)*Math.min(1,.3*dt);}
+      const wf2=state==='play'?(nukes>=3?.8:nukes===2?.9:1):1,tgt=Math.max(-1,Math.min(1,dyv/Math.max(.4,cfg.vmax*wf2)))*cfg.aimMax*Math.PI/180;shipPitch+=(tgt-shipPitch)*Math.min(1,.3*dt);}
     lastPX=p.x;lastPY=p.y;}else{lastPX=null;shipPitch=0;}
   if(state==='play'||state==='intro'){shieldT=Math.max(0,shieldT-dt);shieldHitT=Math.max(0,shieldHitT-dt);}
 
@@ -1142,6 +1144,8 @@ function drawCity(a,b){
     }
     c=e+1;}
 }
+const BLENDC=18;
+function blendT(s,x){if(s<=0||STAGES[s].city||STAGES[s-1].city)return 1;return Math.max(0,Math.min(1,(x-starts[s]*COL)/(BLENDC*COL)));}
 function drawSeg(s,a,b){
   const P=STAGES[s],xa=a*COL-scroll,xb=(b+1)*COL-scroll,wa=a*COL,wb=(b+1)*COL;
   if(P.jungle)drawFalls(a,b);
@@ -1161,6 +1165,13 @@ function drawSeg(s,a,b){
       for(let wx=Math.ceil(wa/2.5)*2.5;wx<wb;wx+=2.5){const h=hash(wx*10|0,3);if(h>55)continue;const y=fAt(wx),x=wx-scroll;ctx.moveTo(x,y);ctx.lineTo(x+(h%3-1)*.5,y-1.2-(h%4)*.5);}
       ctx.stroke();}
   }
+  if(s>0&&!P.city&&!STAGES[s-1].city){const PP=STAGES[s-1],k0=starts[s],K=BLENDC;
+    for(let c=Math.max(a,k0);c<=Math.min(b,k0+K-1);c++){const al=1-(c-k0+.5)/K,w0=c*COL,w1=w0+COL;ctx.globalAlpha=al;
+      ctx.beginPath();ctx.moveTo(w0-scroll,H+1);for(let wx=w0;wx<=w1;wx+=2)ctx.lineTo(wx-scroll,fAt(wx));ctx.lineTo(w1-scroll,H+1);ctx.closePath();
+      ctx.fillStyle=lg(0,110,0,H,[PP.top,PP.bot]);ctx.fill();nightTint();
+      ctx.beginPath();for(let wx=w0;wx<=w1;wx+=2){const y=fAt(wx);wx===w0?ctx.moveTo(wx-scroll,y):ctx.lineTo(wx-scroll,y);}
+      ctx.strokeStyle=PP.edge2||PP.edge;ctx.lineWidth=3;ctx.stroke();ctx.strokeStyle=PP.edge;ctx.lineWidth=1.1;ctx.stroke();}
+    ctx.globalAlpha=1;}
   if(P.jungle)drawPlants(a,b);
   let hasC=false;for(let c=a;c<=b;c++)if(ceilA[c]>TOP+.5){hasC=true;break;}
   if(hasC){
@@ -1377,12 +1388,13 @@ function buildChunk(ci){
     // front face (z=0)
     if(b[0]>a[0]){for(let r=0;r+1<FRONT.length;r++){
       const ya0=-(a[1]+FRONT[r]),yb0=-(b[1]+FRONT[r]),ya1=-(a[1]+FRONT[r+1]),yb1=-(b[1]+FRONT[r+1]);
-      const pick=k=>{if(k===0)return cc(P.edge,city?.55:.8);if(k===1)return cc(P.edge2||P.top,.9);const t=Math.min(1,(k-1)/4);const c=cc(P.top).lerp(cc(P.bot),t);return c.multiplyScalar(.9+.12*nz(a[0]*3+k*11));};
+      const pickP=(Q,k)=>{if(k===0)return cc(Q.edge,city?.55:.8);if(k===1)return cc(Q.edge2||Q.top,.9);const t=Math.min(1,(k-1)/4);const c=cc(Q.top).lerp(cc(Q.bot),t);return c.multiplyScalar(.9+.12*nz(a[0]*3+k*11));};
+      const bt=blendT(a[2],a[0]),pick=k=>bt<1?pickP(STAGES[a[2]-1],k).lerp(pickP(P,k),bt):pickP(P,k);
       quad(pos,col,[a[0],ya0,0],[a[0],ya1,0],[b[0],yb1,0],[b[0],yb0,0],pick(r),pick(r+1),pick(r+1),pick(r));}}
     // top surface / walls extruded backwards
     const rows=city?CROWS:ROWS;
     const lift=(x,r)=>city||r===0?0:r*4+6*r*(.5+.5*nz(x+r*37));
-    const shade=r=>{const t=TOP3[a[2]];return cc(t[0]).lerp(cc(t[1]),r/(rows.length-1));};
+    const bt3=blendT(a[2],a[0]),shadeS=(si,r)=>{const t=TOP3[si];return cc(t[0]).lerp(cc(t[1]),r/(rows.length-1));},shade=r=>bt3<1?shadeS(a[2]-1,r).lerp(shadeS(a[2],r),bt3):shadeS(a[2],r);
     for(let r=0;r+1<rows.length;r++){
       const A0=[a[0],-a[1]+lift(a[0],r),rows[r]],B0=[b[0],-b[1]+lift(b[0],r),rows[r]],A1=[a[0],-a[1]+lift(a[0],r+1),rows[r+1]],B1=[b[0],-b[1]+lift(b[0],r+1),rows[r+1]];
       let c0c=shade(r),c1c=shade(r+1);if(b[0]===a[0]){c0c=cc(P.top,.8);c1c=cc(P.bot,1.3);}
@@ -1399,7 +1411,7 @@ function buildChunk(ci){
       const FR=[0,2,8,20,60,300];
       for(let r=0;r+1<FR.length;r++){const pick=k2=>k2===0?cc(P.edge,.7):cc(P.top).lerp(cc(P.bot),Math.min(1,k2/4)).multiplyScalar(.9+.1*nz(x0*2+k2*7));
         quad(pos,col,[x0,-(y0-FR[r]),0],[x1,-(y1-FR[r]),0],[x1,-(y1-FR[r+1]),0],[x0,-(y0-FR[r+1]),0],pick(r),pick(r),pick(r+1),pick(r+1));}
-      const dr=(x,r)=>r===0?0:r*4+6*r*(.5+.5*nz(x*1.3+r*51));
+      const dr=(x,r)=>r===0?0:(r*4+6*r*(.5+.5*nz(x*1.3+r*51)))*Math.max(0,Math.min(1,(cAt(x)-TOP)/34));
       for(let r=0;r+1<ROWS.length;r++){const ca=cc(t[1],.8).lerp(cc(t[0],.7),r/3),cb=cc(t[1],.8).lerp(cc(t[0],.7),(r+1)/3);
         quad(pos,col,[x0,-y0-dr(x0,r),ROWS[r]],[x1,-y1-dr(x1,r),ROWS[r]],[x1,-y1-dr(x1,r+1),ROWS[r+1]],[x0,-y0-dr(x0,r+1),ROWS[r+1]],ca,ca,cb,cb);}}}
   const g=new T.Group();
