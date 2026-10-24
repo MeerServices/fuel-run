@@ -92,6 +92,7 @@ html.three .lay{display:block}
 .uicfg{position:fixed;inset:0;z-index:8;border-radius:0;background:rgba(4,6,15,.4);padding:12px max(12px,env(safe-area-inset-right,0px)) 12px max(12px,env(safe-area-inset-left,0px))}
 .uicfg form{max-height:calc(100dvh - 24px)}
 .uicfg .chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);line-height:1.4;cursor:pointer}
+.uicfg .chk .dim{color:var(--dim)}
 .uicfg .chk input{width:20px;height:20px;flex:none;accent-color:var(--cyan);margin-top:1px}
 .uirow{display:grid;grid-template-columns:62px 46px minmax(0,1fr) 46px;gap:8px;align-items:center}
 .uirow span{font-family:var(--display);font-size:11px;letter-spacing:.06em;color:var(--ink)}
@@ -129,9 +130,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
     <div class="hbtns">
       <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar">SCORES</button>
       <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten">CONFIG</button>
-      <button class="snd" id="b3d" title="3D-weergave aan of uit" aria-pressed="false">3D</button>
       <button class="snd" id="fsb" title="Volledig scherm aan of uit" aria-pressed="false">SCHERM</button>
-      <button class="snd" id="snd" title="Geluid aan of uit" aria-pressed="true">GELUID</button>
     </div>
   </header>
   <p class="hint gstat" id="gstat" hidden></p>
@@ -176,6 +175,9 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <label class="chk" for="ui_gyro"><input type="checkbox" id="ui_gyro"> Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.</label>
       <label class="chk" for="ui_float"><input type="checkbox" id="ui_float"> Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt</label>
       <p class="sub" id="uiMsg" hidden></p>
+      <h3>Weergave en geluid</h3>
+      <label class="chk" for="ui_3d"><input type="checkbox" id="ui_3d"> <span>3D-weergave <span id="ui3dState" class="dim"></span></span></label>
+      <label class="chk" for="ui_snd"><input type="checkbox" id="ui_snd" checked> Geluid</label>
       <h3>Dag en nacht</h3>
       <div class="seg" id="uiTime"><button type="button" data-v="auto">AUTOMATISCH</button><button type="button" data-v="day">DAG</button><button type="button" data-v="night">NACHT</button></div>
       <p class="sub" id="uiSun"></p>
@@ -198,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 21 · dag en nacht met echte zon en maan, gyro in CONFIG</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 22 · 3D en geluid in CONFIG, demo loopt niet meer vast</p>
 </div>
 
 <script>
@@ -332,8 +334,8 @@ function ensureAudio(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudi
 function tone(type,f1,f2,dur,vol){if(!ac||muted)return;const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur+.02);}
 function boom(dur,vol){if(!ac||muted)return;if(!noiseBuf){noiseBuf=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
   const t=ac.currentTime,s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=noiseBuf;fl.type='lowpass';fl.frequency.setValueAtTime(2000,t);fl.frequency.exponentialRampToValueAtTime(100,t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(fl).connect(g).connect(ac.destination);s.start(t);s.stop(t+dur);}
-const sndBtn=document.getElementById('snd');
-sndBtn.onclick=()=>{ensureAudio();muted=!muted;sndBtn.textContent='GELUID';sndBtn.setAttribute('aria-pressed',String(!muted));sndBtn.blur();};
+const sndBtn=document.getElementById('ui_snd');try{muted=localStorage.getItem('fuelrun.mute')==='1';}catch(e){}sndBtn.checked=!muted;
+sndBtn.addEventListener('change',()=>{ensureAudio();muted=!sndBtn.checked;try{localStorage.setItem('fuelrun.mute',muted?'1':'0');}catch(e){}});
 
 /* ---------- fullscreen ---------- */
 const fsBtn=document.getElementById('fsb');let fsWanted=true;
@@ -460,7 +462,7 @@ for(const[k,label,,def]of BTN){const row=document.createElement('div');row.class
   col.addEventListener('input',()=>{cfgUI.btn[k].c=col.value;applyUI();saveUI();});
   rg.addEventListener('input',()=>{cfgUI.btn[k].s=+rg.value;out.textContent=rg.value;applyUI();saveUI();});
   row.append(sp,col,rg,out);uiRows.appendChild(row);}
-function fillUI(){floatIn.checked=cfgUI.floatStick;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
+function fillUI(){floatIn.checked=cfgUI.floatStick;document.getElementById('ui_3d').checked=mode3d;document.getElementById('ui_snd').checked=!muted;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
   const sz=c.s||Math.round(document.getElementById(id).getBoundingClientRect().width)||def;document.getElementById('uis_'+k).value=sz;document.getElementById('uio_'+k).textContent=sz;}}
 floatIn.addEventListener('change',()=>{cfgUI.floatStick=floatIn.checked;saveUI();});
 function pauseFor(){if(state==='play'&&!paused){paused=true;uiPaused=true;}}
@@ -748,6 +750,7 @@ function introUpdate(dt){
   }
 }
 function drawIntro(){
+  if(introSeg<0)return;
   const seg=introSeg,lt=seg<4?introT-seg*SEG:seg===4?introT-4*SEG:introT-4*SEG-SEGF;
   ctx.save();ctx.beginPath();ctx.rect(0,TOP,W,H-TOP);ctx.clip();
   if(seg<4){ctx.globalCompositeOperation='lighter';
@@ -1289,8 +1292,8 @@ function draw(){
     text('PUNTENTABEL',160,58,'#8d93bd','center',SMALL);
     const rows=[['rocket','50  /  80 IN DE LUCHT','#eef1ff'],['fuel','150  +  BRANDSTOF','#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile','100  AANVALSRAKET','#ff9a6a'],['core','1000  BASIS','#ff6fb3']];
     rows.forEach(([t,s,c],i)=>{const y=78+i*14.5;if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else{ctx.save();if(t==='core'){ctx.translate(104,y);ctx.scale(.23,.23);ctx.translate(-104,-y);}drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
-    trefoil(104,160,3.6,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,157,'#d7ff3f','left',SMALL);
-    shieldIcon(104,169.5,true);text(`SCHILD  ·  KNOP SCHILD OF TOETS V  ·  ${cfg.shieldSec} SEC  ·  ${cfg.shields}×`,124,167,'#5fe6ff','left',SMALL);
+    trefoil(104,160.3,3.6,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,157,'#d7ff3f','left',SMALL);
+    ctx.save();ctx.translate(104,170.1);ctx.scale(1.12,1.12);shieldIcon(0,0,true);ctx.restore();text(`SCHILD  ·  ${cfg.shields} PER RONDE  ·  ${cfg.shieldSec} SEC`,124,167,'#5fe6ff','left',SMALL);
     if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN',160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
@@ -1302,17 +1305,17 @@ function draw(){
 
 /* ---------- 3D mode (three.js) ---------- */
 const CH3=40;
-const b3d=document.getElementById('b3d');
-function set3dUI(){b3d.setAttribute('aria-pressed',String(mode3d));b3d.textContent='3D';}
+const b3d=document.getElementById('ui_3d'),b3dState=document.getElementById('ui3dState');
+function set3dUI(){b3d.checked=mode3d;b3dState.textContent='';}
 function loadThree(){return new Promise((res,rej)=>{if(window.THREE)return res();const sc=document.createElement('script');
   sc.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';sc.onload=()=>window.THREE?res():rej(new Error('three'));sc.onerror=()=>rej(new Error('load'));document.head.appendChild(sc);});}
 async function enable3d(){
-  b3d.textContent='3D…';
+  b3d.checked=true;b3dState.textContent='(laden…)';
   try{await loadThree();if(!three)three=init3d();}catch(e){mode3d=false;set3dUI();say('3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.');return;}
   mode3d=true;rootEl.classList.add('three');set3dUI();three.world=null;layout();
 }
 function disable3d(){mode3d=false;rootEl.classList.remove('three');set3dUI();}
-b3d.addEventListener('click',()=>{b3d.blur();if(mode3d){disable3d();try{localStorage.setItem('fuelrun.3d','0');}catch(e){}}
+b3d.addEventListener('change',()=>{if(!b3d.checked){disable3d();try{localStorage.setItem('fuelrun.3d','0');}catch(e){}}
   else{try{localStorage.setItem('fuelrun.3d','1');}catch(e){}enable3d();}});
 function resize3d(w,h){if(!three)return;three.renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));three.renderer.setSize(w,h,false);}
 function init3d(){
@@ -1478,7 +1481,7 @@ try{if(localStorage.getItem('fuelrun.3d')==='1')enable3d();}catch(e){}
 /* ---------- loop ---------- */
 startIntro();
 let last=performance.now();
-function tick(t){const dt=Math.max(0,Math.min(3,(t-last)/16.667));last=t;update(dt);draw();requestAnimationFrame(tick);}
+function tick(t){const dt=Math.max(0,Math.min(3,(t-last)/16.667));last=t;try{update(dt);draw();}catch(err){console.error(err);ctx=mainCtx;try{mainCtx.reset&&mainCtx.reset();}catch(_){}}requestAnimationFrame(tick);}
 requestAnimationFrame(tick);
 if(document.fonts&&document.fonts.load){document.fonts.load(HUDF).catch(()=>{});document.fonts.load(LOGO).catch(()=>{});}
 })();
