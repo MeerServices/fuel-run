@@ -200,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 22 · 3D en geluid in CONFIG, demo loopt niet meer vast</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 23 · basis verder weg met waarschuwing, puntentabel gelijk verdeeld</p>
 </div>
 
 <script>
@@ -295,7 +295,7 @@ function genWorld(){
     }
   });
   const ts=floorA.length;
-  for(let k=0;k<110;k++){floorA.push(176);ceilA.push(TOP);stageA.push(3);}
+  for(let k=0;k<150;k++){floorA.push(176);ceilA.push(TOP);stageA.push(3);}
   total=floorA.length;
   // smooth natural terrain (city stays as buildings)
   const K=[1,2,3,2,1];
@@ -306,14 +306,14 @@ function genWorld(){
   for(let i=0;i<total;i++){if(STAGES[stageA[i]].city)continue;const g=STAGES[stageA[i]].gap*.9;
     if(ceilA[i]>floorA[i]-g)ceilA[i]=floorA[i]-g;if(ceilA[i]<TOP)ceilA[i]=TOP;}
   for(const o of objs)o.y=fAt(o.wx);
-  objs.push({t:'core',wx:(ts+40)*COL,y:176,alive:true});
+  objs.push({t:'core',wx:(ts+70)*COL,y:176,alive:true});baseWarned=false;
 }
 
 /* ---------- state ---------- */
 let state='title',scroll=0,speed=.9,score=0,hi=0,lives=3,nextLife=10000,fuel=100,flags=0,curStage=0;
 let p={x:48,y:100},lasers=[],bombs=[],enemies=[],parts=[],flashes=[],pops=[],banner=null,shake=0;
 let fireCd=0,bombCd=0,spawnT=60,timer=0,frame=0,paused=false,lowBeep=0;
-let bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
+let baseWarned=false,bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
 try{hi=+localStorage.getItem('fuelrun.hi')||0}catch(e){}
 const saveHi=()=>{try{localStorage.setItem('fuelrun.hi',hi)}catch(e){}};
 const stars=Array.from({length:90},()=>({x:Math.random()*W,y:TOP+Math.random()*(H-TOP)*.75,z:.05+Math.random()*.2,r:.35+Math.random()*.7,p:Math.random()*6}));
@@ -792,7 +792,7 @@ function update(dt){
   const inp=input();
   if(setOpen||uiOpen||editing||scOpen)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
-  if(state==='title'){titleIdle+=dt;if(titleIdle>3000){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
+  if(state==='title'){titleIdle+=dt;if(titleIdle>3000){startIntro();return;}scroll+=.6*dt;if(scroll>(total-150)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
   if(state==='name'){if(entryEl.hidden){rootEl.classList.remove('modal');toTitle();}stepFx(dt);return;}
   if(state==='scores'){timer-=dt;if(timer<=0||(timer<600&&inp.press)){toTitle();}stepFx(dt);return;}
@@ -828,6 +828,8 @@ function update(dt){
       if(cfg.bombs>0&&bombsLeft<=0){bombCd=40;pop(scroll+p.x+14,p.y+10,'GEEN BOMMEN MEER','#ff5f7a');}
       else{if(cfg.bombs>0)bombsLeft--;bombs.push({x:scroll+p.x,y:p.y+4,vx:speed+1.1,vy:.3});bombCd=20;tone('triangle',700,140,.3,.06);}}
 
+    if(!baseWarned){const cb=objs[objs.length-1];if(cb&&cb.t==='core'&&cb.alive&&cb.wx-scroll<W+260){baseWarned=true;
+      show('BASIS NADERT',nukes>0?'HOUD EEN NUKE KLAAR':'JE HEBT GEEN NUKES MEER');tone('square',520,260,.25,.05);setTimeout(()=>tone('square',520,260,.25,.05),300);}}
     const st=curStage,into=col-starts[st],len=STAGES[st].cols;
     if((spawnT-=dt)<=0&&into>10&&into<len-12&&col<starts[3]+STAGES[3].cols){
       const sx=scroll+W+10,c2=clampI(Math.floor(sx/COL));
@@ -1289,11 +1291,11 @@ function draw(){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
     ctx.save();ctx.translate((W-320)/2,(H-200)/2);
     ctx.save();ctx.shadowColor='rgba(255,79,163,.7)';ctx.shadowBlur=10*S;text('FUEL RUN',160,30,'#ff4fa3','center',LOGO);ctx.restore();
-    text('PUNTENTABEL',160,58,'#8d93bd','center',SMALL);
+    text('PUNTENTABEL',160,53,'#8d93bd','center',SMALL);
     const rows=[['rocket','50  /  80 IN DE LUCHT','#eef1ff'],['fuel','150  +  BRANDSTOF','#7ff0de'],['myst','100 · 200 · 300','#ffd84f'],['saucer','100','#b6ff8a'],['missile','100  AANVALSRAKET','#ff9a6a'],['core','1000  BASIS','#ff6fb3']];
-    rows.forEach(([t,s,c],i)=>{const y=78+i*14.5;if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else{ctx.save();if(t==='core'){ctx.translate(104,y);ctx.scale(.23,.23);ctx.translate(-104,-y);}drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
-    trefoil(104,160.3,3.6,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,157,'#d7ff3f','left',SMALL);
-    ctx.save();ctx.translate(104,170.1);ctx.scale(1.12,1.12);shieldIcon(0,0,true);ctx.restore();text(`SCHILD  ·  ${cfg.shields} PER RONDE  ·  ${cfg.shieldSec} SEC`,124,167,'#5fe6ff','left',SMALL);
+    rows.forEach(([t,s,c],i)=>{const y=75+i*12.7;{const k=t==='core'?.2:.8,cy=y-4;ctx.save();ctx.translate(104,cy);ctx.scale(k,k);ctx.translate(-104,-cy);if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
+    {const y=75+6*12.7;trefoil(104,y-5.4,3.8,true);text(`NUKE  ·  ${cfg.nukes} PER RONDE  ·  NODIG VOOR DE BASIS`,124,y-9,'#d7ff3f','left',HUDF);}
+    {const y=75+7*12.7;ctx.save();ctx.translate(104,y-5.6);ctx.scale(1.15,1.15);shieldIcon(0,0,true);ctx.restore();text(`SCHILD  ·  ${cfg.shields} PER RONDE  ·  ${cfg.shieldSec} SEC`,124,y-9,'#5fe6ff','left',HUDF);}
     if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN',160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
