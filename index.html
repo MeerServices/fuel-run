@@ -102,6 +102,18 @@ html.three .lay{display:block}
 .edbar button{font-family:var(--display);font-size:11px;padding:8px 10px;border-radius:4px;cursor:pointer}
 .edbar .save{background:var(--cyan);color:#06221f;border:1px solid var(--cyan)}.edbar .skip{background:transparent;color:var(--dim);border:1px solid var(--rim)}
 html.editing .pad{display:flex!important;visibility:visible!important}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 auto;font-family:var(--display);font-size:11px;letter-spacing:.05em;padding:7px 8px;border-radius:4px;border:1px solid var(--rim);background:transparent;color:var(--dim);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--cyan);border-color:var(--cyan);color:#06221f}
+.seg button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.tbl{overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th{font-size:11px;color:var(--dim);font-weight:600;text-align:right;padding:4px 6px;border-bottom:1px solid var(--rim);white-space:nowrap}
+.tbl td{padding:4px 6px;text-align:right;color:var(--ink);white-space:nowrap}
+.tbl th:nth-child(4),.tbl td:nth-child(4){text-align:left}
+.tbl tbody tr:first-child td{color:#ffd84f}
+.tbl tbody tr.me td{color:#d7ff3f;background:rgba(215,255,63,.08)}
+.tbl td.empty{text-align:center;color:var(--dim);padding:14px}
 html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opacity:1!important;cursor:grab}
 @media (max-width:440px){.stick{width:108px;height:108px}.btns{gap:8px}.btn{width:60px;height:60px;font-size:11px}.btn.nuke,.btn.shield{width:48px;height:48px;font-size:9px;margin-bottom:46px}}
 .btn.on{transform:translateY(4px);box-shadow:0 1px 0 #000}
@@ -115,6 +127,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <header>
     <h1>FUEL RUN</h1>
     <div class="hbtns">
+      <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar">SCORES</button>
       <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten">CONFIG</button>
       <button class="snd" id="b3d" title="3D-weergave aan of uit" aria-pressed="false">3D</button>
       <button class="snd" id="fsb" title="Volledig scherm aan of uit" aria-pressed="false">SCHERM</button>
@@ -167,10 +180,20 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <div class="row"><button type="button" class="skip" id="uiDef">STANDAARD</button><button type="button" class="save" id="uiDone">KLAAR</button></div>
     </form>
   </div>
+  <div class="settings uicfg scorep" id="scorep" hidden>
+    <form id="scForm" autocomplete="off">
+      <h2>HIGH SCORES</h2>
+      <div class="seg" id="scSrc"><button type="button" data-v="pers">PERSOONLIJK</button><button type="button" data-v="pub">OPENBAAR</button></div>
+      <div class="seg" id="scPer"></div>
+      <p class="sub" id="scNote"></p>
+      <div class="tbl"><table><thead><tr><th>#</th><th>SCORE</th><th>LEVENSDUUR</th><th>NAAM</th><th>DATUM · TIJD</th></tr></thead><tbody id="scBody"></tbody></table></div>
+      <div class="row"><button type="button" class="save" id="scDone">KLAAR</button></div>
+    </form>
+  </div>
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. Met GYRO aan stuur je door je telefoon te kantelen; de stand bij de start van het spel is het nulpunt.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 19 · CONFIG, knop SCHILD, zwevende joystick, nukes maken je zwaarder</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 20 · highscores per dag, week, maand en jaar, persoonlijk en openbaar</p>
 </div>
 
 <script>
@@ -436,7 +459,7 @@ function fillUI(){floatIn.checked=cfgUI.floatStick;for(const[k,,id,def]of BTN){c
   const sz=c.s||Math.round(document.getElementById(id).getBoundingClientRect().width)||def;document.getElementById('uis_'+k).value=sz;document.getElementById('uio_'+k).textContent=sz;}}
 floatIn.addEventListener('change',()=>{cfgUI.floatStick=floatIn.checked;saveUI();});
 function pauseFor(){if(state==='play'&&!paused){paused=true;uiPaused=true;}}
-function unpause(){if(uiPaused&&!editing&&!uiOpen){paused=false;uiPaused=false;}}
+function unpause(){if(uiPaused&&!editing&&!uiOpen&&!scOpen){paused=false;uiPaused=false;}}
 function openUI(){if(uiOpen)return;uiOpen=true;fillUI();uiEl.hidden=false;pauseFor();}
 function closeUI(){uiOpen=false;uiEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
 document.getElementById('bcfg').addEventListener('click',e=>{e.currentTarget.blur();uiOpen?closeUI():openUI();});
@@ -553,26 +576,44 @@ function updateNukes(dt){
   nukesFly=nukesFly.filter(n=>!n.dead);
 }
 
-/* ---------- high scores ---------- */
-let playTime=0,lastEntry=null,board={list:[],db:null};
+/* ---------- high scores: per day/week/month/year/all, personal + public ---------- */
+let playTime=0,lastEntry=null,board={db:null,pubOK:false},scOpen=false;
+let pers=[],pub={year:[],all:[]},boardView={src:'pers',per:'day'};
+const PERIODS=[['day','DAG'],['week','WEEK'],['month','MAAND'],['year','JAAR'],['all','ALTIJD']];
+const SRCN={pers:'PERSOONLIJK',pub:'OPENBAAR'};
 const entryEl=document.getElementById('entry'),entryForm=document.getElementById('entryForm'),nameIn=document.getElementById('naam');
 const fmtTime=t=>{t=Math.max(0,Math.round(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
 const fmtDate=ms=>{const d=new Date(ms),z=n=>String(n).padStart(2,'0');return `${z(d.getDate())}-${z(d.getMonth()+1)}-${String(d.getFullYear()).slice(2)} ${z(d.getHours())}:${z(d.getMinutes())}`;};
 const cleanName=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9 \-]/g,'').trim().slice(0,10);
-function validEntry(e){return e&&typeof e.score==='number'&&isFinite(e.score);}
-function loadLocal(){try{board.list=(JSON.parse(localStorage.getItem('fuelrun.scores')||'[]')||[]).filter(validEntry);}catch(e){board.list=[];}hi=Math.max(hi,board.list[0]?.score||0);}
-function saveLocal(e){let l=[];try{l=(JSON.parse(localStorage.getItem('fuelrun.scores')||'[]')||[]).filter(validEntry);}catch(_){}l=[...l,e].sort((a,b)=>b.score-a.score).slice(0,10);if(!board.db)board.list=l;try{localStorage.setItem('fuelrun.scores',JSON.stringify(l));}catch(_){}}
+function validEntry(e){return e&&typeof e.score==='number'&&isFinite(e.score)&&typeof e.at==='number';}
+function periodStart(k){const d=new Date();d.setHours(0,0,0,0);if(k==='day')return+d;if(k==='week'){d.setDate(d.getDate()-((d.getDay()+6)%7));return+d;}if(k==='month'){d.setDate(1);return+d;}if(k==='year'){d.setMonth(0,1);return+d;}return 0;}
+const byScore=(a,b)=>b.score-a.score||a.at-b.at;
+const same=(a,b)=>!!(a&&b&&a.at===b.at&&a.name===b.name&&a.score===b.score);
+function listFor(src,k){if(src==='pub'){if(!board.pubOK)return[];if(k==='all')return pub.all.slice(0,10);const t=periodStart(k);return pub.year.filter(e=>e.at>=t).sort(byScore).slice(0,10);}
+  const t=periodStart(k);return pers.filter(e=>e.at>=t).sort(byScore).slice(0,10);}
+function bumpHi(){hi=Math.max(hi,pers.reduce((m,e)=>Math.max(m,e.score),0),pub.all[0]?pub.all[0].score:0);}
+function loadLocal(){let l=null;try{l=JSON.parse(localStorage.getItem('fuelrun.scores.all')||'null');}catch(e){}
+  if(!Array.isArray(l)){try{l=JSON.parse(localStorage.getItem('fuelrun.scores')||'[]');}catch(e){l=[];}}
+  pers=(Array.isArray(l)?l:[]).filter(validEntry);bumpHi();}
+function savePersonal(e){pers.push(e);const keep=[...pers].sort((a,b)=>b.at-a.at).slice(0,800);for(const t of [...pers].sort(byScore).slice(0,10))if(!keep.includes(t))keep.push(t);pers=keep;
+  try{localStorage.setItem('fuelrun.scores.all',JSON.stringify(pers));}catch(_){}}
 loadLocal();
-(async()=>{try{if(!window.claude||!window.claude.use)return;const db=await window.claude.use('db');if(!db)return;board.db=db;
-  board.unsub=db.collection('scores').orderBy('score','desc').limit(10).onSnapshot(snap=>{board.list=snap.docs.map(d=>d.data()).filter(validEntry);hi=Math.max(hi,board.list[0]?.score||0);},()=>{board.db=null;loadLocal();});}catch(e){}})();
-function qualifies(){return score>0&&(board.list.length<10||score>board.list[board.list.length-1].score);}
-async function prune(){try{const sn=await board.db.collection('scores').orderBy('score','desc').get();for(const d of sn.docs.slice(30))await board.db.collection('scores').doc(d.id).delete();}catch(e){}}
+(async()=>{try{if(!window.claude||!window.claude.use)return;const db=await window.claude.use('db');if(!db)return;board.db=db;board.pubOK=true;
+  const off=()=>{board.pubOK=false;board.db=null;};
+  db.collection('scores').where('at','>=',periodStart('year')).orderBy('score','desc').limit(1000).onSnapshot(sn=>{pub.year=sn.docs.map(d=>d.data()).filter(validEntry);if(scOpen)renderScores();},off);
+  db.collection('scores').orderBy('score','desc').limit(10).onSnapshot(sn=>{pub.all=sn.docs.map(d=>d.data()).filter(validEntry);bumpHi();if(scOpen)renderScores();},off);}catch(e){}})();
+const sources=()=>board.pubOK?['pub','pers']:['pers'];
+function qualifies(){if(score<=0)return false;for(const sr of sources())for(const[k]of PERIODS){const l=listFor(sr,k);if(l.length<10||score>l[l.length-1].score)return true;}return false;}
+function rankIn(src,k,e){const i=listFor(src,k).findIndex(x=>same(x,e));return i<0?99:i+1;}
+function bestView(e){let best=null;for(const sr of sources())for(let i=PERIODS.length-1;i>=0;i--){const k=PERIODS[i][0],r=rankIn(sr,k,e);if(r<99&&(!best||r<best.r))best={src:sr,per:k,r};}return best||{src:'pers',per:'day'};}
+async function prune(){try{const old=Date.now()-400*864e5,sn=await board.db.collection('scores').where('at','<',old).limit(200).get();
+  for(const d of sn.docs){const e=d.data();if(pub.all.some(x=>same(x,e)))continue;await board.db.collection('scores').doc(d.id).delete();}}catch(e){}}
 async function saveScore(name){
-  const e={name,score,time:Math.round(playTime),at:Date.now()};lastEntry=e;
-  board.list=[...board.list,e].sort((a,b)=>b.score-a.score).slice(0,10);
-  if(board.db){try{await Promise.race([board.db.collection('scores').add(e),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))]);prune();return;}
-    catch(err){try{board.unsub&&board.unsub();}catch(_){}board.db=null;loadLocal();}}
-  saveLocal(e);
+  const e={name,score,time:Math.round(playTime),at:Date.now()};lastEntry=e;savePersonal(e);
+  if(board.db){pub.year=[...pub.year,e];pub.all=[...pub.all,e].sort(byScore).slice(0,10);}
+  bumpHi();const v=bestView(e);boardView={src:v.src,per:v.per};
+  if(board.db){try{await Promise.race([board.db.collection('scores').add(e),new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),10000))]);prune();}
+    catch(err){pub.year=pub.year.filter(x=>x!==e);pub.all=pub.all.filter(x=>x!==e);say('Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.');}}
 }
 function openEntry(){
   state='name';document.getElementById('eScore').textContent=pad6(score);document.getElementById('eTime').textContent=fmtTime(playTime);
@@ -585,23 +626,50 @@ entryForm.addEventListener('submit',async ev=>{ev.preventDefault();const n=clean
   try{localStorage.setItem('fuelrun.name',n);}catch(e){}
   entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();state='scores';timer=720;saveScore(n);});
 document.getElementById('eSkip').addEventListener('click',()=>{entryEl.hidden=true;rootEl.classList.remove('modal');nameIn.blur();toTitle();});
-function drawBoard(hl){
-  ctx.fillStyle='rgba(4,6,15,.8)';ctx.fillRect(0,TOP,W,H-TOP);
+function attractBoards(){const out=[];for(const[k]of PERIODS)for(const sr of sources())if(listFor(sr,k).length)out.push({src:sr,per:k});return out.length?out:[{src:sources()[0],per:'day'}];}
+function drawBoard(src,per,hl){
+  ctx.fillStyle='rgba(4,6,15,.82)';ctx.fillRect(0,TOP,W,H-TOP);
   ctx.save();ctx.translate((W-320)/2,(H-200)/2);
-  ctx.save();ctx.shadowColor='rgba(255,178,62,.7)';ctx.shadowBlur=10*S;text('HIGH SCORES',160,30,'#ffb23e','center',LOGO);ctx.restore();
-  const hy=58;
+  ctx.save();ctx.shadowColor='rgba(255,178,62,.7)';ctx.shadowBlur=10*S;text('HIGH SCORES',160,27,'#ffb23e','center',LOGO);ctx.restore();
+  const sc=src==='pub'?'#5fe6ff':'#d7ff3f';text(SRCN[src],14,51,sc,'left',SMALL);
+  let x=306;for(let i=PERIODS.length-1;i>=0;i--){const[k,lab]=PERIODS[i];ctx.font=SMALL;const w=ctx.measureText(lab).width+7;x-=w;const act=k===per;
+    if(act){ctx.fillStyle=sc;rr(x,49.4,w,9,2);ctx.fill();}text(lab,x+w/2,51,act?'#06221f':'#8d93bd','center',SMALL);x-=3;}
+  const hy=63;
   text('#',24,hy,'#8d93bd','right',SMALL);text('SCORE',84,hy,'#8d93bd','right',SMALL);text('LEVENSDUUR',140,hy,'#8d93bd','right',SMALL);
   text('NAAM',152,hy,'#8d93bd','left',SMALL);text('DATUM · TIJD',304,hy,'#8d93bd','right',SMALL);
-  ctx.fillStyle='rgba(140,150,210,.3)';ctx.fillRect(14,hy+9,292,.5);
-  if(!board.list.length)text('Nog geen scores. Speel en zet de eerste neer.',160,110,'#c9cdee','center',HUDF);
-  board.list.slice(0,10).forEach((e,i)=>{const y=hy+13+i*10.4,me=hl&&lastEntry&&e.at===lastEntry.at&&e.name===lastEntry.name&&e.score===lastEntry.score;
-    if(me){ctx.fillStyle='rgba(215,255,63,.12)';ctx.fillRect(14,y-1.5,292,10);}
+  ctx.fillStyle='rgba(140,150,210,.3)';ctx.fillRect(14,hy+8.5,292,.5);
+  const l=listFor(src,per);
+  if(!l.length)text(src==='pub'&&!board.pubOK?'Openbare scores zijn hier niet beschikbaar.':'Nog geen scores in deze periode.',160,112,'#c9cdee','center',HUDF);
+  l.forEach((e,i)=>{const y=hy+12+i*9.6,me=hl&&same(e,lastEntry);
+    if(me){ctx.fillStyle='rgba(215,255,63,.12)';ctx.fillRect(14,y-1.4,292,9.4);}
     const c=me?'#d7ff3f':i===0?'#ffd84f':i<3?'#ffe3a8':'#eef1ff';
     text(String(i+1),24,y,c,'right',HUDF);text(pad6(e.score|0),84,y,c,'right',HUDF);text(fmtTime(e.time||0),140,y,c,'right',HUDF);
-    text(cleanName(e.name)||'ANONIEM',152,y,c,'left',HUDF);text(e.at?fmtDate(e.at):'',304,y,c,'right',HUDF);});
-  text(board.db?'GEDEELD MET IEDEREEN DIE DIT SPEL OPENT':'OPGESLAGEN OP DIT APPARAAT',160,171,'#6f76a3','center',SMALL);
+    text(cleanName(e.name)||'ANONIEM',152,y,c,'left',HUDF);text(fmtDate(e.at),304,y,c,'right',HUDF);});
+  if(hl&&lastEntry){const parts=PERIODS.map(([k,lab])=>{const r=rankIn(src,k,lastEntry);return r<99?lab+' #'+r:null;}).filter(Boolean);
+    if(parts.length)text('JOUW PLEK  ·  '+parts.join('  ·  '),160,171.5,'#d7ff3f','center',SMALL);}
   ctx.restore();
 }
+addEventListener('keydown',e=>{if(state!=='scores'||(e.target&&e.target.tagName==='INPUT'))return;const k=e.key,pi=PERIODS.findIndex(q=>q[0]===boardView.per);
+  if(k==='ArrowLeft'||k==='ArrowRight'){boardView.per=PERIODS[(pi+(k==='ArrowRight'?1:PERIODS.length-1))%PERIODS.length][0];timer=Math.max(timer,600);}
+  if((k==='ArrowUp'||k==='ArrowDown')&&board.pubOK){boardView.src=boardView.src==='pub'?'pers':'pub';timer=Math.max(timer,600);}});
+// scores panel (button SCORES)
+const scEl=document.getElementById('scorep'),scBody=document.getElementById('scBody'),scNote=document.getElementById('scNote');let scView={src:'pers',per:'day'};
+const scPer=document.getElementById('scPer');for(const[k,lab]of PERIODS){const bt=document.createElement('button');bt.type='button';bt.dataset.v=k;bt.textContent=lab;scPer.appendChild(bt);}
+function renderScores(){
+  for(const bt of document.querySelectorAll('#scSrc button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.src));
+  for(const bt of scPer.querySelectorAll('button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===scView.per));
+  scNote.textContent=scView.src==='pers'?'Je eigen scores op dit apparaat.':board.pubOK?'Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.':'Openbare scores werken nog niet in deze versie: daarvoor is een online opslag nodig. In de Claude-app zie je wel de gedeelde lijst.';
+  scBody.textContent='';const l=listFor(scView.src,scView.per);
+  if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=scView.src==='pub'&&!board.pubOK?'Niet beschikbaar.':'Nog geen scores in deze periode.';tr.appendChild(td);scBody.appendChild(tr);return;}
+  l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
+    for(const v of[i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||'ANONIEM',fmtDate(e.at)]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td);}scBody.appendChild(tr);});
+}
+document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;renderScores();}});
+scPer.addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.per=v;renderScores();}});
+function openScores(){if(scOpen)return;scOpen=true;scView={...boardView};if(scView.src==='pub'&&!board.pubOK)scView.src='pers';renderScores();scEl.hidden=false;pauseFor();}
+function closeScores(){scOpen=false;scEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
+document.getElementById('bsc').addEventListener('click',e=>{e.currentTarget.blur();scOpen?closeScores():openScores();});
+document.getElementById('scDone').addEventListener('click',closeScores);
 
 /* ---------- intro teaser ---------- */
 const SEG=140,SEGF=270,LOGOT=150;
@@ -683,9 +751,9 @@ function drawIntro(){
 function update(dt){
   frame+=dt;shake*=Math.pow(.88,dt);if(shake<.05)shake=0;
   const inp=input();
-  if(setOpen||uiOpen||editing)return;
+  if(setOpen||uiOpen||editing||scOpen)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
-  if(state==='title'){titleIdle+=dt;if(titleIdle>1800){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
+  if(state==='title'){titleIdle+=dt;if(titleIdle>3000){startIntro();return;}scroll+=.6*dt;if(scroll>(total-110)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
   if(state==='name'){if(entryEl.hidden){rootEl.classList.remove('modal');toTitle();}stepFx(dt);return;}
   if(state==='scores'){timer-=dt;if(timer<=0||(timer<600&&inp.press)){toTitle();}stepFx(dt);return;}
@@ -1165,7 +1233,8 @@ function draw(){
   if(flashW>0){ctx.fillStyle=`rgba(255,248,235,${Math.min(1,flashW*1.2)})`;ctx.fillRect(0,TOP,W,H-TOP);}
   if(state==='intro')drawIntro();
   drawHUD();
-  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%2===1)){drawBoard(state==='scores');
+  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%2===1)){
+    if(state==='scores')drawBoard(boardView.src,boardView.per,true);else{const cb=attractBoards(),v=cb[Math.floor(titleIdle/600)%cb.length];drawBoard(v.src,v.per,false);}
     if((frame|0)%60<38)text(state==='scores'?'DRUK OP VUUR OM VERDER TE GAAN':(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN'),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
   else if(state==='title'){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
