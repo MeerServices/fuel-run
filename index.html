@@ -150,7 +150,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <canvas class="lay" id="gl" width="640" height="400" aria-hidden="true"></canvas>
       <canvas class="screen" id="screen" width="1280" height="800" aria-label="Fuel Run spelscherm"></canvas>
       <div class="bonus" id="bonus" hidden role="status" aria-live="polite"><canvas id="fx3d" width="640" height="400" aria-hidden="true"></canvas>
-        <div class="btxt"><div class="bt1">NIEUWE HIGHSCORE</div><div class="bt2" id="bName"></div><div class="bt3" id="bScore"></div></div></div>
+        <div class="btxt"><div class="bt1" id="bLabel">NIEUWE HIGHSCORE</div><div class="bt2" id="bName"></div><div class="bt3" id="bScore"></div></div></div>
     </div>
     <div class="settings" id="settings" hidden>
       <form id="setForm" autocomplete="off">
@@ -212,7 +212,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 29 · 3D-bonusanimatie bij een nieuwe openbare topscore</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 30 · bonusanimatie ook in de roulatie van het startscherm</p>
 </div>
 
 <script>
@@ -744,15 +744,16 @@ let bonusChecked=false,bonusOn=false;
 function checkNewTop(){if(bonusChecked)return;const top=pub.all[0];if(!top)return;bonusChecked=true;
   const key=top.at+'|'+top.name+'|'+top.score;let seen=null;try{seen=localStorage.getItem('fuelrun.seenTop');localStorage.setItem('fuelrun.seenTop',key);}catch(e){}
   if(seen===key||pers.some(x=>same(x,top))||state==='play'||state==='dying')return;showBonus(top);}
-async function showBonus(e){
+let bonusKill=null,lastTitlePage=-1;
+async function showBonus(e,label){const attract=!!label;
   if(bonusOn)return;bonusOn=true;
   const el=document.getElementById('bonus'),cvx=document.getElementById('fx3d');
-  document.getElementById('bName').textContent=cleanName(e.name)||'ANONIEM';document.getElementById('bScore').textContent=pad6(e.score|0)+' PUNTEN';
+  document.getElementById('bLabel').textContent=label||'NIEUWE HIGHSCORE';document.getElementById('bName').textContent=cleanName(e.name)||'ANONIEM';document.getElementById('bScore').textContent=pad6(e.score|0)+' PUNTEN';
   el.hidden=false;void el.offsetWidth;el.classList.add('show');
-  if(ac&&!muted)[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone('square',f,f*1.01,.22,.05),i*130));
+  if(!attract&&ac&&!muted)[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone('square',f,f*1.01,.22,.05),i*130));
   let fin=false,stop3d=()=>{};
-  const finish=()=>{if(fin)return;fin=true;el.classList.add('out');setTimeout(()=>{el.hidden=true;el.classList.remove('show','out');stop3d();bonusOn=false;},380);};
-  el.onclick=finish;setTimeout(finish,5000);
+  const finish=()=>{if(fin)return;fin=true;el.classList.add('out');setTimeout(()=>{el.hidden=true;el.classList.remove('show','out');stop3d();bonusOn=false;bonusKill=null;},380);};
+  bonusKill=finish;el.onclick=finish;setTimeout(finish,attract?4800:5000);
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   try{await loadThree();}catch(err){return;}
   if(fin)return;
@@ -872,7 +873,8 @@ function update(dt){
   const inp=input();
   if(setOpen||uiOpen||editing||scOpen)return;
   for(const s of stars){s.x-=s.z*(state==='dying'?0:state==='intro'?4:1)*dt;if(s.x<0){s.x+=W;s.y=TOP+Math.random()*(H-TOP)*.75;}}
-  if(state==='title'){titleIdle+=dt;if(titleIdle>3000){startIntro();return;}scroll+=.6*dt;if(scroll>(total-150)*COL)scroll=0;if(inp.press){newGame();}stepFx(dt);return;}
+  if(state==='title'){titleIdle+=dt;{const pg=Math.floor(titleIdle/300);if(pg!==lastTitlePage){lastTitlePage=pg;if(pg%3===2&&!bonusOn){const top=pub.all[0]||listFor('pers','all')[0];if(top)showBonus(top,'TOPSCORE');}}}
+    if(titleIdle>3000&&!bonusOn){startIntro();return;}scroll+=.6*dt;if(scroll>(total-150)*COL)scroll=0;if(inp.press){if(bonusKill)bonusKill();newGame();}stepFx(dt);return;}
   if(state==='over'){timer-=dt;if(timer<=0||(timer<120&&inp.press)){if(qualifies())openEntry();else{toTitle();titleIdle=300;}}stepFx(dt);return;}
   if(state==='name'){if(entryEl.hidden){rootEl.classList.remove('modal');toTitle();}stepFx(dt);return;}
   if(state==='scores'){timer-=dt;if(timer<=0||(timer<600&&inp.press)){toTitle();}stepFx(dt);return;}
@@ -1377,10 +1379,10 @@ function draw(){
   if(flashW>0){ctx.fillStyle=`rgba(255,248,235,${Math.min(1,flashW*1.2)})`;ctx.fillRect(0,TOP,W,H-TOP);}
   if(state==='intro')drawIntro();
   drawHUD();
-  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%2===1)){
-    if(state==='scores')drawBoard(boardView.src,boardView.per,true);else{const cb=attractBoards(),v=cb[Math.floor(titleIdle/600)%cb.length];drawBoard(v.src,v.per,false);}
+  if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%3===1)){
+    if(state==='scores')drawBoard(boardView.src,boardView.per,true);else{const cb=attractBoards(),v=cb[Math.floor(titleIdle/900)%cb.length];drawBoard(v.src,v.per,false);}
     if((frame|0)%60<38)text(state==='scores'?'DRUK OP VUUR OM VERDER TE GAAN':(matchMedia('(pointer:coarse)').matches?'TIK OP VUUR OM TE STARTEN':'DRUK OP VUUR OM TE STARTEN'),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
-  else if(state==='title'){
+  else if(state==='title'&&!(bonusOn&&Math.floor(titleIdle/300)%3===2)){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
     ctx.save();ctx.translate((W-320)/2,(H-200)/2);
     ctx.save();ctx.shadowColor='rgba(255,79,163,.7)';ctx.shadowBlur=10*S;text('FUEL RUN',160,30,'#ff4fa3','center',LOGO);ctx.restore();
