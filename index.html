@@ -200,7 +200,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span>Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset">STANDAARD</button><button type="button" class="save" id="edDone">KLAAR</button></div>
   <p class="hint keys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 26 · status van de openbare lijst zichtbaar in SCORES</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 27 · beweging zoals versie 24, schieten in de vliegrichting</p>
 </div>
 
 <script>
@@ -1295,7 +1295,7 @@ function draw(){
     ctx.fillStyle='rgba(255,80,160,.22)';ctx.fillRect(-6,-1.6,14,3.2);
     ctx.fillStyle=lg(-8,0,8,0,['rgba(255,80,160,0)',[.55,'rgba(255,90,170,.9)'],[1,'#ffffff']]);ctx.fillRect(-8,-.55,16,1.1);ctx.restore();}
   ctx.globalCompositeOperation='source-over';
-  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(shipPitch);drawShip(0,0);ctx.restore();}if(shieldT>0)drawShield(p.x,p.y);}
+  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y);if(shieldT>0)drawShield(p.x,p.y);}
   for(const n of nukeFx)drawNukeFx(n);
   drawFx();
   for(const q of pops){ctx.globalAlpha=Math.min(1,q.life/20);text(q.text,q.x-scroll,q.y,q.c,'center',SMALL,true);}ctx.globalAlpha=1;
@@ -1493,7 +1493,7 @@ function render3d(){
   for(const b of bombs){const m=want(b,'bomb');m.position.set(b.x,-b.y,0);m.rotation.z=Math.atan2(-b.vy,b.vx);}
   for(const n of nukesFly){const m=want(n,'nuke');m.position.set(n.x,-n.y,0);m.rotation.z=Math.atan2(-n.vy,Math.max(.3,n.vx-speed));m.getObjectByName('blink').visible=(frame|0)%10<5;}
   if(state==='play'||(state==='intro'&&p.x<W+20)){const m=want('ship','ship');m.position.set(scroll+p.x,-p.y,0);
-    m.rotation.z=-shipPitch;m.rotation.x=Math.sin(frame*.05)*.12;
+    const vy=(mvy.d||0)*Math.min(1,mvy.t*2);m.rotation.z+=((-vy*.18)-m.rotation.z)*.15;m.rotation.x=Math.sin(frame*.05)*.12;
     m.getObjectByName('flame').scale.set(1,.7+Math.random()*.6,1);}
   for(const[k,m]of o.meshes)if(!seen.has(k)){o.dyn.remove(m);o.meshes.delete(k);}
   renderer.render(scene,camera);
