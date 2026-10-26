@@ -142,6 +142,7 @@ html.editing .pad{display:flex!important;visibility:visible!important}
 .tbl th:nth-child(4),.tbl td:nth-child(4){text-align:left}
 .tbl tbody tr:first-child td{color:#ffd84f}
 .tbl tbody tr.me td{color:#d7ff3f;background:rgba(215,255,63,.08)}
+.tbl .dg{display:inline-block;width:.62em;text-align:center}.tbl .dp{display:inline-block;width:.34em;text-align:center}
 .tbl td.empty{text-align:center;color:var(--dim);padding:14px}
 .mgrt th,.mgrt td{text-align:left!important;vertical-align:middle}
 .mgrt tbody tr:first-child td{color:var(--ink)}
@@ -263,7 +264,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 35 · FR-Coins online in Firebase, op al je toestellen hetzelfde</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 36 · scores zonder voorloopnullen, cijfers netjes onder elkaar</p>
 </div>
 
 <script>
@@ -793,7 +794,7 @@ function renderScores(){
   scBody.textContent='';const l=listFor(scView.src,scView.per);
   if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=scView.src==='pub'&&!board.pubOK?T('Niet beschikbaar.'):T('Nog geen scores in deze periode.');tr.appendChild(td);scBody.appendChild(tr);return;}
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
-    for(const v of[i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||T('ANONIEM'),fmtDate(e.at)]){const td=document.createElement('td');td.textContent=v;tr.appendChild(td);}scBody.appendChild(tr);});
+    [i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||T('ANONIEM'),fmtDate(e.at)].forEach((v,j)=>{const td=document.createElement('td');if(j===3)td.textContent=v;else numCell(td,v);tr.appendChild(td);});scBody.appendChild(tr);});
 }
 document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;renderScores();}});
 scPer.addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.per=v;renderScores();}});
@@ -909,7 +910,7 @@ function renderMgr(){
       const commit=()=>{if(cleanName(ni.value)!==e.name||Math.round(+si.value)!==e.score)editEntry(e,ni.value,si.value);};
       si.addEventListener('change',commit);ni.addEventListener('change',commit);c1.append(si);c2.append(ni);
       const del=document.createElement('button');del.type='button';del.className='del';del.textContent=T('WIS');del.addEventListener('click',()=>armButton(del,T('WIS'),T('ZEKER?'),()=>delEntry(e)));c4.append(del);}
-    else{c1.textContent=pad6(e.score|0);c2.textContent=cleanName(e.name)||T('ANONIEM');}
+    else{numCell(c1,pad6(e.score|0));c2.textContent=cleanName(e.name)||T('ANONIEM');}
     c3.textContent=fmtDate(e.at);tr.append(c1,c2,c3,c4);mgrBody.appendChild(tr);}
 }
 document.getElementById('mgrSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){mgrSrc=v;renderMgr();}});
@@ -1506,7 +1507,9 @@ function drawFx(){
     g.addColorStop(0,`rgba(255,235,190,${.8*t})`);g.addColorStop(.4,`rgba(255,140,60,${.35*t})`);g.addColorStop(1,'rgba(255,100,40,0)');ctx.fillStyle=g;ctx.fillRect(x-f.r*1.2,f.y-f.r*1.2,f.r*2.4,f.r*2.4);}
   ctx.globalCompositeOperation='source-over';
 }
-const pad6=n=>String(n).padStart(6,'0');
+/* fixed-width digits: Chakra Petch has no tabular figures, so each character gets its own equal-width box */
+function numCell(el,v){el.textContent='';for(const ch of String(v)){const b=document.createElement('span');b.className=/\d/.test(ch)?'dg':'dp';b.textContent=ch;el.appendChild(b);}el.setAttribute('aria-label',String(v));}
+const pad6=n=>String(Math.max(0,Math.round(+n||0)));  // scores shown without leading zeros
 function drawHUD(){
   ctx.fillStyle=lg(0,0,0,TOP,['#0c0e1c','#05060d']);ctx.fillRect(0,0,W,TOP);
   ctx.fillStyle='rgba(140,150,210,.35)';ctx.fillRect(0,TOP-.5,W,.5);
