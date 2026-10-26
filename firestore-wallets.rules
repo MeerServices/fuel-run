@@ -1,0 +1,29 @@
+    // FR-Coins: plak dit blok binnen "match /databases/{database}/documents { ... }"
+    match /wallets/{name} {
+      function okWallet() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['name', 'coins', 'unlocked', 'colors', 'at'])
+          && d.name == name && d.coins is int && d.coins >= 0 && d.at == request.time
+          && (!('colors' in d) || (d.colors is map
+              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame'])));
+      }
+      allow read: if true;
+      allow create: if okWallet()
+        && request.resource.data.coins >= 1 && request.resource.data.coins <= 100
+        && !('unlocked' in request.resource.data) && !('colors' in request.resource.data);
+      allow update: if okWallet() && (
+          // verdienen: 1 tot 100 coins per keer, hooguit eens per 20 seconden
+          (request.resource.data.coins - resource.data.coins >= 1
+            && request.resource.data.coins - resource.data.coins <= 100
+            && request.time > resource.data.at + duration.value(20, 's')
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins', 'at']))
+          // kleuren vrijspelen: kost precies 100
+          || (resource.data.get('unlocked', false) == false
+            && request.resource.data.get('unlocked', false) == true
+            && request.resource.data.coins == resource.data.coins - 100
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins', 'at', 'unlocked', 'colors']))
+          // kleuren aanpassen na vrijspelen
+          || (resource.data.get('unlocked', false) == true
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['colors', 'at'])));
+      allow delete: if false;
+    }
