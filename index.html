@@ -264,7 +264,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 38 · oude scores tellen mee voor de FR-Coins</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 39 · nuke-paddenstoel met ronde voet en onderkant</p>
 </div>
 
 <script>
@@ -1519,12 +1519,34 @@ function drawNukeFx(n){
   if(t<80){const r=t*5;ctx.strokeStyle=`rgba(255,255,255,${(1-t/80)*.9})`;ctx.lineWidth=2.6*(1-t/80)+.4;ctx.beginPath();ctx.ellipse(x,g,r,r*.2,0,0,7);ctx.stroke();}
   if(t<50){const r=t*6.5;ctx.strokeStyle=`rgba(255,240,220,${(1-t/50)*.4})`;ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(x,g-10,r,0,7);ctx.stroke();}
   ctx.globalCompositeOperation='source-over';
-  for(let i=0;i<12;i++){const sp=(i-5.5)*(5+t*.42),rr2=5+t*.07+Math.abs(Math.sin(i*1.7))*3,c=mix([150,100,70],[95,82,76],Math.min(1,t/90));
-    const dl=.42*Math.max(0,1-t/170),dx=x+sp,dy=g-2-Math.abs(Math.sin(i*2.1))*4,dg=ctx.createRadialGradient(dx,dy,0,dx,dy,rr2*1.4);
-    dg.addColorStop(0,`rgba(${c},${dl})`);dg.addColorStop(1,`rgba(${c},0)`);ctx.fillStyle=dg;ctx.fillRect(dx-rr2*1.4,dy-rr2*1.4,rr2*2.8,rr2*2.8);}
-  if(t>3){const sw=3.5+6*rise,c1=mix([255,170,90],[120,96,86],Math.min(1,t/80)),c2=mix([200,90,40],[70,58,54],Math.min(1,t/80));
+  const gy=Math.max(g,fAt(n.x))+2,k8=Math.min(1,t/85),bs=E(t/110);  // gy: real ground now (the nuke itself digs a crater)
+  const dust=(i,j)=>mix([150,104,72],[98,84,78],Math.min(1,t/90+j*.1)),puff=(px,py,r,cb,ch,a)=>{
+    ctx.fillStyle=`rgba(${cb},${a})`;ctx.beginPath();ctx.arc(px,py,r,0,7);ctx.fill();
+    ctx.fillStyle=`rgba(${ch},${a*.5})`;ctx.beginPath();ctx.arc(px-r*.22,py-r*.3,r*.55,0,7);ctx.fill();};
+  // stem: flared column with wavy edges that reaches into the crater
+  if(t>3){const sw=3.5+6*rise,top=cy+cr*.3,c1=mix([255,170,90],[120,96,86],Math.min(1,t/80)),c2=mix([200,90,40],[70,58,54],Math.min(1,t/80)),N=16;
+    const half=f=>sw*(.85+.35*f+3.4*Math.pow(f,5)),wob=(i,s)=>(Math.sin(i*1.9+t*.07+s)*.8+Math.sin(i*3.7-t*.05+s)*.45)*(.35+f2(i));
+    function f2(i){return i/N;}
     ctx.fillStyle=lg(x-sw*1.5,0,x+sw*1.5,0,[`rgba(${c2},${.9*life})`,[.5,`rgba(${c1},${.95*life})`],[1,`rgba(${c2},${.9*life})`]]);
-    ctx.beginPath();ctx.moveTo(x-sw*2,g);ctx.quadraticCurveTo(x-sw*.5,(g+cy)/2,x-sw*.85,cy+cr*.3);ctx.lineTo(x+sw*.85,cy+cr*.3);ctx.quadraticCurveTo(x+sw*.5,(g+cy)/2,x+sw*2,g);ctx.closePath();ctx.fill();}
+    ctx.beginPath();ctx.moveTo(x-half(0),top);
+    for(let i=1;i<=N;i++){const f=i/N;ctx.lineTo(x-half(f)+wob(i,0),top+(gy+3-top)*f);}
+    ctx.quadraticCurveTo(x,gy+9,x+half(1)+wob(N,2),gy+3);
+    for(let i=N-1;i>=0;i--){const f=i/N;ctx.lineTo(x+half(f)+wob(i,2),top+(gy+3-top)*f);}
+    ctx.closePath();ctx.fill();
+    // rolling puffs climbing the stem so its edges are not straight
+    for(let i=0;i<7;i++){const f=((i/7)+t*.004)%1,py=gy-(gy-top)*f,r=half(1-f*.85)*.55+1.2,side=i%2?1:-1;
+      puff(x+side*half(1-f)*.55,py,r,mix(c2,[90,76,70],k8),mix(c1,[150,132,124],k8),.55*life*Math.sin(Math.PI*f));}}
+  // base surge: a ring of billowing dust that rolls outward along the ground, with round tops
+  for(let i=0;i<22;i++){const f=(i/21)*2-1,j=Math.abs(Math.sin(i*5.13)),sp=(10+78*bs)*(.55+.45*j)*f,wx=n.x+sp;
+    const r=(3.5+10*bs)*(1-.45*Math.abs(f))*(.75+.5*Math.abs(Math.sin(i*2.7)))+1,py=fAt(wx)-r*.45-(1-f*f)*5*bs;
+    const a=.88*life*Math.min(1,t/6)*(1-.35*Math.abs(f));if(a<=.01)continue;
+    puff(x+sp,py,r,dust(i,Math.abs(f)),mix([210,170,130],[150,138,130],k8),a);}
+  // hot glow inside the foot of the cloud
+  if(heat>0){ctx.globalCompositeOperation='lighter';const fg=ctx.createRadialGradient(x,gy-2,0,x,gy-2,24+30*bs);fg.addColorStop(0,`rgba(255,170,70,${.7*heat})`);fg.addColorStop(1,'rgba(255,90,30,0)');
+    ctx.fillStyle=fg;ctx.beginPath();ctx.ellipse(x,gy-2,24+30*bs,12+10*bs,0,0,7);ctx.fill();ctx.globalCompositeOperation='source-over';}
+  // underside of the mushroom cap: darker rolling lumps so the cap is round underneath, not flat
+  for(let i=0;i<11;i++){const a=Math.PI*(i/10),ox=Math.cos(a)*cr*.92,oy=cr*.18+Math.sin(a)*cr*.2,r2=cr*(.3+.07*Math.sin(i*2.9+t*.06));
+    puff(x+ox,cy+oy,r2,mix([200,100,45],[78,66,62],k8),mix([240,170,110],[130,114,108],k8),.92*life);}
   for(let i=0;i<18;i++){const a=i/18*Math.PI*2+t*.012,ox=Math.cos(a)*cr*.95,oy=Math.sin(a)*cr*.42-cr*.08,r2=cr*(.4+.13*Math.sin(i*2.3+t*.05));
     const k=Math.min(1,t/85),cb=mix([255,150,60],[105,88,82],k),ch=mix([255,235,170],[160,140,130],k);
     ctx.fillStyle=`rgba(${cb},${.95*life})`;ctx.beginPath();ctx.arc(x+ox,cy+oy,r2,0,7);ctx.fill();
