@@ -264,7 +264,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 37 · alle punten per speler opgeteld, FR-COINS-lijst bij de scores</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 38 · oude scores tellen mee voor de FR-Coins</p>
 </div>
 
 <script>
@@ -789,11 +789,13 @@ const scEl=document.getElementById('scorep'),scBody=document.getElementById('scB
 const scHead=document.getElementById('scHead');const scPer=document.getElementById('scPer');for(const[k,lab]of PERIODS){const bt=document.createElement('button');bt.type='button';bt.dataset.v=k;bt.textContent=lab;bt.dataset.i18n=lab;scPer.appendChild(bt);}
 function renderPlayers(){scPer.hidden=true;
   scHead.innerHTML='';const hr=document.createElement('tr');for(const h of['#',T('TOTAAL'),T('SPELLEN'),T('NAAM'),'FRC']){const th=document.createElement('th');th.textContent=h;hr.appendChild(th);}scHead.appendChild(hr);
-  let l;if(WONLINE){l=players.list.map(e=>e.name===playerName()&&wallet[e.name]?{...e,points:wallet[e.name].points,games:wallet[e.name].games}:e);const me=playerName();if(me&&wallet[me]&&!l.some(e=>e.name===me)&&wallet[me].points)l.push({name:me,...wallet[me]});}
-  else l=Object.entries(wallet).map(([name,w])=>({name,...w}));
+  const old=oldTotals(),cur={};
+  for(const e of(WONLINE?players.list:[]))cur[e.name]={points:e.points,games:e.games};
+  for(const n in wallet)if(!WONLINE||!cur[n]||n===playerName())cur[n]={points:wallet[n].points,games:wallet[n].games};
+  let l=[...new Set([...Object.keys(old),...Object.keys(cur)])].map(name=>{const o=old[name]||{points:0,games:0},c=cur[name]||{points:0,games:0};return{name,points:o.points+c.points,games:o.games+c.games};});
   l=l.filter(e=>e.points>0||e.games>0).sort((a,b)=>b.points-a.points);
   scNote.textContent=(LANG==='en'?'All points of each player added up. Every 1000 points = 1 FR-Coin (FRC). ':'Alle punten per speler bij elkaar opgeteld. Elke 1000 punten = 1 FR-Coin (FRC). ')
-    +(WONLINE?(players.err?T('Probleem: ')+players.err+'.':players.at?'':(LANG==='en'?'Loading…':'Laden…')):(LANG==='en'?'Players on this device.':'Spelers op dit apparaat.'));
+    +(LANG==='en'?'Includes all saved scores from before. ':'Inclusief alle eerder opgeslagen scores. ')+(WONLINE?(players.err?T('Probleem: ')+players.err+'.':players.at&&oldState!=='load'?'':(LANG==='en'?'Loading…':'Laden…')):(LANG==='en'?'Players on this device.':'Spelers op dit apparaat.'));
   scBody.textContent='';
   if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=LANG==='en'?'No players yet.':'Nog geen spelers.';tr.appendChild(td);scBody.appendChild(tr);return;}
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(e.name===playerName())tr.className='me';
@@ -811,7 +813,7 @@ function renderScores(){
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
     [i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||T('ANONIEM'),fmtDate(e.at)].forEach((v,j)=>{const td=document.createElement('td');if(j===3)td.textContent=v;else numCell(td,v);tr.appendChild(td);});scBody.appendChild(tr);});
 }
-document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;if(v==='frc')fbPlayers();renderScores();}});
+document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;if(v==='frc'){fbPlayers();fbOld();}renderScores();}});
 scPer.addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.per=v;renderScores();}});
 function openScores(){if(scOpen)return;scOpen=true;if(board.fb||!window.claude)fbRefresh();scView={...boardView};if(scView.src==='pub'&&!board.pubOK)scView.src='pers';fbPlayers();renderScores();scEl.hidden=false;pauseFor();}
 function closeScores(){scOpen=false;scEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
@@ -823,7 +825,22 @@ const SHIPDEF={body:'#c3cad6',accent:'#c8325f',glass:'#4fb8d6',flame:'#ffaa46'},
 let wallet={},pendPts=0,pendGames=0,lastEarned=0,players={list:[],at:0,err:''};
 const okCols=v=>{const c={...SHIPDEF};if(v&&typeof v==='object')for(const q in SHIPDEF)if(/^#[0-9a-f]{6}$/i.test(v[q]||''))c[q]=v[q].toLowerCase();return c;};
 const int0=v=>Math.max(0,Math.floor(+v||0));
-const coinsOf=w=>Math.max(0,Math.floor(w.points/1000)-w.spent);
+/* Old games: every saved score from before the FR-Coin wallet existed (public list + this device) counts too */
+const FRC_EPOCH=1793047746000;  // 26-10-2026 21:49, first version with FR-Coins
+let oldSrc=[],oldState='',oldMemo={k:'',m:{}};
+function oldTotals(){const k=oldSrc.length+'|'+pers.length+'|'+pub.year.length+'|'+pub.all.length;if(k===oldMemo.k)return oldMemo.m;
+  const seen=new Set(),m={};for(const e of[...oldSrc,...pers,...pub.year,...pub.all]){if(!e||!(e.at<FRC_EPOCH))continue;const n=cleanName(e.name);if(anon(n))continue;
+    const key=n+'|'+e.at+'|'+e.score;if(seen.has(key))continue;seen.add(key);const o=m[n]||(m[n]={points:0,games:0});o.points+=Math.max(0,Math.round(+e.score||0));o.games++;}
+  oldMemo={k,m};return m;}
+async function fbOld(){if(!WONLINE||oldState==='ok'||oldState==='load')return;oldState='load';
+  try{const r=await fetch(FBURL+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({structuredQuery:{from:[{collectionId:'scores'}],
+      where:{fieldFilter:{field:{fieldPath:'at'},op:'LESS_THAN',value:{integerValue:String(FRC_EPOCH)}}},orderBy:[{field:{fieldPath:'at'},direction:'DESCENDING'}],limit:10000}})});
+    if(!r.ok)throw new Error('fb '+r.status);const j=await r.json();oldSrc=(Array.isArray(j)?j:[]).filter(x=>x.document).map(x=>fbDecode(x.document)).filter(validEntry);oldState='ok';}
+  catch(e){oldState='err';}
+  if(uiEl&&!uiEl.hidden)renderHangar();if(scOpen&&scView.src==='frc')renderScores();}
+function tot(n){const o=oldTotals()[n]||{points:0,games:0},w=n&&wallet[n];return{points:o.points+(w?w.points:0),games:o.games+(w?w.games:0),spent:w?w.spent:0};}
+const coinsFor=n=>{const t=tot(n);return Math.max(0,Math.floor(t.points/1000)-t.spent);};
+if(WONLINE)fbOld();
 try{const w=JSON.parse(localStorage.getItem('fuelrun.wallet')||'{}');if(w&&typeof w==='object')for(const k in w){const n=cleanName(k),v=w[k];if(!n||!v||typeof v!=='object')continue;
   let e;if(v.v===3)e={points:int0(v.points),games:int0(v.games),spent:int0(v.spent),pp:int0(v.pp),pg:int0(v.pg),unlocked:!!v.unlocked};
   else{const pts=int0(v.coins)*1000+(v.unlocked?UNLOCK_COST*1000:0);e={points:pts,games:0,spent:0,pp:WONLINE?pts:0,pg:WONLINE&&pts?1:0,unlocked:false};}  // older wallets: coins become points
@@ -835,7 +852,7 @@ function wal(n){n=n===undefined?playerName():n;if(anon(n))return null;if(!wallet
 function shipCols(){const n=playerName(),w=n&&wallet[n];return w&&w.unlocked?w.colors:SHIPDEF;}
 function addGame(w,n,pts,g){w.points+=pts;w.games+=g;if(WONLINE){w.pp+=pts;w.pg+=g;}saveWallet();if(WONLINE)syncWallet(n);}
 function awardCoins(){const pts=Math.max(0,Math.round(score));const n=playerName(),w=wal(n);
-  const before=w?w.points:pendPts;lastEarned=Math.floor((before+pts)/1000)-Math.floor(before/1000);
+  const before=w?tot(n).points:pendPts;lastEarned=Math.floor((before+pts)/1000)-Math.floor(before/1000);
   if(w)addGame(w,n,pts,1);else{pendPts+=pts;pendGames++;}}
 function claimPending(){const n=playerName(),w=wal(n);if(!w)return;if(pendGames>0){const p=pendPts,g=pendGames;pendPts=0;pendGames=0;addGame(w,n,p,g);}else if(WONLINE)syncWallet(n);}
 /* Firestore: wallets/{NAME} = {name, points, games, spent, unlocked, colors, at}. Points only grow through atomic increments that the security rules check. */
@@ -878,9 +895,9 @@ function renderHangar(){const n=playerName(),w=n?wal(n):null,en=LANG==='en';name
   const st=!w||!WONLINE?'':w.st==='ok'?(en?' Saved online, the same on all your devices.':' Online opgeslagen, op al je toestellen hetzelfde.')
     :w.st==='wait'?(en?` ${w.pp} points still to be saved online, this happens automatically.`:` Nog ${w.pp} punten online op te slaan, dat gaat vanzelf.`)
     :w.st==='off'?(en?' No connection with the online wallet right now.':' Nu geen verbinding met de online portemonnee.'):(en?' Loading…':' Laden…');
-  coinsEl.textContent=w?(en?`${n}: ${w.points} points in ${w.games} games = ${coinsOf(w)} FR-COINS. Every 1000 points together is 1 FR-Coin.`:`${n}: ${w.points} punten in ${w.games} spellen = ${coinsOf(w)} FR-COINS. Elke 1000 punten bij elkaar is 1 FR-Coin.`)+st
+  const tt=tot(n);coinsEl.textContent=w?(en?`${n}: ${tt.points} points in ${tt.games} games = ${coinsFor(n)} FR-COINS. Every 1000 points together is 1 FR-Coin.`:`${n}: ${tt.points} punten in ${tt.games} spellen = ${coinsFor(n)} FR-COINS. Elke 1000 punten bij elkaar is 1 FR-Coin.`)+st
     :(en?'Enter a player name to save FR-Coins: 1 per 1000 points.':'Vul een spelersnaam in om FR-Coins te sparen: 1 per 1000 punten.');
-  const un=!!(w&&w.unlocked);unlockBt.hidden=un;unlockBt.disabled=!w||coinsOf(w)<UNLOCK_COST||(WONLINE&&w.st!=='ok');
+  const un=!!(w&&w.unlocked);unlockBt.hidden=un;unlockBt.disabled=!w||coinsFor(n)<UNLOCK_COST||(WONLINE&&w.st!=='ok');
   unlockBt.textContent=en?`UNLOCK COLOURS  ·  ${UNLOCK_COST} FR-COINS`:`KLEUREN VRIJSPELEN  ·  ${UNLOCK_COST} FR-COINS`;
   const C=w?w.colors:SHIPDEF;for(const k in SHIPDEF){const el=document.getElementById('sc_'+k);if(document.activeElement!==el)el.value=C[k];el.disabled=!un;}
   document.getElementById('uiShipDef').hidden=!un;drawPreview();}
@@ -888,9 +905,9 @@ nameCfg.addEventListener('input',()=>{const c=cleanName(nameCfg.value);if(c!==na
 nameCfg.addEventListener('change',()=>{const c=cleanName(nameCfg.value);try{if(c)localStorage.setItem('fuelrun.name',c);else localStorage.removeItem('fuelrun.name');}catch(e){}
   const w=c&&wal(c);if(w&&WONLINE&&!w.st)w.st='load';claimPending();renderHangar();});
 const unlockSnd=()=>{if(ac&&!muted)[660,880,1320].forEach((f,i)=>setTimeout(()=>tone('triangle',f,f,.18,.05),i*110));};
-unlockBt.addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||coinsOf(w)<UNLOCK_COST)return;
+unlockBt.addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||coinsFor(n)<UNLOCK_COST)return;
   if(!WONLINE){w.spent+=UNLOCK_COST;w.unlocked=true;saveWallet();renderHangar();unlockSnd();return;}
-  unlockBt.disabled=true;syncWallet(n,async(w,srv)=>{if(!srv||srv.unlocked||coinsOf(srv)<UNLOCK_COST)return;
+  unlockBt.disabled=true;syncWallet(n,async(w,srv)=>{if(!srv||srv.unlocked||coinsFor(n)<UNLOCK_COST)return;
     await fbCommit([{update:{name:WDOC(n),fields:{name:{stringValue:n},unlocked:{booleanValue:true},colors:colFields(w.colors)}},updateMask:{fieldPaths:['name','unlocked','colors']},
       updateTransforms:[{fieldPath:'spent',increment:{integerValue:String(UNLOCK_COST)}},{fieldPath:'at',setToServerValue:'REQUEST_TIME'}],currentDocument:{exists:true}}]);})
     .then(()=>{if(w.unlocked)unlockSnd();else say(LANG==='en'?'Unlocking did not work, try again in a moment.':'Vrijspelen lukte niet, probeer het zo nog eens.');});});
@@ -1619,7 +1636,7 @@ function draw(){
   if(banner&&state==='play'){panel(84,banner.sub?30:20,150);text(banner.text,W/2,89,'#eef1ff','center',MID);if(banner.sub)text(banner.sub,W/2,101,'#ffb23e','center',SMALL);}
   if(state==='name'){ctx.fillStyle='rgba(4,6,15,.6)';ctx.fillRect(0,TOP,W,H-TOP);}
   if(state==='over'){const ce=lastEarned>0||!!playerName();panel(84,ce?50:40,ce?230:190);text(T('SPEL VOORBIJ'),W/2,89,'#ff5fa8','center',BIG);text(score>=hi&&score>0?T('NIEUWE TOPSCORE'):`SCORE ${pad6(score)}`,W/2,110,'#ffd84f','center',HUDF);
-    if(ce){const w=playerName()&&wallet[playerName()];text(`+${lastEarned} FRC  ·  `+(w?(LANG==='en'?`${playerName()}: ${w.points} POINTS = ${coinsOf(w)} FRC`:`${playerName()}: ${w.points} PUNTEN = ${coinsOf(w)} FRC`):(LANG==='en'?'ENTER A NAME TO KEEP THEM':'VUL EEN NAAM IN OM ZE TE BEWAREN')),W/2,121,'#d7ff3f','center',SMALL);}}
+    if(ce){const w=playerName()&&wallet[playerName()];text(`+${lastEarned} FRC  ·  `+(w?(LANG==='en'?`${playerName()}: ${tot(playerName()).points} POINTS = ${coinsFor(playerName())} FRC`:`${playerName()}: ${tot(playerName()).points} PUNTEN = ${coinsFor(playerName())} FRC`):(LANG==='en'?'ENTER A NAME TO KEEP THEM':'VUL EEN NAAM IN OM ZE TE BEWAREN')),W/2,121,'#d7ff3f','center',SMALL);}}
   if(paused){panel(86,28,150);text(T('GEPAUZEERD'),W/2,90,'#eef1ff','center',MID);text(T('VUUR OM VERDER TE GAAN'),W/2,102,'#8d93bd','center',SMALL);}
 }
 
