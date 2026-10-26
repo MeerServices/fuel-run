@@ -1,29 +1,38 @@
     // FR-Coins: plak dit blok binnen "match /databases/{database}/documents { ... }"
+    // (vervangt het eerdere match /wallets/{name}-blok)
     match /wallets/{name} {
       function okWallet() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['name', 'coins', 'unlocked', 'colors', 'at'])
-          && d.name == name && d.coins is int && d.coins >= 0 && d.at == request.time
+        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'at', 'coins'])
+          && d.name == name && d.points is int && d.games is int && d.at == request.time
+          && d.get('spent', 0) is int && d.get('spent', 0) * 1000 <= d.points
           && (!('colors' in d) || (d.colors is map
               && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame'])));
       }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
       allow read: if true;
       allow create: if okWallet()
-        && request.resource.data.coins >= 1 && request.resource.data.coins <= 100
-        && !('unlocked' in request.resource.data) && !('colors' in request.resource.data);
+        && request.resource.data.games >= 1 && request.resource.data.games <= 10
+        && request.resource.data.points >= 0
+        && request.resource.data.points <= 100000 * request.resource.data.games
+        && !('spent' in request.resource.data) && !('unlocked' in request.resource.data)
+        && !('colors' in request.resource.data);
       allow update: if okWallet() && (
-          // verdienen: 1 tot 100 coins per keer, hooguit eens per 20 seconden
-          (request.resource.data.coins - resource.data.coins >= 1
-            && request.resource.data.coins - resource.data.coins <= 100
-            && request.time > resource.data.at + duration.value(20, 's')
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins', 'at']))
-          // kleuren vrijspelen: kost precies 100
-          || (resource.data.get('unlocked', false) == false
+          // punten erbij: 1 tot 10 spellen per keer, hooguit eens per 20 seconden
+          (changed().hasOnly(['points', 'games', 'at'])
+            && request.resource.data.games - resource.data.games >= 1
+            && request.resource.data.games - resource.data.games <= 10
+            && request.resource.data.points >= resource.data.points
+            && request.resource.data.points - resource.data.points
+               <= 100000 * (request.resource.data.games - resource.data.games)
+            && request.time > resource.data.at + duration.value(20, 's'))
+          // kleuren vrijspelen: kost precies 100 FRC
+          || (changed().hasOnly(['spent', 'at', 'unlocked', 'colors'])
+            && resource.data.get('unlocked', false) == false
             && request.resource.data.get('unlocked', false) == true
-            && request.resource.data.coins == resource.data.coins - 100
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins', 'at', 'unlocked', 'colors']))
+            && request.resource.data.spent == resource.data.get('spent', 0) + 100)
           // kleuren aanpassen na vrijspelen
-          || (resource.data.get('unlocked', false) == true
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['colors', 'at'])));
+          || (changed().hasOnly(['colors', 'at'])
+            && resource.data.get('unlocked', false) == true));
       allow delete: if false;
     }
