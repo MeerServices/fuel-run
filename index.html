@@ -110,6 +110,11 @@ html.three .lay{display:block}
 .uicfg .chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);line-height:1.4;cursor:pointer}
 .uicfg .chk .dim{color:var(--dim)}
 .uicfg .chk input{width:20px;height:20px;flex:none;accent-color:var(--cyan);margin-top:1px}
+.shipic{display:inline-flex;vertical-align:middle;margin-right:6px;padding:1px 2px;background:#07081a;border:1px solid var(--rim);border-radius:4px;cursor:pointer}
+.shipic canvas{width:36px;height:15px}.shipic:hover,.shipic:focus-visible{border-color:#ffd84f;outline:none}
+#scorep .namebtn{background:none;border:0;padding:0;margin:0;font:inherit;letter-spacing:inherit;text-transform:none;color:inherit;cursor:pointer;text-align:left;min-height:0;width:auto}
+#scorep .shipic{padding:1px 2px;min-height:0;width:auto}
+#coinFx{position:fixed;inset:0;width:100vw;height:100vh;z-index:60;pointer-events:none}#coinFx.big{pointer-events:auto;cursor:pointer}
 .hangar{display:flex;flex-direction:column;gap:8px}
 .namerow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;font-size:13px;color:var(--ink)}
 .namerow input{font-family:var(--display);font-size:15px;letter-spacing:.12em;text-transform:uppercase;background:#07081a;color:var(--ink);border:1px solid var(--rim);border-radius:4px;padding:6px 8px;min-width:0}
@@ -264,7 +269,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 39 · nuke-paddenstoel met ronde voet en onderkant</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 40 · FR-Coin animaties, scheepjes in de lijst, naam op je vliegtuig vanaf 250 FRC</p>
 </div>
 
 <script>
@@ -799,7 +804,7 @@ function renderPlayers(){scPer.hidden=true;
   scBody.textContent='';
   if(!l.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.className='empty';td.textContent=LANG==='en'?'No players yet.':'Nog geen spelers.';tr.appendChild(td);scBody.appendChild(tr);return;}
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(e.name===playerName())tr.className='me';
-    [i+1,e.points,e.games,e.name,Math.floor(e.points/1000)].forEach((v,j)=>{const td=document.createElement('td');if(j===3)td.textContent=v;else numCell(td,v);tr.appendChild(td);});scBody.appendChild(tr);});}
+    [i+1,e.points,e.games,e.name,Math.floor(e.points/1000)].forEach((v,j)=>{const td=document.createElement('td');if(j===3){td.appendChild(shipIcon(v));const nb=document.createElement('button');nb.type='button';nb.className='namebtn';nb.textContent=v;nb.addEventListener('click',ev=>{ev.preventDefault();openBigCoin(v);});td.appendChild(nb);}else numCell(td,v);tr.appendChild(td);});scBody.appendChild(tr);});}
 let scHeadStd=null;
 function renderScores(){
   if(!scHeadStd)scHeadStd=scHead.innerHTML;
@@ -813,7 +818,7 @@ function renderScores(){
   l.forEach((e,i)=>{const tr=document.createElement('tr');if(same(e,lastEntry))tr.className='me';
     [i+1,pad6(e.score|0),fmtTime(e.time||0),cleanName(e.name)||T('ANONIEM'),fmtDate(e.at)].forEach((v,j)=>{const td=document.createElement('td');if(j===3)td.textContent=v;else numCell(td,v);tr.appendChild(td);});scBody.appendChild(tr);});
 }
-document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.src=v;if(v==='frc'){fbPlayers();fbOld();}renderScores();}});
+document.getElementById('scSrc').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){try{coinPop(e.target,v==='frc');}catch(_){}scView.src=v;if(v==='frc'){fbPlayers();fbOld();}renderScores();}});
 scPer.addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v){scView.per=v;renderScores();}});
 function openScores(){if(scOpen)return;scOpen=true;if(board.fb||!window.claude)fbRefresh();scView={...boardView};if(scView.src==='pub'&&!board.pubOK)scView.src='pers';fbPlayers();renderScores();scEl.hidden=false;pauseFor();}
 function closeScores(){scOpen=false;scEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
@@ -890,12 +895,12 @@ if(WONLINE){const n=playerName();if(n)syncWallet(n);setInterval(()=>{const n=pla
 
 /* ---------- hangar UI ---------- */
 const prevCv=document.getElementById('shipPrev'),prevCtx=prevCv.getContext('2d'),nameCfg=document.getElementById('ui_name'),coinsEl=document.getElementById('uiCoins'),unlockBt=document.getElementById('uiUnlock');
-function drawPreview(){const sv=ctx;ctx=prevCtx;prevCtx.setTransform(1,0,0,1,0,0);prevCtx.clearRect(0,0,480,150);prevCtx.setTransform(9,0,0,9,250,75);try{drawShip(0,0,false);}finally{ctx=sv;}}
+function drawPreview(){const sv=ctx;ctx=prevCtx;prevCtx.setTransform(1,0,0,1,0,0);prevCtx.clearRect(0,0,480,150);prevCtx.setTransform(9,0,0,9,250,75);try{drawShip(0,0,false,undefined,shipLabel());}finally{ctx=sv;}}
 function renderHangar(){const n=playerName(),w=n?wal(n):null,en=LANG==='en';nameCfg.value=n;
   const st=!w||!WONLINE?'':w.st==='ok'?(en?' Saved online, the same on all your devices.':' Online opgeslagen, op al je toestellen hetzelfde.')
     :w.st==='wait'?(en?` ${w.pp} points still to be saved online, this happens automatically.`:` Nog ${w.pp} punten online op te slaan, dat gaat vanzelf.`)
     :w.st==='off'?(en?' No connection with the online wallet right now.':' Nu geen verbinding met de online portemonnee.'):(en?' Loading…':' Laden…');
-  const tt=tot(n);coinsEl.textContent=w?(en?`${n}: ${tt.points} points in ${tt.games} games = ${coinsFor(n)} FR-COINS. Every 1000 points together is 1 FR-Coin.`:`${n}: ${tt.points} punten in ${tt.games} spellen = ${coinsFor(n)} FR-COINS. Elke 1000 punten bij elkaar is 1 FR-Coin.`)+st
+  const tt=tot(n),ea=earnedFor(n),nm=ea>=NAME_AT?(en?' Your name is on your ship.':' Je naam staat op je vliegtuig.'):(en?` At ${NAME_AT} FR-Coins earned your name goes on your ship (${ea}/${NAME_AT}).`:` Bij ${NAME_AT} verdiende FR-Coins komt je naam op je vliegtuig (${ea}/${NAME_AT}).`);coinsEl.textContent=w?(en?`${n}: ${tt.points} points in ${tt.games} games = ${coinsFor(n)} FR-COINS. Every 1000 points together is 1 FR-Coin.`:`${n}: ${tt.points} punten in ${tt.games} spellen = ${coinsFor(n)} FR-COINS. Elke 1000 punten bij elkaar is 1 FR-Coin.`)+nm+st
     :(en?'Enter a player name to save FR-Coins: 1 per 1000 points.':'Vul een spelersnaam in om FR-Coins te sparen: 1 per 1000 punten.');
   const un=!!(w&&w.unlocked);unlockBt.hidden=un;unlockBt.disabled=!w||coinsFor(n)<UNLOCK_COST||(WONLINE&&w.st!=='ok');
   unlockBt.textContent=en?`UNLOCK COLOURS  ·  ${UNLOCK_COST} FR-COINS`:`KLEUREN VRIJSPELEN  ·  ${UNLOCK_COST} FR-COINS`;
@@ -913,6 +918,77 @@ unlockBt.addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||coin
     .then(()=>{if(w.unlocked)unlockSnd();else say(LANG==='en'?'Unlocking did not work, try again in a moment.':'Vrijspelen lukte niet, probeer het zo nog eens.');});});
 for(const k in SHIPDEF)document.getElementById('sc_'+k).addEventListener('input',e=>{const n=playerName(),w=wal(n);if(!w||!w.unlocked)return;w.colors[k]=e.target.value.toLowerCase();saveWallet();drawPreview();pushColors(n);});
 document.getElementById('uiShipDef').addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||!w.unlocked)return;w.colors={...SHIPDEF};saveWallet();renderHangar();pushColors(n);});
+
+/* ---------- FR-Coin animations ---------- */
+const NAME_AT=250;  // from 250 FR-Coins earned your name is painted on the ship
+const earnedFor=n=>n?Math.floor(tot(n).points/1000):0;
+function shipLabel(){const n=playerName();return n&&earnedFor(n)>=NAME_AT?n:'';}
+function colsOf(n){if(n&&n===playerName())return shipCols();const e=WONLINE&&players.list.find(x=>x.name===n);if(e&&e.unlocked)return e.colors;
+  const w=wallet[n];return w&&w.unlocked?w.colors:SHIPDEF;}
+const coinCv=document.createElement('canvas');coinCv.id='coinFx';coinCv.setAttribute('aria-hidden','true');document.body.appendChild(coinCv);
+const cfx=coinCv.getContext('2d');let coinAnims=[],coinRaf=0,bigCoin=null;
+function drawCoin(c,cx,cy,R,ang,cols,label,back,shine){
+  const sx=Math.cos(ang),w=Math.max(.03,Math.abs(sx)),th=R*.13,face=sx>=0,sn=Math.sin(ang);
+  c.save();c.translate(cx,cy);
+  for(let k=8;k>=1;k--){const o=-sn*th*k/8;c.fillStyle=k%2?'#7a4d0c':'#94620f';c.beginPath();c.ellipse(o,0,R*w,R,0,0,7);c.fill();}  // coin edge
+  c.scale(w,1);
+  const rim=c.createLinearGradient(-R,-R,R,R);rim.addColorStop(0,'#fff3b0');rim.addColorStop(.35,'#f2c440');rim.addColorStop(.7,'#c98a18');rim.addColorStop(1,'#8a560c');
+  c.fillStyle=rim;c.beginPath();c.arc(0,0,R,0,7);c.fill();
+  c.fillStyle='rgba(90,55,8,.55)';for(let i=0;i<36;i++){const a=i/36*Math.PI*2;c.save();c.rotate(a);c.fillRect(R*.9,-R*.018,R*.08,R*.036);c.restore();}  // milled ridges
+  const inner=R*.78,fg=c.createRadialGradient(-inner*.3,-inner*.35,inner*.1,0,0,inner);fg.addColorStop(0,hexMix(cols.body,'#ffffff',.55));fg.addColorStop(.6,cols.body);fg.addColorStop(1,hexMix(cols.body,'#000000',.55));
+  c.fillStyle=fg;c.beginPath();c.arc(0,0,inner,0,7);c.fill();
+  c.lineWidth=R*.06;c.strokeStyle=cols.accent;c.beginPath();c.arc(0,0,inner,0,7);c.stroke();
+  c.lineWidth=R*.02;c.strokeStyle='rgba(255,240,190,.8)';c.beginPath();c.arc(0,0,inner*.9,0,7);c.stroke();
+  if(face){const sv=ctx;ctx=c;c.save();c.beginPath();c.arc(0,0,inner*.96,0,7);c.clip();c.translate(R*.04,-R*.06);c.scale(R/15,R/15);try{drawShip(0,0,true,cols,label);}finally{c.restore();ctx=sv;}
+    c.fillStyle=inkFor(cols.body);c.font=`700 ${R*.17}px Silkscreen, monospace`;c.textAlign='center';c.textBaseline='middle';c.fillText('FR-COIN',0,inner*.6);}
+  else{c.fillStyle=inkFor(cols.body);c.textAlign='center';c.textBaseline='middle';c.font=`700 ${R*.42}px Silkscreen, monospace`;c.fillText('FRC',0,-R*.08);
+    if(back){c.font=`700 ${R*.16}px Silkscreen, monospace`;c.fillText(back,0,R*.36);}}
+  if(shine!==undefined){c.save();c.beginPath();c.arc(0,0,R,0,7);c.clip();c.globalCompositeOperation='lighter';const sx2=-R*1.6+((shine%1.6)/1.6)*R*3.2;
+    const sg=c.createLinearGradient(sx2-R*.35,-R,sx2+R*.35,R);sg.addColorStop(0,'rgba(255,255,255,0)');sg.addColorStop(.5,'rgba(255,250,220,.28)');sg.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=sg;c.fillRect(-R,-R,R*2,R*2);c.restore();}
+  c.restore();}
+function coinLoop(now){const dpr=Math.min(2,window.devicePixelRatio||1),vw=innerWidth,vh=innerHeight;
+  if(coinCv.width!==Math.round(vw*dpr)||coinCv.height!==Math.round(vh*dpr)){coinCv.width=Math.round(vw*dpr);coinCv.height=Math.round(vh*dpr);}
+  cfx.setTransform(dpr,0,0,dpr,0,0);cfx.clearRect(0,0,vw,vh);
+  coinAnims=coinAnims.filter(a=>now-a.t0<a.dur);
+  for(const a of coinAnims){const t=(now-a.t0)/a.dur,e=1-Math.pow(1-t,3);cfx.globalAlpha=t<.7?1:(1-t)/.3;
+    if(a.k==='pop')drawCoin(cfx,a.x,a.y-58*e,a.R*(1+.25*Math.sin(Math.PI*t)),t*Math.PI*4,a.cols,'',null,t*3);
+    else{const tt=(now-a.t0)/1000;drawCoin(cfx,a.x+a.vx*tt,a.y+a.vy*tt+260*tt*tt,a.R,tt*a.spin,a.cols,'');}}
+  cfx.globalAlpha=1;
+  if(bigCoin){const b=bigCoin,t=(now-b.t0)/1000,out=b.out?Math.min(1,(now-b.out)/300):0,fade=1-out;
+    cfx.fillStyle=`rgba(4,5,16,${.78*Math.min(1,t/.3)*fade})`;cfx.fillRect(0,0,vw,vh);
+    const R=Math.min(vw,vh)*.27,cx=vw/2,cy=vh*.43,ein=Math.min(1,t/.7),sc=ein<1?1+2.7*Math.pow(ein-1,3)+1.7*Math.pow(ein-1,2):1;
+    const ang=b.a0+ (t<1.6?(12*t-3.4*t*t):(12*1.6-3.4*1.6*1.6)+1.4*(t-1.6));  // fast spin that slows into a calm turn
+    cfx.globalAlpha=fade;
+    cfx.globalCompositeOperation='lighter';const gl=cfx.createRadialGradient(cx,cy,R*.4,cx,cy,R*1.9);gl.addColorStop(0,hexMix(b.cols.accent,'#ffd84f',.5).replace('rgb','rgba').replace(')',',.45)'));gl.addColorStop(1,'rgba(0,0,0,0)');
+    cfx.fillStyle=gl;cfx.fillRect(cx-R*2,cy-R*2,R*4,R*4);
+    for(const q of b.sp){const age=t-q.d;if(age<0||age>1.4)continue;const k=age/1.4,r=R*(.9+1.3*k);cfx.fillStyle=`rgba(255,${200+Math.round(55*q.h)},${120+Math.round(100*q.h)},${1-k})`;
+      const px=cx+Math.cos(q.a)*r,py=cy+Math.sin(q.a)*r,s=2+3*(1-k);cfx.beginPath();cfx.moveTo(px,py-s*2);cfx.lineTo(px+s*.6,py);cfx.lineTo(px,py+s*2);cfx.lineTo(px-s*.6,py);cfx.fill();}
+    cfx.globalCompositeOperation='source-over';
+    drawCoin(cfx,cx,cy,R*Math.max(.01,sc),ang,b.cols,b.label,b.back,t*.9);
+    const ta=Math.max(0,Math.min(1,(t-.8)/.5))*fade;cfx.globalAlpha=ta;cfx.textAlign='center';cfx.textBaseline='top';
+    cfx.fillStyle='#ffd84f';cfx.font=`700 ${Math.round(R*.26)}px Silkscreen, monospace`;cfx.fillText(b.name,cx,cy+R*1.22);
+    cfx.fillStyle='#eef1ff';cfx.font=`600 ${Math.round(R*.12)}px "Chakra Petch", system-ui, sans-serif`;cfx.fillText(b.sub,cx,cy+R*1.6);
+    cfx.fillStyle='rgba(200,205,240,.7)';cfx.font=`600 ${Math.round(Math.max(11,R*.075))}px "Chakra Petch", system-ui, sans-serif`;cfx.fillText(LANG==='en'?'tap to close':'tik om te sluiten',cx,cy+R*1.86);
+    cfx.globalAlpha=1;
+    if(b.out&&out>=1){bigCoin=null;coinCv.classList.remove('big');}else if(!b.out&&t>7)closeBigCoin();}
+  coinRaf=(coinAnims.length||bigCoin)?requestAnimationFrame(coinLoop):0;if(!coinRaf)cfx.clearRect(0,0,vw,vh);}
+const kickCoins=()=>{if(!coinRaf)coinRaf=requestAnimationFrame(coinLoop);};
+function coinPop(el,burst){const r=el.getBoundingClientRect(),cols=shipCols(),x=r.left+r.width/2,y=r.top+r.height/2,now=performance.now();
+  coinAnims.push({k:'pop',x,y,R:15,cols,t0:now,dur:1000});
+  if(burst)for(let i=0;i<7;i++){const a=-Math.PI/2+(i-3)*.42;coinAnims.push({k:'bit',x,y,R:6,cols,t0:now+i*25,dur:1100,vx:Math.cos(a)*170,vy:Math.sin(a)*240,spin:9+i});}
+  kickCoins();}
+function openBigCoin(name){const n=cleanName(name),t=tot(n),frc=Math.floor(t.points/1000);
+  bigCoin={name:n,cols:colsOf(n),label:frc>=NAME_AT?n:'',back:`${frc} FRC`,sub:(LANG==='en'?`${frc} FR-COINS · ${t.points} POINTS · ${t.games} GAMES`:`${frc} FR-COINS · ${t.points} PUNTEN · ${t.games} SPELLEN`),
+    t0:performance.now(),a0:-Math.PI/2,out:0,sp:Array.from({length:46},(_,i)=>({a:Math.random()*Math.PI*2,d:.15+Math.random()*1.2+(i%3)*.4,h:Math.random()}))};
+  coinCv.classList.add('big');kickCoins();
+  if(ac&&!muted)[523,784,1046,1568].forEach((f,i)=>setTimeout(()=>tone('triangle',f,f*1.01,.22,.045),i*90));}
+function closeBigCoin(){if(bigCoin&&!bigCoin.out)bigCoin.out=performance.now();}
+coinCv.addEventListener('click',closeBigCoin);
+addEventListener('keydown',e=>{if(bigCoin&&(e.key==='Escape'||e.key===' '||e.key==='Enter')){e.preventDefault();e.stopPropagation();closeBigCoin();}},true);
+function shipIcon(n){const b=document.createElement('button');b.type='button';b.className='shipic';b.title=LANG==='en'?`Show the coin of ${n}`:`Toon de coin van ${n}`;
+  const cv=document.createElement('canvas');cv.width=72;cv.height=30;b.appendChild(cv);const c=cv.getContext('2d'),sv=ctx;ctx=c;c.setTransform(3,0,0,3,37,15);
+  try{drawShip(0,0,true,colsOf(n),earnedFor(n)>=NAME_AT?n:'');}finally{ctx=sv;}
+  b.addEventListener('click',e=>{e.preventDefault();openBigCoin(n);});return b;}
 
 /* ---------- players online right now ---------- */
 const onlineEl=document.getElementById('online');let onlineN=0;
@@ -1239,7 +1315,7 @@ function groundShadow(x,y,rx){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx
 /* ---------- sprites ---------- */
 function hexRgb(h){const n=parseInt(String(h).slice(1),16);return[n>>16&255,n>>8&255,n&255];}
 function hexMix(a,b,k){const x=hexRgb(a),y=hexRgb(b);return`rgb(${x.map((v,i)=>Math.round(v+(y[i]-v)*k))})`;}
-function drawShip(x,y,noFlame,cols){
+function drawShip(x,y,noFlame,cols,label){
   const SC=cols||shipCols(),FL=hexRgb(SC.flame);
   ctx.save();ctx.translate(x,y);
   if(!noFlame){const fl=4+Math.random()*3;
@@ -1256,6 +1332,8 @@ function drawShip(x,y,noFlame,cols){
   ctx.fillStyle=lg(0,-3,0,-.3,[hexMix(SC.glass,'#ffffff',.8),hexMix(SC.glass,'#000000',.45)]);ctx.beginPath();ctx.moveTo(6,-.5);ctx.quadraticCurveTo(3.5,-3,0,-2.7);ctx.lineTo(.2,-.5);ctx.closePath();ctx.fill();
   ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(1.2,-2.2,2,.5);
   ctx.fillStyle=SC.accent;ctx.fillRect(-6,-.2,6.5,.7);
+  if(label){ctx.font='700 2px "Chakra Petch", system-ui, sans-serif';const tw=ctx.measureText(label).width,k=Math.min(1,8.6/Math.max(1,tw));  // name decal under the cockpit
+    ctx.save();ctx.translate(1.6,1.75);ctx.scale(k,1);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=inkFor(SC.body)==='#ffffff'?'rgba(255,255,255,.92)':'rgba(20,17,47,.9)';ctx.fillText(label,0,0);ctx.restore();}
   ctx.restore();
 }
 function drawRocket(sx,y,launched){
@@ -1631,7 +1709,7 @@ function draw(){
     ctx.fillStyle='rgba(255,80,160,.22)';ctx.fillRect(-6,-1.6,14,3.2);
     ctx.fillStyle=lg(-8,0,8,0,['rgba(255,80,160,0)',[.55,'rgba(255,90,170,.9)'],[1,'#ffffff']]);ctx.fillRect(-8,-.55,16,1.1);ctx.restore();}
   ctx.globalCompositeOperation='source-over';
-  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y);if(shieldT>0)drawShield(p.x,p.y);}
+  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y,false,undefined,state==='play'?shipLabel():'');if(shieldT>0)drawShield(p.x,p.y);}
   for(const n of nukeFx)drawNukeFx(n);
   drawFx();
   for(const q of pops){ctx.globalAlpha=Math.min(1,q.life/20);text(q.text,q.x-scroll,q.y,q.c,'center',SMALL,true);}ctx.globalAlpha=1;
@@ -1770,6 +1848,9 @@ function makeTemplates(T){
     mk(new T.BoxGeometry(5.5,.5,15),M.gun,-2,-1.4),mk(new T.BoxGeometry(3.6,4.6,.6),SM.accent,-5.6,3.3),
     rz(mk(new T.CylinderGeometry(2.66,2.66,1,16),SM.accent,-3),H2),rz(mk(new T.CylinderGeometry(1.8,2.2,1.6,12),M.dark,-7.6),H2),
     rz(mk(new T.ConeGeometry(1.7,6,10),SM.flame,-11.5,0,0,'flame',false),H2));
+  {const cv=document.createElement('canvas');cv.width=512;cv.height=96;SM.labelCv=cv;SM.labelTex=new T.CanvasTexture(cv);
+    SM.label=new T.MeshBasicMaterial({map:SM.labelTex,transparent:true,depthWrite:false});
+    const pl=new T.Mesh(new T.PlaneGeometry(8.4,1.9),SM.label);pl.position.set(1.2,-.55,2.7);pl.name='label';SM.label.visible=false;t.ship.add(pl);}
   t.shipMats=SM;
   {const fins=[];for(let i=0;i<4;i++){const a=i*H2,f=mk(new T.BoxGeometry(2.8,4,.35),M.red,Math.cos(a)*2.4,2,Math.sin(a)*2.4);f.rotation.y=-a;fins.push(f);}
    const fl=mk(new T.ConeGeometry(1.3,7,10),M.flame,0,-3.5,0,'flame',false);fl.rotation.z=Math.PI;fl.visible=false;
@@ -1833,7 +1914,9 @@ function render3d(){
     else{m.rotation.z=Math.atan2(-e.vy,2.6);m.getObjectByName('flame').scale.set(1,.8+Math.random()*.5,1);}}
   for(const b of bombs){const m=want(b,'bomb');m.position.set(b.x,-b.y,0);m.rotation.z=Math.atan2(-b.vy,b.vx);}
   for(const n of nukesFly){const m=want(n,'nuke');m.position.set(n.x,-n.y,0);m.rotation.z=Math.atan2(-n.vy,Math.max(.3,n.vx-speed));m.getObjectByName('blink').visible=(frame|0)%10<5;}
-  {const C=shipCols(),k=C.body+C.accent+C.glass+C.flame;if(k!==o.shipKey){o.shipKey=k;const SM=tpl.shipMats;SM.body.color.set(C.body);SM.accent.color.set(C.accent);SM.glass.color.set(C.glass);SM.flame.color.set(C.flame);}}
+  {const C=shipCols(),lb=state==='play'?shipLabel():'',k=C.body+C.accent+C.glass+C.flame+lb;if(k!==o.shipKey){o.shipKey=k;const SM=tpl.shipMats;SM.body.color.set(C.body);SM.accent.color.set(C.accent);SM.glass.color.set(C.glass);SM.flame.color.set(C.flame);
+    const c=SM.labelCv.getContext('2d');c.clearRect(0,0,512,96);if(lb){c.font='800 78px "Chakra Petch", system-ui, sans-serif';const tw=c.measureText(lb).width,kk=Math.min(1,480/tw);c.save();c.translate(256,50);c.scale(kk,1);c.textAlign='center';c.textBaseline='middle';
+      const lt=inkFor(C.body)==='#ffffff';c.lineWidth=10;c.lineJoin='round';c.strokeStyle=lt?'rgba(10,12,30,.55)':'rgba(255,255,255,.5)';c.strokeText(lb,0,0);c.fillStyle=lt?'#ffffff':'#14112f';c.fillText(lb,0,0);c.restore();}SM.labelTex.needsUpdate=true;SM.label.visible=!!lb;}}
   if(state==='play'||(state==='intro'&&p.x<W+20)){const m=want('ship','ship');m.position.set(scroll+p.x,-p.y,0);
     const vy=(mvy.d||0)*Math.min(1,mvy.t*2);m.rotation.z+=((-vy*.18)-m.rotation.z)*.15;m.rotation.x=Math.sin(frame*.05)*.12;
     m.getObjectByName('flame').scale.set(1,.7+Math.random()*.6,1);}
