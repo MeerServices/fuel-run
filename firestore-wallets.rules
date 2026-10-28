@@ -45,7 +45,7 @@
       allow create: if okWallet() && owner()
         && request.resource.data.games >= 1 && request.resource.data.games <= 10
         && request.resource.data.points >= 0
-        && request.resource.data.points <= 100000 * request.resource.data.games
+        && request.resource.data.points <= 1000000 * request.resource.data.games
         && !('spent' in request.resource.data) && !('unlocked' in request.resource.data)
         && !('colors' in request.resource.data) && !('items' in request.resource.data);
       allow update: if okWallet() && owner() && (
@@ -55,7 +55,7 @@
             && request.resource.data.games - resource.data.games <= 10
             && request.resource.data.points >= resource.data.points
             && request.resource.data.points - resource.data.points
-               <= 100000 * (request.resource.data.games - resource.data.games)
+               <= 1000000 * (request.resource.data.games - resource.data.games)
             && request.time > resource.data.at + duration.value(20, 's'))
           // iets kopen in de winkel
           || (changed().hasOnly(['spent', 'at', 'items', 'colors'])
