@@ -96,12 +96,14 @@ html.three .lay{display:block}
 .stick::before,.stick::after{content:"";position:absolute;background:var(--rim);left:50%;top:50%;transform:translate(-50%,-50%)}
 .stick::before{width:2px;height:70%}.stick::after{width:70%;height:2px}
 .knob{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:var(--ink);box-shadow:inset 0 -5px 0 #b9b2e6;z-index:1;pointer-events:none}
-.btns{display:flex;gap:14px;align-items:flex-end;margin-left:auto}
+.btns{display:flex;gap:14px;align-items:flex-end;margin-left:auto;flex-wrap:wrap;justify-content:flex-end;row-gap:10px}
 .btn{width:76px;height:76px;border-radius:50%;border:none;font-family:var(--display);font-size:12px;letter-spacing:.06em;color:#14112f;touch-action:none;cursor:pointer}
 .btn.bomb{background:var(--amber);box-shadow:0 5px 0 #8a5a12}
 .btn.fire{background:var(--pink);box-shadow:0 5px 0 #8a1f55;margin-bottom:22px}
 .btn.nuke{width:58px;height:58px;font-size:11px;background:#d7ff3f;box-shadow:0 5px 0 #6a7d12;margin-bottom:56px}
 .btn.shield{width:58px;height:58px;font-size:11px;background:#5fe6ff;box-shadow:0 5px 0 #1d7486;margin-bottom:56px}
+.btn.laser{width:58px;height:58px;font-size:11px;background:#ff7ad9;box-shadow:0 5px 0 #8a2470;margin-bottom:56px}
+.btn.emp{width:58px;height:58px;font-size:11px;background:#7ab8ff;box-shadow:0 5px 0 #24508a;margin-bottom:56px}
 .btn.placed{position:fixed;margin:0!important;transform:translate(-50%,-50%);z-index:4}
 .btn.placed.on{transform:translate(-50%,calc(-50% + 4px))}
 .stick.floating{position:fixed;z-index:9;margin:0;opacity:.9}
@@ -128,6 +130,12 @@ html.three .lay{display:block}
 .install::after{content:'';position:absolute;width:14px;height:14px;background:#12142a;border:1px solid #3fe0d0;transform:rotate(45deg)}
 .install.bottom::after{bottom:-8px;left:calc(50% - 7px);border-top:0;border-left:0}.install.top::after{top:-8px;right:28px;border-bottom:0;border-right:0}
 .install.noarrow::after{display:none}
+.shop{display:flex;flex-direction:column;gap:8px}
+.shopit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:9px 10px;border:1px solid var(--rim);border-radius:6px;background:#0b0d22}
+.shopit b{font-family:var(--display);font-weight:400;font-size:12px;letter-spacing:.05em;color:var(--ink)}.shopit span{grid-column:1;font-size:12px;color:var(--dim);line-height:1.35}
+.shopit button{grid-row:1/3;grid-column:2;font-family:var(--display);font-size:11px;letter-spacing:.04em;padding:9px 10px;border-radius:4px;cursor:pointer;background:#ffd84f;color:#2a2005;border:1px solid #ffd84f;white-space:nowrap}
+.shopit button:disabled{opacity:.4;cursor:not-allowed}.shopit.own{border-color:#2f6d3a;background:#0b1a12}.shopit.own button{background:transparent;color:#8be39b;border-color:#2f6d3a;cursor:default;opacity:1}
+#uiCode.err{color:#ff7a9a}#uiCode.ok{color:#8be39b}
 .hangar{display:flex;flex-direction:column;gap:8px}
 .namerow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;font-size:13px;color:var(--ink)}
 .namerow input{font-family:var(--display);font-size:15px;letter-spacing:.12em;text-transform:uppercase;background:#07081a;color:var(--ink);border:1px solid var(--rim);border-radius:4px;padding:6px 8px;min-width:0}
@@ -170,7 +178,7 @@ html.editing .pad{display:flex!important;visibility:visible!important}
 .mgrt .del{font-family:var(--display);font-size:10px;letter-spacing:.05em;padding:6px 8px;border-radius:4px;border:1px solid #ff5f7a;background:transparent;color:#ff8a9e;cursor:pointer;white-space:nowrap}
 .mgrt .del[data-arm]{background:#ff5f7a;color:#1a0610}
 html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opacity:1!important;cursor:grab}
-@media (max-width:440px){.stick{width:108px;height:108px}.btns{gap:8px}.btn{width:60px;height:60px;font-size:11px}.btn.nuke,.btn.shield{width:48px;height:48px;font-size:9px;margin-bottom:46px}}
+@media (max-width:440px){.snd{padding:6px 7px;font-size:10px;letter-spacing:.04em}.hbtns{gap:5px}h1{font-size:19px}.btn.laser,.btn.emp{margin-bottom:0}.stick{width:108px;height:108px}.btns{gap:8px}.btn{width:60px;height:60px;font-size:11px}.btn.nuke,.btn.shield,.btn.laser,.btn.emp{width:48px;height:48px;font-size:9px;margin-bottom:46px}}
 .btn.on{transform:translateY(4px);box-shadow:0 1px 0 #000}
 @media (pointer:coarse){
   .pad{display:flex}
@@ -182,6 +190,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <header>
     <div class="brand"><h1>FUEL RUN</h1><span class="online" id="online" hidden><i aria-hidden="true"></i><b>1</b> <span>spelers online</span></span></div>
     <div class="hbtns">
+      <button class="snd" id="bhg" title="Hangar en winkel voor je FR-Coins" data-i18n-title="Hangar en winkel voor je FR-Coins">HANGAR</button>
       <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar" data-i18n-title="Highscores per dag, week, maand en jaar" data-i18n="SCORES">SCORES</button>
       <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten" data-i18n-title="Knoppen en joystick naar je hand zetten" data-i18n="CONFIG">CONFIG</button>
       <button class="snd" id="fsb" title="Volledig scherm aan of uit" data-i18n-title="Volledig scherm aan of uit" aria-pressed="false" data-i18n="SCHERM">SCHERM</button>
@@ -230,6 +239,8 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <button class="btn bomb" id="bBomb" data-i18n="BOM">BOM</button>
       <button class="btn fire" id="bFire" data-i18n="VUUR">VUUR</button>
       <button class="btn nuke" id="bNuke" data-i18n="NUKE">NUKE</button>
+      <button class="btn laser" id="bLaser" hidden>LASER</button>
+      <button class="btn emp" id="bEmp" hidden>EMP</button>
     </div>
   </div>
   <div class="settings uicfg" id="uicfg" hidden>
@@ -248,24 +259,33 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <h3 data-i18n="Dag en nacht">Dag en nacht</h3>
       <div class="seg" id="uiTime"><button type="button" data-v="auto" data-i18n="AUTOMATISCH">AUTOMATISCH</button><button type="button" data-v="day" data-i18n="DAG">DAG</button><button type="button" data-v="night" data-i18n="NACHT">NACHT</button></div>
       <p class="sub" id="uiSun"></p>
-      <h3 data-i18n="Hangar">Hangar</h3>
+      <h3 data-i18n="Knoppen">Knoppen</h3>
+      <div id="uiRows"></div>
+      <div class="row"><button type="button" class="skip" id="uiMove" data-i18n="KNOPPEN VERPLAATSEN">KNOPPEN VERPLAATSEN</button></div>
+      <div class="row"><button type="button" class="skip" id="uiDef" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="uiDone" data-i18n="KLAAR">KLAAR</button></div>
+    </form>
+  </div>
+  <div class="settings uicfg" id="hangarDlg" hidden>
+    <form id="hgForm" autocomplete="off">
+      <h2>HANGAR</h2>
       <div class="hangar">
         <label class="namerow" for="ui_name"><span data-i18n="Spelersnaam">Spelersnaam</span><input id="ui_name" maxlength="10" autocomplete="off" spellcheck="false" autocapitalize="characters"></label>
+        <label class="namerow" for="ui_code"><span data-i18n="Code">Code</span><input id="ui_code" type="password" maxlength="8" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="max. 8"></label>
+        <p class="sub" id="uiCode"></p>
         <p class="sub" id="uiCoins"></p>
         <canvas id="shipPrev" width="480" height="150" aria-hidden="true"></canvas>
-        <button type="button" class="save" id="uiUnlock"></button>
-        <div class="shipcols" id="uiShipCols">
+        <div class="seg" id="uiModels" hidden><button type="button" data-m="a" data-i18n="KLASSIEK">KLASSIEK</button><button type="button" data-m="b">INTERCEPTOR</button></div>
+        <div class="shipcols" id="uiShipCols" hidden>
           <label><input type="color" id="sc_body"><span data-i18n="Romp">Romp</span></label>
           <label><input type="color" id="sc_accent"><span data-i18n="Accent">Accent</span></label>
           <label><input type="color" id="sc_glass"><span data-i18n="Cockpit">Cockpit</span></label>
           <label><input type="color" id="sc_flame"><span data-i18n="Vlam">Vlam</span></label>
         </div>
         <button type="button" class="skip" id="uiShipDef" data-i18n="STANDAARD KLEUREN">STANDAARD KLEUREN</button>
+        <h3 data-i18n="WINKEL">WINKEL</h3>
+        <div class="shop" id="uiShop"></div>
       </div>
-      <h3 data-i18n="Knoppen">Knoppen</h3>
-      <div id="uiRows"></div>
-      <div class="row"><button type="button" class="skip" id="uiMove" data-i18n="KNOPPEN VERPLAATSEN">KNOPPEN VERPLAATSEN</button></div>
-      <div class="row"><button type="button" class="skip" id="uiDef" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="uiDone" data-i18n="KLAAR">KLAAR</button></div>
+      <div class="row"><button type="button" class="save" id="hgDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
   <div class="settings uicfg scorep" id="scorep" hidden>
@@ -290,7 +310,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint" style="font-size:12px;opacity:.6">Versie 41 · code voor de god mode, installeer-melding op iPhone en iPad</p>
+  <p class="hint" style="font-size:12px;opacity:.6">Versie 42 · hangar met winkel, spelersnaam met code, superlaser, EMP en de Interceptor</p>
 </div>
 
 <div class="install" id="install" hidden role="dialog" aria-labelledby="instTitle">
@@ -302,7 +322,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
 <script>
 (()=>{
 let LANG=(()=>{try{const u=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(u&&(u.lang==='nl'||u.lang==='en'))return u.lang;}catch(e){}return /^nl/i.test(navigator.language||'')?'nl':'en';})();
-const EN={"Sluiten":"Close","INSTALLEER":"INSTALL","INSTALLEER ALS APP":"INSTALL AS APP","Verkeerde code.":"Wrong code.","Te vaak fout. Wacht 30 seconden.":"Too many wrong tries. Wait 30 seconds.","Te vaak fout. Wacht even en probeer het opnieuw.":"Too many wrong tries. Wait a moment and try again.","Nieuwe code opgeslagen voor dit toestel.":"New code saved for this device.","Gebruik 4 tot 8 cijfers.":"Use 4 to 8 digits.","Voer de code in om de god mode te openen.":"Enter the code to open god mode.","Kies een nieuwe code van 4 tot 8 cijfers. Die geldt voor dit toestel.":"Choose a new code of 4 to 8 digits. It applies to this device.","CODE WIJZIGEN":"CHANGE CODE","SPELLEN":"GAMES","TOTAAL":"TOTAL","STANDAARD KLEUREN":"DEFAULT COLOURS","Vlam":"Flame","Cockpit":"Cockpit","Accent":"Accent","Romp":"Body","Spelersnaam":"Player name","Hangar":"Hangar","SCORES": "SCORES", "CONFIG": "CONFIG", "SCHERM": "SCREEN", "NIEUWE HIGHSCORE": "NEW HIGH SCORE", "INSTELLINGEN": "SETTINGS", "Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.": "Open and close with G. Your ship speeds up linearly from the start speed to the top speed while you hold a direction. Lives, bombs, nukes, shields and game speed apply from the next game.", "HIGHSCORES BEHEREN": "MANAGE HIGH SCORES", "STANDAARD": "DEFAULT", "ANNULEREN": "CANCEL", "OPSLAAN": "SAVE", "NIEUWE HIGH SCORE": "NEW HIGH SCORE", "Score": "Score", "levensduur": "survived", "Je naam (max. 10 tekens)": "Your name (max. 10 characters)", "OVERSLAAN": "SKIP", "SCHILD": "SHIELD", "BOM": "BOMB", "VUUR": "FIRE", "NUKE": "NUKE", "Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.": "Personal to this device. Changes show right away.", "Besturing": "Controls", "Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.": "Gyro: steer by tilting your phone. The position at the start of the game is the zero point.", "Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt": "Floating joystick: touch the left half of the screen and steer from that point", "Weergave en geluid": "Display and sound", "3D-weergave": "3D view", "Geluid": "Sound", "Taal": "Language", "Dag en nacht": "Day and night", "AUTOMATISCH": "AUTOMATIC", "DAG": "DAY", "NACHT": "NIGHT", "Knoppen": "Buttons", "KNOPPEN VERPLAATSEN": "MOVE BUTTONS", "KLAAR": "DONE", "HIGH SCORES": "HIGH SCORES", "PERSOONLIJK": "PERSONAL", "OPENBAAR": "PUBLIC", "SCORE": "SCORE", "LEVENSDUUR": "TIME ALIVE", "NAAM": "NAME", "DATUM · TIJD": "DATE · TIME", "ALLES WISSEN": "CLEAR ALL", "Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.": "Drag the buttons to where you like them. Landscape and portrait are remembered separately.", "Highscores per dag, week, maand en jaar": "High scores per day, week, month and year", "Knoppen en joystick naar je hand zetten": "Set up buttons and joystick", "Volledig scherm aan of uit": "Full screen on or off", "Fuel Run spelscherm": "Fuel Run game screen", "Bewegen": "Move", "Startsnelheid": "Start speed", "Versnelling per seconde": "Acceleration per second", "Topsnelheid": "Top speed", "Gyro: kantelen voor topsnelheid": "Gyro: tilt for top speed", "Bommen per ronde (0 = onbeperkt)": "Bombs per round (0 = unlimited)", "Bommen tegelijk in de lucht": "Bombs in the air at once", "Laserschoten tegelijk": "Laser shots at once", "Schiethoek bij volle snelheid omhoog/omlaag": "Firing angle at full speed up/down", "Nukes per ronde": "Nukes per round", "Schilden per ronde": "Shields per round", "Duur van het schild": "Shield duration", "Levens": "Lives", "Spelsnelheid": "Game speed", "Brandstofverbruik": "Fuel use", "Aantal vijanden": "Number of enemies", "Wapens": "Weapons", "Spel": "Game", "WEEK": "WEEK", "MAAND": "MONTH", "JAAR": "YEAR", "ALTIJD": "ALL TIME", "50  /  80 IN DE LUCHT": "50  /  80 IN FLIGHT", "150  +  BRANDSTOF": "150  +  FUEL", "100  AANVALSRAKET": "100  ATTACK MISSILE", "1000  BASIS": "1000  BASE", "3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.": "3D could not be loaded. Check your internet connection; the game stays in 2D.", "3D werkt niet goed op dit apparaat. Het spel staat weer in 2D.": "3D does not work well on this device. The game is back in 2D.", "ALLEEN EEN NUKE HELPT": "ONLY A NUKE WORKS", "ANONIEM": "ANONYMOUS", "Aanpassen is niet gelukt.": "Could not change the score.", "BASIS NADERT": "BASE AHEAD", "BASIS VERNIETIGD": "BASE DESTROYED", "BRANDSTOF": "FUEL", "DE BASIS": "THE BASE", "DRUK OP VUUR OM OVER TE SLAAN": "PRESS FIRE TO SKIP", "DRUK OP VUUR OM TE STARTEN": "PRESS FIRE TO START", "DRUK OP VUUR OM VERDER TE GAAN": "PRESS FIRE TO CONTINUE", "De bewegingssensor kan hier niet worden gebruikt. Gyro blijft uit.": "The motion sensor cannot be used here. Gyro stays off.", "De gedeelde lijst in de Claude-app. Wat je hier aanpast of wist, geldt voor iedereen.": "The shared list in the Claude app. What you change or delete here applies to everyone.", "De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.": "The public list cannot be reached right now. Check your internet connection.", "De openbare lijst op GitHub staat in Firebase en kan vanuit het spel niet worden aangepast. Wissen of aanpassen doe je in de Firebase-console: Firestore Database → Data → scores.": "The public list on GitHub is stored in Firebase and cannot be changed from the game. Delete or edit scores in the Firebase console: Firestore Database → Data → scores.", "Dit apparaat heeft geen bewegingssensor die het spel kan lezen.": "This device has no motion sensor the game can read.", "Duik de donkere grotten in": "Dive into the dark caves", "Er komen geen gyro-gegevens binnen. Deze weergave blokkeert de bewegingssensor. Open het spel als los bestand in de browser van je telefoon.": "No gyro data is coming in. This view blocks the motion sensor. Open the game on its own in your phone’s browser.", "FASE": "STAGE", "FINALE": "FINALE", "GEEN BOMMEN MEER": "NO BOMBS LEFT", "GEEN NUKES MEER": "NO NUKES LEFT", "GEEN SCHILDEN MEER": "NO SHIELDS LEFT", "GEPAUZEERD": "PAUSED", "GROTTEN": "CAVES", "HEUVELS": "HILLS", "STAD": "CITY", "OERWOUD": "JUNGLE", "Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. ": "Shared with everyone who plays Fuel Run at meerservices.github.io/fuel-run. ", "Geen scores.": "No scores.", "Geen toestemming voor de bewegingssensor. Gyro blijft uit.": "No permission for the motion sensor. Gyro stays off.", "HOUD EEN NUKE KLAAR": "KEEP A NUKE READY", "INTRO": "INTRO", "JE HEBT GEEN NUKES MEER": "YOU HAVE NO NUKES LEFT", "JOUW PLEK  ·  ": "YOUR RANK  ·  ", "Je eigen scores op dit apparaat.": "Your own scores on this device.", "Je eigen scores op dit apparaat. Pas een naam of score aan, of wis een regel.": "Your own scores on this device. Change a name or score, or delete a row.", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.": "Your score is in your personal list, but could not be added to the public list.", "Niet beschikbaar.": "Not available.", "Nog geen scores in deze periode.": "No scores in this period yet.", "NODIG VOOR DE BASIS": "NEEDED FOR THE BASE", "PER RONDE": "PER ROUND", "Ontwijk vuurballen boven de stad": "Dodge fireballs over the city", "Ontwijk zoekende raketten in het oerwoud": "Dodge homing missiles in the jungle", "Openbare scores zijn hier niet beschikbaar.": "Public scores are not available here.", "PUNTENTABEL": "SCORE TABLE", "Probleem: ": "Problem: ", "RONDE": "ROUND", "SNELLER · WAPENS AANGEVULD": "FASTER · WEAPONS RESTOCKED", "SPEL VOORBIJ": "GAME OVER", "Scheer laag over de heuvels": "Skim low over the hills", "TIK OM OVER TE SLAAN": "TAP TO SKIP", "TIK OP VUUR OM TE STARTEN": "TAP FIRE TO START", "TOPSCORE": "TOP SCORE", "VIER FASES · ÉÉN TANK BRANDSTOF": "FOUR STAGES · ONE TANK OF FUEL", "VUUR OM VERDER TE GAAN": "FIRE TO CONTINUE", "Vernietig het hoofdkwartier": "Destroy the headquarters", "Verwijderen is niet gelukt.": "Could not delete the score.", "WIS": "DELETE", "ZEKER?": "SURE?", "ZEKER? TIK NOG EENS": "SURE? TAP AGAIN", "opslaan: ": "saving: ", "NIEUWE TOPSCORE": "NEW TOP SCORE", "PUNTEN": "POINTS", "Bijgewerkt om ": "Updated at ", "(laden…)": "(loading…)", "Kleur ": "Colour ", "Grootte ": "Size ", "Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies \"Zet op beginscherm\". Start het spel daarna via het Fuel Run-icoon.": "Full screen on iPhone: in Safari tap Share (the square with an arrow) and choose \"Add to Home Screen\". Then start the game from the Fuel Run icon.", "De openbare lijst is niet bereikbaar (": "The public list cannot be reached (", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet (": "Your score is in your personal list, but could not be added to the public list (", "Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.": "Shared with everyone you share this game with in the Claude app."};
+const EN={"Hangar en winkel voor je FR-Coins":"Hangar and shop for your FR-Coins","GEEN EMP MEER":"NO EMP LEFT","GEEN LASERS MEER":"NO LASERS LEFT","WINKEL":"SHOP","KLASSIEK":"CLASSIC","Code":"Code","Sluiten":"Close","INSTALLEER":"INSTALL","INSTALLEER ALS APP":"INSTALL AS APP","Verkeerde code.":"Wrong code.","Te vaak fout. Wacht 30 seconden.":"Too many wrong tries. Wait 30 seconds.","Te vaak fout. Wacht even en probeer het opnieuw.":"Too many wrong tries. Wait a moment and try again.","Nieuwe code opgeslagen voor dit toestel.":"New code saved for this device.","Gebruik 4 tot 8 cijfers.":"Use 4 to 8 digits.","Voer de code in om de god mode te openen.":"Enter the code to open god mode.","Kies een nieuwe code van 4 tot 8 cijfers. Die geldt voor dit toestel.":"Choose a new code of 4 to 8 digits. It applies to this device.","CODE WIJZIGEN":"CHANGE CODE","SPELLEN":"GAMES","TOTAAL":"TOTAL","STANDAARD KLEUREN":"DEFAULT COLOURS","Vlam":"Flame","Cockpit":"Cockpit","Accent":"Accent","Romp":"Body","Spelersnaam":"Player name","Hangar":"Hangar","SCORES": "SCORES", "CONFIG": "CONFIG", "SCHERM": "SCREEN", "NIEUWE HIGHSCORE": "NEW HIGH SCORE", "INSTELLINGEN": "SETTINGS", "Openen en sluiten met G. De snelheid van je schip loopt lineair op van de startsnelheid naar de topsnelheid zolang je een richting vasthoudt. Levens, bommen, nukes, schilden en spelsnelheid gelden vanaf het volgende spel.": "Open and close with G. Your ship speeds up linearly from the start speed to the top speed while you hold a direction. Lives, bombs, nukes, shields and game speed apply from the next game.", "HIGHSCORES BEHEREN": "MANAGE HIGH SCORES", "STANDAARD": "DEFAULT", "ANNULEREN": "CANCEL", "OPSLAAN": "SAVE", "NIEUWE HIGH SCORE": "NEW HIGH SCORE", "Score": "Score", "levensduur": "survived", "Je naam (max. 10 tekens)": "Your name (max. 10 characters)", "OVERSLAAN": "SKIP", "SCHILD": "SHIELD", "BOM": "BOMB", "VUUR": "FIRE", "NUKE": "NUKE", "Persoonlijk voor dit apparaat. Wat je verandert, zie je meteen.": "Personal to this device. Changes show right away.", "Besturing": "Controls", "Gyro: stuur door je telefoon te kantelen. De stand bij de start van het spel is het nulpunt.": "Gyro: steer by tilting your phone. The position at the start of the game is the zero point.", "Zwevende joystick: raak de linkerhelft van het scherm aan en stuur vanaf dat punt": "Floating joystick: touch the left half of the screen and steer from that point", "Weergave en geluid": "Display and sound", "3D-weergave": "3D view", "Geluid": "Sound", "Taal": "Language", "Dag en nacht": "Day and night", "AUTOMATISCH": "AUTOMATIC", "DAG": "DAY", "NACHT": "NIGHT", "Knoppen": "Buttons", "KNOPPEN VERPLAATSEN": "MOVE BUTTONS", "KLAAR": "DONE", "HIGH SCORES": "HIGH SCORES", "PERSOONLIJK": "PERSONAL", "OPENBAAR": "PUBLIC", "SCORE": "SCORE", "LEVENSDUUR": "TIME ALIVE", "NAAM": "NAME", "DATUM · TIJD": "DATE · TIME", "ALLES WISSEN": "CLEAR ALL", "Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.": "Drag the buttons to where you like them. Landscape and portrait are remembered separately.", "Highscores per dag, week, maand en jaar": "High scores per day, week, month and year", "Knoppen en joystick naar je hand zetten": "Set up buttons and joystick", "Volledig scherm aan of uit": "Full screen on or off", "Fuel Run spelscherm": "Fuel Run game screen", "Bewegen": "Move", "Startsnelheid": "Start speed", "Versnelling per seconde": "Acceleration per second", "Topsnelheid": "Top speed", "Gyro: kantelen voor topsnelheid": "Gyro: tilt for top speed", "Bommen per ronde (0 = onbeperkt)": "Bombs per round (0 = unlimited)", "Bommen tegelijk in de lucht": "Bombs in the air at once", "Laserschoten tegelijk": "Laser shots at once", "Schiethoek bij volle snelheid omhoog/omlaag": "Firing angle at full speed up/down", "Nukes per ronde": "Nukes per round", "Schilden per ronde": "Shields per round", "Duur van het schild": "Shield duration", "Levens": "Lives", "Spelsnelheid": "Game speed", "Brandstofverbruik": "Fuel use", "Aantal vijanden": "Number of enemies", "Wapens": "Weapons", "Spel": "Game", "WEEK": "WEEK", "MAAND": "MONTH", "JAAR": "YEAR", "ALTIJD": "ALL TIME", "50  /  80 IN DE LUCHT": "50  /  80 IN FLIGHT", "150  +  BRANDSTOF": "150  +  FUEL", "100  AANVALSRAKET": "100  ATTACK MISSILE", "1000  BASIS": "1000  BASE", "3D kon niet worden geladen. Controleer je internetverbinding; het spel blijft in 2D.": "3D could not be loaded. Check your internet connection; the game stays in 2D.", "3D werkt niet goed op dit apparaat. Het spel staat weer in 2D.": "3D does not work well on this device. The game is back in 2D.", "ALLEEN EEN NUKE HELPT": "ONLY A NUKE WORKS", "ANONIEM": "ANONYMOUS", "Aanpassen is niet gelukt.": "Could not change the score.", "BASIS NADERT": "BASE AHEAD", "BASIS VERNIETIGD": "BASE DESTROYED", "BRANDSTOF": "FUEL", "DE BASIS": "THE BASE", "DRUK OP VUUR OM OVER TE SLAAN": "PRESS FIRE TO SKIP", "DRUK OP VUUR OM TE STARTEN": "PRESS FIRE TO START", "DRUK OP VUUR OM VERDER TE GAAN": "PRESS FIRE TO CONTINUE", "De bewegingssensor kan hier niet worden gebruikt. Gyro blijft uit.": "The motion sensor cannot be used here. Gyro stays off.", "De gedeelde lijst in de Claude-app. Wat je hier aanpast of wist, geldt voor iedereen.": "The shared list in the Claude app. What you change or delete here applies to everyone.", "De openbare lijst is nu niet bereikbaar. Controleer je internetverbinding.": "The public list cannot be reached right now. Check your internet connection.", "De openbare lijst op GitHub staat in Firebase en kan vanuit het spel niet worden aangepast. Wissen of aanpassen doe je in de Firebase-console: Firestore Database → Data → scores.": "The public list on GitHub is stored in Firebase and cannot be changed from the game. Delete or edit scores in the Firebase console: Firestore Database → Data → scores.", "Dit apparaat heeft geen bewegingssensor die het spel kan lezen.": "This device has no motion sensor the game can read.", "Duik de donkere grotten in": "Dive into the dark caves", "Er komen geen gyro-gegevens binnen. Deze weergave blokkeert de bewegingssensor. Open het spel als los bestand in de browser van je telefoon.": "No gyro data is coming in. This view blocks the motion sensor. Open the game on its own in your phone’s browser.", "FASE": "STAGE", "FINALE": "FINALE", "GEEN BOMMEN MEER": "NO BOMBS LEFT", "GEEN NUKES MEER": "NO NUKES LEFT", "GEEN SCHILDEN MEER": "NO SHIELDS LEFT", "GEPAUZEERD": "PAUSED", "GROTTEN": "CAVES", "HEUVELS": "HILLS", "STAD": "CITY", "OERWOUD": "JUNGLE", "Gedeeld met iedereen die Fuel Run speelt op meerservices.github.io/fuel-run. ": "Shared with everyone who plays Fuel Run at meerservices.github.io/fuel-run. ", "Geen scores.": "No scores.", "Geen toestemming voor de bewegingssensor. Gyro blijft uit.": "No permission for the motion sensor. Gyro stays off.", "HOUD EEN NUKE KLAAR": "KEEP A NUKE READY", "INTRO": "INTRO", "JE HEBT GEEN NUKES MEER": "YOU HAVE NO NUKES LEFT", "JOUW PLEK  ·  ": "YOUR RANK  ·  ", "Je eigen scores op dit apparaat.": "Your own scores on this device.", "Je eigen scores op dit apparaat. Pas een naam of score aan, of wis een regel.": "Your own scores on this device. Change a name or score, or delete a row.", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet.": "Your score is in your personal list, but could not be added to the public list.", "Niet beschikbaar.": "Not available.", "Nog geen scores in deze periode.": "No scores in this period yet.", "NODIG VOOR DE BASIS": "NEEDED FOR THE BASE", "PER RONDE": "PER ROUND", "Ontwijk vuurballen boven de stad": "Dodge fireballs over the city", "Ontwijk zoekende raketten in het oerwoud": "Dodge homing missiles in the jungle", "Openbare scores zijn hier niet beschikbaar.": "Public scores are not available here.", "PUNTENTABEL": "SCORE TABLE", "Probleem: ": "Problem: ", "RONDE": "ROUND", "SNELLER · WAPENS AANGEVULD": "FASTER · WEAPONS RESTOCKED", "SPEL VOORBIJ": "GAME OVER", "Scheer laag over de heuvels": "Skim low over the hills", "TIK OM OVER TE SLAAN": "TAP TO SKIP", "TIK OP VUUR OM TE STARTEN": "TAP FIRE TO START", "TOPSCORE": "TOP SCORE", "VIER FASES · ÉÉN TANK BRANDSTOF": "FOUR STAGES · ONE TANK OF FUEL", "VUUR OM VERDER TE GAAN": "FIRE TO CONTINUE", "Vernietig het hoofdkwartier": "Destroy the headquarters", "Verwijderen is niet gelukt.": "Could not delete the score.", "WIS": "DELETE", "ZEKER?": "SURE?", "ZEKER? TIK NOG EENS": "SURE? TAP AGAIN", "opslaan: ": "saving: ", "NIEUWE TOPSCORE": "NEW TOP SCORE", "PUNTEN": "POINTS", "Bijgewerkt om ": "Updated at ", "(laden…)": "(loading…)", "Kleur ": "Colour ", "Grootte ": "Size ", "Volledig scherm op iPhone: tik in Safari op Deel (vierkantje met pijl) en kies \"Zet op beginscherm\". Start het spel daarna via het Fuel Run-icoon.": "Full screen on iPhone: in Safari tap Share (the square with an arrow) and choose \"Add to Home Screen\". Then start the game from the Fuel Run icon.", "De openbare lijst is niet bereikbaar (": "The public list cannot be reached (", "Je score staat in je persoonlijke lijst, maar kon niet in de openbare lijst worden gezet (": "Your score is in your personal list, but could not be added to the public list (", "Gedeeld met iedereen met wie je dit spel in de Claude-app deelt.": "Shared with everyone you share this game with in the Claude app."};
 const HTMLK={"hintKeys": ["<b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze", "<b>Arrows / WASD</b> fly · <b>Z or space</b> laser · <b>X</b> bombs · <b>N</b> nuke · <b>V</b> shield · <b>P</b> pause"], "hintMain": ["Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.", "Hit fuel tanks to refuel. You have 3 nukes per round; only a nuke destroys the base at the end, so save one. The SHIELD button (key V) gives you a shield for 5 seconds, also 3 times per round. With 3 nukes on board your ship responds 20% slower, with 2 nukes 10%. Homing missiles only appear in the jungle. If your tank runs dry, you crash. Four stages, then bomb the base and go again, faster. In CONFIG you turn on gyro steering and choose day, night or automatic, following the real sun and moon."]};
 const T=x=>LANG==='en'&&EN[x]!==undefined?EN[x]:x;
 function applyLang(){document.documentElement.lang=LANG;
@@ -420,6 +440,7 @@ function genWorld(){
 let state='title',scroll=0,speed=.9,score=0,hi=0,lives=3,nextLife=10000,fuel=100,flags=0,curStage=0;
 let p={x:48,y:100},lasers=[],bombs=[],enemies=[],parts=[],flashes=[],pops=[],banner=null,shake=0;
 let fireCd=0,bombCd=0,spawnT=60,timer=0,frame=0,paused=false,lowBeep=0;
+const LASER_N=3,EMP_N=2,BEAM_T=180;let laserLeft=3,empLeft=2,beamT=0,beamEnd=0,empFx=null,beamSnd=0;
 let shipPitch=0,lastPX=null,lastPY=0,baseWarned=false,bombsLeft=0,shields=3,shieldT=0,shieldHitT=0,comboT=0,comboUsed=false,nukes=3,nukesFly=[],nukeFx=[],craters=[],flashW=0,prevNuke=false,introNuked=false,missileT=200,introT=0,introSeg=-1,introFire=0,introBomb=0,flashA=0,titleIdle=0;
 try{hi=+localStorage.getItem('fuelrun.hi')||0}catch(e){}
 const saveHi=()=>{try{localStorage.setItem('fuelrun.hi',hi)}catch(e){}};
@@ -521,7 +542,7 @@ async function gyroOn(){
 gyroChk.addEventListener('change',()=>{ensureAudio();if(gyroChk.checked)gyroOn();else{gyroOff();say('');}});
 
 /* ---------- input ---------- */
-const keys={},touch={ax:0,ay:0,fire:false,bomb:false,shield:false};let tap=false,prevFire=false,prevShield=false;
+const keys={},touch={ax:0,ay:0,fire:false,bomb:false,shield:false,laser:false,emp:false};let tap=false,prevFire=false,prevShield=false,prevLaser=false,prevEmp=false;
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;ensureAudio();if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[e.key.toLowerCase()]=true;if(e.key.toLowerCase()==='p'&&state==='play')paused=!paused;});
 addEventListener('keyup',e=>{if(e.target&&e.target.tagName==='INPUT')return;keys[e.key.toLowerCase()]=false;});
 addEventListener('pointerdown',ensureAudio);
@@ -536,11 +557,11 @@ stick.addEventListener('pointerup',relStick);stick.addEventListener('pointercanc
 function bindBtn(el,k){const on=e=>{e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(_){}if(editing){dragStart(e,el,k);return;}touch[k]=true;el.classList.add('on');if(k==='fire')tap=true;},off=e=>{if(editing){dragEnd(e,el,k);return;}touch[k]=false;el.classList.remove('on');};
   el.addEventListener('pointermove',e=>{if(editing)dragMove(e,el);});
   el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('contextmenu',e=>e.preventDefault());}
-bindBtn(document.getElementById('bFire'),'fire');bindBtn(document.getElementById('bNuke'),'nuke');bindBtn(document.getElementById('bBomb'),'bomb');bindBtn(document.getElementById('bShield'),'shield');
+bindBtn(document.getElementById('bFire'),'fire');bindBtn(document.getElementById('bNuke'),'nuke');bindBtn(document.getElementById('bBomb'),'bomb');bindBtn(document.getElementById('bShield'),'shield');bindBtn(document.getElementById('bLaser'),'laser');bindBtn(document.getElementById('bEmp'),'emp');
 
 /* ---------- personal config: buttons + floating joystick ---------- */
-const UIDEF={floatStick:false,time:'auto',lang:'',btn:{fire:{c:'#ff4fa3',s:0,pos:{}},bomb:{c:'#ffb23e',s:0,pos:{}},nuke:{c:'#d7ff3f',s:0,pos:{}},shield:{c:'#5fe6ff',s:0,pos:{}}}};
-const BTN=[['fire','VUUR','bFire',76],['bomb','BOM','bBomb',76],['nuke','NUKE','bNuke',58],['shield','SCHILD','bShield',58]];
+const UIDEF={floatStick:false,time:'auto',lang:'',btn:{fire:{c:'#ff4fa3',s:0,pos:{}},bomb:{c:'#ffb23e',s:0,pos:{}},nuke:{c:'#d7ff3f',s:0,pos:{}},shield:{c:'#5fe6ff',s:0,pos:{}},laser:{c:'#ff7ad9',s:0,pos:{}},emp:{c:'#7ab8ff',s:0,pos:{}}}};
+const BTN=[['fire','VUUR','bFire',76],['bomb','BOM','bBomb',76],['nuke','NUKE','bNuke',58],['shield','SCHILD','bShield',58],['laser','LASER','bLaser',58],['emp','EMP','bEmp',58]];
 let cfgUI=JSON.parse(JSON.stringify(UIDEF)),editing=false,uiOpen=false,uiPaused=false,drag=null;
 try{const st=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(st&&typeof st==='object'){cfgUI.floatStick=!!st.floatStick;if(['auto','day','night'].includes(st.time))cfgUI.time=st.time;if(st.lang==='nl'||st.lang==='en')cfgUI.lang=st.lang;
   for(const[k]of BTN){const b=st.btn&&st.btn[k];if(!b)continue;const t=cfgUI.btn[k];if(/^#[0-9a-f]{6}$/i.test(b.c||''))t.c=b.c;if(typeof b.s==='number')t.s=Math.max(0,Math.min(140,b.s));
@@ -565,11 +586,11 @@ for(const[k,label,,def]of BTN){const row=document.createElement('div');row.class
   col.addEventListener('input',()=>{cfgUI.btn[k].c=col.value;applyUI();saveUI();});
   rg.addEventListener('input',()=>{cfgUI.btn[k].s=+rg.value;out.textContent=rg.value;applyUI();saveUI();});
   row.append(sp,col,rg,out);uiRows.appendChild(row);}
-function fillUI(){renderLangUI();try{renderHangar();}catch(e){}floatIn.checked=cfgUI.floatStick;document.getElementById('ui_3d').checked=mode3d;document.getElementById('ui_snd').checked=!muted;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
+function fillUI(){renderLangUI();floatIn.checked=cfgUI.floatStick;document.getElementById('ui_3d').checked=mode3d;document.getElementById('ui_snd').checked=!muted;setGyroUI();renderTimeUI();for(const[k,,id,def]of BTN){const c=cfgUI.btn[k];document.getElementById('uic_'+k).value=c.c;
   const sz=c.s||Math.round(document.getElementById(id).getBoundingClientRect().width)||def;document.getElementById('uis_'+k).value=sz;document.getElementById('uio_'+k).textContent=sz;}}
 floatIn.addEventListener('change',()=>{cfgUI.floatStick=floatIn.checked;saveUI();});
 function pauseFor(){if(state==='play'&&!paused){paused=true;uiPaused=true;}}
-function unpause(){if(uiPaused&&!editing&&!uiOpen&&!scOpen){paused=false;uiPaused=false;}}
+function unpause(){if(uiPaused&&!editing&&!uiOpen&&!scOpen&&!hgOpen){paused=false;uiPaused=false;}}
 function openUI(){if(uiOpen)return;uiOpen=true;fillUI();uiEl.hidden=false;pauseFor();}
 function closeUI(){uiOpen=false;uiEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
 document.getElementById('bcfg').addEventListener('click',e=>{e.currentTarget.blur();uiOpen?closeUI():openUI();});
@@ -595,15 +616,16 @@ function input(){
   const r={ax:kx||touch.ax||(gyro.on?gyro.ax:0),ay:ky||touch.ay||(gyro.on?gyro.ay:0),fire,bomb:!!(keys.x||keys.k||keys.b||touch.bomb),press:(fire&&!prevFire)||tap||!!keys.enter};
   const nk=!!(keys.n||keys.c||touch.nuke);r.nuke=nk&&!prevNuke;prevNuke=nk;
   const sh=!!(keys.v||touch.shield);r.shield=sh&&!prevShield;prevShield=sh;
+  const lz=!!(keys.l||touch.laser);r.laser=lz&&!prevLaser;prevLaser=lz;const em=!!(keys.e||touch.emp);r.emp=em&&!prevEmp;prevEmp=em;
   prevFire=fire;tap=false;return r;
 }
 
 /* ---------- game flow ---------- */
 function addScore(n){if(state==='intro')return;score+=n;if(score>=nextLife){lives++;nextLife+=10000;tone('square',660,1320,.3,.05);}if(score>hi){hi=score;}}
 function show(text,sub){banner={text,sub,t:130};}
-function newGame(){gyroZero();playTime=0;nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;score=0;lives=cfg.lives;nextLife=10000;flags=0;loop=0;curStage=0;speed=.9*cfg.speed/100;respawn(0);}
+function newGame(){gyroZero();playTime=0;laserLeft=LASER_N;empLeft=EMP_N;beamT=0;empFx=null;nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;score=0;lives=cfg.lives;nextLife=10000;flags=0;loop=0;curStage=0;speed=.9*cfg.speed/100;respawn(0);}
 function respawn(s){
-  genWorld();curStage=s;
+  beamT=0;empFx=null;genWorld();curStage=s;
   scroll=Math.max(0,starts[s]*COL-48);p.x=48;
   let lo=TOP,hiF=H;const c0=Math.floor((scroll+p.x-12)/COL);
   for(let c=c0;c<c0+6;c++){lo=Math.max(lo,ceilA[c]);hiF=Math.min(hiF,floorA[c]);}
@@ -712,7 +734,7 @@ function computeEnv(){const now=Date.now(),sn=sunAt(now),mn=moonAt(sn),mode=cfgU
   const L=Math.max(0,Math.min(1,(sun.alt+6)/14)),tw=Math.max(0,1-Math.abs(sun.alt-1)/9);env={L:L*L*(3-2*L),tw,sun,moon};}
 function skyXY(alt,az){const hy=H*.76,x=W*(.08+.84*Math.max(0,Math.min(1,(az-90)/180))),y=hy-Math.max(-.08,alt)/60*(hy-TOP-16);return{x,y:Math.max(TOP+12,y)};}
 function renderLangUI(){for(const bt of document.querySelectorAll('#uiLang button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===LANG));}
-function setLang(v){LANG=v;try{renderHangar();}catch(e){}try{showOnline(onlineN);}catch(e){}cfgUI.lang=v;saveUI();applyLang();renderLangUI();renderTimeUI();try{if(scOpen)renderScores();if(!mgrEl.hidden)renderMgr();}catch(e){}}
+function setLang(v){LANG=v;try{if(hgOpen)renderHangar();}catch(e){}try{showOnline(onlineN);}catch(e){}cfgUI.lang=v;saveUI();applyLang();renderLangUI();renderTimeUI();try{if(scOpen)renderScores();if(!mgrEl.hidden)renderMgr();}catch(e){}}
 document.getElementById('uiLang').addEventListener('click',e=>{const v=e.target.dataset&&e.target.dataset.v;if(v)setLang(v);});
 function renderTimeUI(){for(const bt of document.querySelectorAll('#uiTime button'))bt.setAttribute('aria-pressed',String(bt.dataset.v===cfgUI.time));
   const st=sunTimes(),now=sunAt(Date.now()).alt;document.getElementById('uiSun').textContent=LANG==='en'?`Today in ${GEO.name==='jouw tijdzone'?'your time zone':GEO.name}: sunrise ${hhmm(st.rise)}, sunset ${hhmm(st.set)}. It is ${now>-.833?'day':now>-6?'twilight':'night'} now.`:`Vandaag in ${GEO.name}: zon op ${hhmm(st.rise)}, onder ${hhmm(st.set)}. Nu is het ${now>-.833?'dag':now>-6?'schemer':'nacht'}.`;}
@@ -853,6 +875,12 @@ const SHIPDEF={body:'#c3cad6',accent:'#c8325f',glass:'#4fb8d6',flame:'#ffaa46'},
 let wallet={},pendPts=0,pendGames=0,lastEarned=0,players={list:[],at:0,err:''};
 const okCols=v=>{const c={...SHIPDEF};if(v&&typeof v==='object')for(const q in SHIPDEF)if(/^#[0-9a-f]{6}$/i.test(v[q]||''))c[q]=v[q].toLowerCase();return c;};
 const int0=v=>Math.max(0,Math.floor(+v||0));
+/* shop: what you can buy with FR-Coins */
+const SHOP=[['colors',100],['name',250],['ship',500],['laser',750],['emp',1000]],SHOPK=SHOP.map(x=>x[0]);
+const okItems=v=>{const o={};if(v&&typeof v==='object')for(const k of SHOPK)if(v[k]===true)o[k]=true;return o;};
+let codes={};try{const c=JSON.parse(localStorage.getItem('fuelrun.codes')||'{}');if(c&&typeof c==='object')for(const k in c)if(/^[A-Z0-9]{1,8}$/.test(c[k]))codes[cleanName(k)]=c[k];}catch(e){}
+const saveCodes=()=>{try{localStorage.setItem('fuelrun.codes',JSON.stringify(codes));}catch(e){}};
+const cleanCode=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 /* Old games: every saved score from before the FR-Coin wallet existed (public list + this device) counts too */
 const FRC_EPOCH=1793047746000;  // 26-10-2026 21:49, first version with FR-Coins
 let oldSrc=[],oldState='',oldMemo={k:'',m:{}};
@@ -865,82 +893,127 @@ async function fbOld(){if(!WONLINE||oldState==='ok'||oldState==='load')return;ol
       where:{fieldFilter:{field:{fieldPath:'at'},op:'LESS_THAN',value:{integerValue:String(FRC_EPOCH)}}},orderBy:[{field:{fieldPath:'at'},direction:'DESCENDING'}],limit:10000}})});
     if(!r.ok)throw new Error('fb '+r.status);const j=await r.json();oldSrc=(Array.isArray(j)?j:[]).filter(x=>x.document).map(x=>fbDecode(x.document)).filter(validEntry);oldState='ok';}
   catch(e){oldState='err';}
-  if(uiEl&&!uiEl.hidden)renderHangar();if(scOpen&&scView.src==='frc')renderScores();}
+  if(hgOpen)renderHangar();if(scOpen&&scView.src==='frc')renderScores();}
 function tot(n){const o=oldTotals()[n]||{points:0,games:0},w=n&&wallet[n];return{points:o.points+(w?w.points:0),games:o.games+(w?w.games:0),spent:w?w.spent:0};}
 const coinsFor=n=>{const t=tot(n);return Math.max(0,Math.floor(t.points/1000)-t.spent);};
 if(WONLINE)fbOld();
 try{const w=JSON.parse(localStorage.getItem('fuelrun.wallet')||'{}');if(w&&typeof w==='object')for(const k in w){const n=cleanName(k),v=w[k];if(!n||!v||typeof v!=='object')continue;
-  let e;if(v.v===3)e={points:int0(v.points),games:int0(v.games),spent:int0(v.spent),pp:int0(v.pp),pg:int0(v.pg),unlocked:!!v.unlocked};
-  else{const pts=int0(v.coins)*1000+(v.unlocked?UNLOCK_COST*1000:0);e={points:pts,games:0,spent:0,pp:WONLINE?pts:0,pg:WONLINE&&pts?1:0,unlocked:false};}  // older wallets: coins become points
+  let e;if(v.v===3)e={points:int0(v.points),games:int0(v.games),spent:int0(v.spent),pp:int0(v.pp),pg:int0(v.pg),unlocked:!!v.unlocked,items:okItems(v.items),model:v.model==='b'?'b':'a'};
+  else{const pts=int0(v.coins)*1000+(v.unlocked?UNLOCK_COST*1000:0);e={points:pts,games:0,spent:0,pp:WONLINE?pts:0,pg:WONLINE&&pts?1:0,unlocked:false,items:{},model:'a'};}  // older wallets: coins become points
   if(!WONLINE){e.pp=0;e.pg=0;}e.v=3;e.colors=okCols(v.colors);e.st='';wallet[n]=e;}}catch(e){}
 const saveWallet=()=>{try{const o={};for(const k in wallet){const{st,...r}=wallet[k];o[k]=r;}localStorage.setItem('fuelrun.wallet',JSON.stringify(o));}catch(e){}};
 const anon=n=>!n||n==='ANONIEM'||n==='ANONYMOUS';
 function playerName(){try{const n=cleanName(localStorage.getItem('fuelrun.name')||'');return anon(n)?'':n;}catch(e){return'';}}
-function wal(n){n=n===undefined?playerName():n;if(anon(n))return null;if(!wallet[n])wallet[n]={v:3,points:0,games:0,spent:0,pp:0,pg:0,unlocked:false,colors:{...SHIPDEF},st:''};return wallet[n];}
-function shipCols(){const n=playerName(),w=n&&wallet[n];return w&&w.unlocked?w.colors:SHIPDEF;}
+function wal(n){n=n===undefined?playerName():n;if(anon(n))return null;if(!wallet[n])wallet[n]={v:3,points:0,games:0,spent:0,pp:0,pg:0,unlocked:false,items:{},model:'a',colors:{...SHIPDEF},st:''};return wallet[n];}
+const ownsW=(w,k)=>!!(w&&(k==='colors'?(w.unlocked||(w.items&&w.items.colors)):(w.items&&w.items[k])));
+function owns(k,n){n=n===undefined?playerName():n;return ownsW(n&&wallet[n],k);}
+function shipCols(){const n=playerName(),w=n&&wallet[n];return ownsW(w,'colors')?w.colors:SHIPDEF;}
+function shipModel(){const n=playerName(),w=n&&wallet[n];return ownsW(w,'ship')&&w.model==='b'?'b':'a';}
 function addGame(w,n,pts,g){w.points+=pts;w.games+=g;if(WONLINE){w.pp+=pts;w.pg+=g;}saveWallet();if(WONLINE)syncWallet(n);}
 function awardCoins(){const pts=Math.max(0,Math.round(score));const n=playerName(),w=wal(n);
   const before=w?tot(n).points:pendPts;lastEarned=Math.floor((before+pts)/1000)-Math.floor(before/1000);
   if(w)addGame(w,n,pts,1);else{pendPts+=pts;pendGames++;}}
 function claimPending(){const n=playerName(),w=wal(n);if(!w)return;if(pendGames>0){const p=pendPts,g=pendGames;pendPts=0;pendGames=0;addGame(w,n,p,g);}else if(WONLINE)syncWallet(n);}
-/* Firestore: wallets/{NAME} = {name, points, games, spent, unlocked, colors, at}. Points only grow through atomic increments that the security rules check. */
+/* Firestore: wallets/{NAME} = {name, points, games, spent, unlocked, colors, items, at} is public to read.
+   owners/{NAME} = {c: code, t} cannot be read by anyone; every wallet write goes in one batch with an owners write,
+   and the rules only allow it when the code matches. So nobody can use your name without your code. */
+const ODOC=n=>'projects/fuel-run-9fe5c/databases/(default)/documents/owners/'+n;
 const WDOC=n=>'projects/fuel-run-9fe5c/databases/(default)/documents/wallets/'+n;
-const colFields=c=>({mapValue:{fields:Object.fromEntries(Object.keys(SHIPDEF).map(k=>[k,{stringValue:c[k]}]))}});
+const colFields=(c,m)=>({mapValue:{fields:{...Object.fromEntries(Object.keys(SHIPDEF).map(k=>[k,{stringValue:c[k]}])),model:{stringValue:m==='b'?'b':'a'}}}});
+const itemFields=it=>({mapValue:{fields:Object.fromEntries(Object.keys(it).map(k=>[k,{booleanValue:true}]))}});
 const fInt=x=>int0(x&&x.integerValue);
-async function fbCommit(writes){const r=await fetch(FBURL+':commit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({writes})});if(!r.ok)throw new Error('fb '+r.status);}
-function wDecode(doc){const f=doc.fields||{},cm=f.colors&&f.colors.mapValue&&f.colors.mapValue.fields||{};
+async function fbCommit(writes){const r=await fetch(FBURL+':commit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({writes})});if(!r.ok){const e=new Error('fb '+r.status);e.status=r.status;throw e;}}
+const ownerW=(n,code,old)=>({update:{name:ODOC(n),fields:{c:{stringValue:code},...(old?{o:{stringValue:old}}:{})}},updateMask:{fieldPaths:old?['c','o']:['c']},
+  updateTransforms:[{fieldPath:'t',setToServerValue:'REQUEST_TIME'}]});
+const walletW=(n,fields,mask,tr,exists)=>({update:{name:WDOC(n),fields:{name:{stringValue:n},...fields}},updateMask:{fieldPaths:['name',...mask]},
+  updateTransforms:[...(tr||[]),{fieldPath:'at',setToServerValue:'REQUEST_TIME'}],...(exists?{currentDocument:{exists:true}}:{})});
+function wDecode(doc){const f=doc.fields||{},cm=f.colors&&f.colors.mapValue&&f.colors.mapValue.fields||{},im=f.items&&f.items.mapValue&&f.items.mapValue.fields||{};
   return{name:cleanName((f.name||{}).stringValue||''),points:fInt(f.points),games:fInt(f.games),spent:fInt(f.spent),unlocked:!!(f.unlocked||{}).booleanValue,
+    items:okItems(Object.fromEntries(Object.keys(im).map(k=>[k,im[k].booleanValue===true]))),model:(cm.model||{}).stringValue==='b'?'b':'a',
     colors:okCols(Object.fromEntries(Object.keys(cm).map(k=>[k,cm[k].stringValue])))};}
 async function fbWalletGet(n){const r=await fetch(FBURL+'/wallets/'+encodeURIComponent(n));if(r.status===404)return null;if(!r.ok)throw new Error('fb '+r.status);return wDecode(await r.json());}
 async function fbPlayers(){if(!WONLINE)return;try{const r=await fetch(FBURL+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({structuredQuery:{from:[{collectionId:'wallets'}],orderBy:[{field:{fieldPath:'points'},direction:'DESCENDING'}],limit:50}})});
   if(!r.ok)throw new Error('fb '+r.status);const j=await r.json();players.list=(Array.isArray(j)?j:[]).filter(x=>x.document).map(x=>wDecode(x.document)).filter(e=>e.name);players.at=Date.now();players.err='';}
   catch(e){players.err=String(e.message||e);}if(scOpen&&scView.src==='frc')renderScores();}
+const codeOK={};  // name -> true once the code was accepted this session
 const wQ={};  // one sync at a time per name
-function syncWallet(n,extra){if(!WONLINE||!n)return Promise.resolve();const run=async()=>{const w=wal(n);
+function syncWallet(n,extra){if(!WONLINE||!n)return Promise.resolve();const run=async()=>{const w=wal(n),code=codes[n];
   try{let srv=await fbWalletGet(n);
-    if(extra)await extra(w,srv),srv=await fbWalletGet(n);
-    if(w.pg>0){const g=Math.min(w.pg,MAXG),k=Math.min(w.pp,100000*g);
-      try{await fbCommit([{update:{name:WDOC(n),fields:{name:{stringValue:n}}},updateMask:{fieldPaths:['name']},
-        updateTransforms:[{fieldPath:'points',increment:{integerValue:String(k)}},{fieldPath:'games',increment:{integerValue:String(g)}},{fieldPath:'at',setToServerValue:'REQUEST_TIME'}]}]);
-        w.pp-=k;w.pg-=g;if(w.pg===0)w.pp=0;srv=await fbWalletGet(n);}
-      catch(e){/* too soon after the previous write, or offline: try again later */}}
-    if(srv){w.points=srv.points+w.pp;w.games=srv.games+w.pg;w.spent=srv.spent;w.unlocked=srv.unlocked;if(srv.unlocked)w.colors=srv.colors;}
-    w.st=w.pg>0?'wait':'ok';}
+    if(code&&!codeOK[n]){try{await fbCommit([ownerW(n,code)]);codeOK[n]=true;}catch(e){if(e.status===403||e.status===400)codeOK[n]=false;else throw e;}}
+    if(code&&codeOK[n]){
+      if(extra){await extra(w,srv,code);srv=await fbWalletGet(n);}
+      if(w.pg>0){const g=Math.min(w.pg,MAXG),k=Math.min(w.pp,100000*g);
+        try{await fbCommit([ownerW(n,code),walletW(n,{},[],[{fieldPath:'points',increment:{integerValue:String(k)}},{fieldPath:'games',increment:{integerValue:String(g)}}])]);
+          w.pp-=k;w.pg-=g;if(w.pg===0)w.pp=0;srv=await fbWalletGet(n);}
+        catch(e){/* too soon after the previous write, or offline: try again later */}}}
+    if(srv){w.points=srv.points+w.pp;w.games=srv.games+w.pg;w.spent=srv.spent;w.unlocked=srv.unlocked;w.items=srv.items;if(ownsW(srv,'colors'))w.colors=srv.colors;if(ownsW(srv,'ship'))w.model=srv.model;}
+    w.st=!code?'nocode':codeOK[n]===false?'locked':w.pg>0?'wait':'ok';}
   catch(e){w.st='off';}
-  saveWallet();if(n===playerName()&&uiEl&&!uiEl.hidden)renderHangar();if(scOpen&&scView.src==='frc')fbPlayers();};
+  saveWallet();if(n===playerName()){applyOwned();if(hgOpen)renderHangar();}if(scOpen&&scView.src==='frc')fbPlayers();};
   return wQ[n]=(wQ[n]||Promise.resolve()).then(run,run);}
 let colTimer=0;
-function pushColors(n){if(!WONLINE)return;clearTimeout(colTimer);colTimer=setTimeout(()=>syncWallet(n,async(w,srv)=>{if(!srv||!srv.unlocked)return;
-  await fbCommit([{update:{name:WDOC(n),fields:{name:{stringValue:n},colors:colFields(w.colors)}},updateMask:{fieldPaths:['name','colors']},
-    updateTransforms:[{fieldPath:'at',setToServerValue:'REQUEST_TIME'}],currentDocument:{exists:true}}]);}),900);}
+function pushColors(n){if(!WONLINE)return;clearTimeout(colTimer);colTimer=setTimeout(()=>syncWallet(n,async(w,srv,code)=>{if(!srv||!(ownsW(srv,'colors')||ownsW(srv,'ship')))return;
+  await fbCommit([ownerW(n,code),walletW(n,{colors:colFields(w.colors,w.model)},['colors'],[],true)]);}),900);}
 if(WONLINE){const n=playerName();if(n)syncWallet(n);setInterval(()=>{const n=playerName(),w=n&&wallet[n];if(w&&w.pg>0&&!document.hidden)syncWallet(n);},60000);}
 
-/* ---------- hangar UI ---------- */
-const prevCv=document.getElementById('shipPrev'),prevCtx=prevCv.getContext('2d'),nameCfg=document.getElementById('ui_name'),coinsEl=document.getElementById('uiCoins'),unlockBt=document.getElementById('uiUnlock');
-function drawPreview(){const sv=ctx;ctx=prevCtx;prevCtx.setTransform(1,0,0,1,0,0);prevCtx.clearRect(0,0,480,150);prevCtx.setTransform(9,0,0,9,250,75);try{drawShip(0,0,false,undefined,shipLabel());}finally{ctx=sv;}}
-function renderHangar(){const n=playerName(),w=n?wal(n):null,en=LANG==='en';nameCfg.value=n;
-  const st=!w||!WONLINE?'':w.st==='ok'?(en?' Saved online, the same on all your devices.':' Online opgeslagen, op al je toestellen hetzelfde.')
-    :w.st==='wait'?(en?` ${w.pp} points still to be saved online, this happens automatically.`:` Nog ${w.pp} punten online op te slaan, dat gaat vanzelf.`)
-    :w.st==='off'?(en?' No connection with the online wallet right now.':' Nu geen verbinding met de online portemonnee.'):(en?' Loading…':' Laden…');
-  const tt=tot(n),ea=earnedFor(n),nm=ea>=NAME_AT?(en?' Your name is on your ship.':' Je naam staat op je vliegtuig.'):(en?` At ${NAME_AT} FR-Coins earned your name goes on your ship (${ea}/${NAME_AT}).`:` Bij ${NAME_AT} verdiende FR-Coins komt je naam op je vliegtuig (${ea}/${NAME_AT}).`);coinsEl.textContent=w?(en?`${n}: ${tt.points} points in ${tt.games} games = ${coinsFor(n)} FR-COINS. Every 1000 points together is 1 FR-Coin.`:`${n}: ${tt.points} punten in ${tt.games} spellen = ${coinsFor(n)} FR-COINS. Elke 1000 punten bij elkaar is 1 FR-Coin.`)+nm+st
-    :(en?'Enter a player name to save FR-Coins: 1 per 1000 points.':'Vul een spelersnaam in om FR-Coins te sparen: 1 per 1000 punten.');
-  const un=!!(w&&w.unlocked);unlockBt.hidden=un;unlockBt.disabled=!w||coinsFor(n)<UNLOCK_COST||(WONLINE&&w.st!=='ok');
-  unlockBt.textContent=en?`UNLOCK COLOURS  ·  ${UNLOCK_COST} FR-COINS`:`KLEUREN VRIJSPELEN  ·  ${UNLOCK_COST} FR-COINS`;
-  const C=w?w.colors:SHIPDEF;for(const k in SHIPDEF){const el=document.getElementById('sc_'+k);if(document.activeElement!==el)el.value=C[k];el.disabled=!un;}
-  document.getElementById('uiShipDef').hidden=!un;drawPreview();}
+/* ---------- hangar: name + code, ship preview, colours, shop ---------- */
+const hgEl=document.getElementById('hangarDlg'),prevCv=document.getElementById('shipPrev'),prevCtx=prevCv.getContext('2d'),nameCfg=document.getElementById('ui_name'),codeCfg=document.getElementById('ui_code'),
+  codeEl=document.getElementById('uiCode'),coinsEl=document.getElementById('uiCoins'),shopEl=document.getElementById('uiShop');
+let hgOpen=false;
+function openHangar(){if(hgOpen)return;hgOpen=true;renderHangar();hgEl.hidden=false;pauseFor();const n=playerName();if(n&&WONLINE)syncWallet(n);}
+function closeHangar(){hgOpen=false;hgEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
+document.getElementById('bhg').addEventListener('click',e=>{e.currentTarget.blur();hgOpen?closeHangar():openHangar();});
+document.getElementById('hgDone').addEventListener('click',closeHangar);
+hgEl.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeHangar();}});
+const SHOPTXT={colors:['KLEUREN','Kies zelf de kleuren van je vliegtuig.','COLOURS','Choose the colours of your ship.'],
+  name:['NAAM OP HET VLIEGTUIG','Je naam net onder de cockpit.','NAME ON THE SHIP','Your name just below the cockpit.'],
+  ship:['ANDER SCHIP','Interceptor: een nieuw ontwerp, 10% groter.','DIFFERENT SHIP','Interceptor: a new design, 10% bigger.'],
+  laser:['SUPERLASER','Toets L of de knop LASER: 3 seconden een straal; beweeg op en neer en hij lasert alles kapot. 3 per ronde.','SUPER LASER','Key L or the LASER button: a beam for 3 seconds; move up and down and it destroys everything. 3 per round.'],
+  emp:['EMP-EXPLOSIE','Toets E of de knop EMP: een elektronische schokgolf vernietigt alles in beeld, behalve de basis. 2 per ronde.','EMP EXPLOSION','Key E or the EMP button: an electronic shock wave destroys everything on screen except the base. 2 per round.']};
+function drawPreview(){const sv=ctx;ctx=prevCtx;prevCtx.setTransform(1,0,0,1,0,0);prevCtx.clearRect(0,0,480,150);prevCtx.setTransform(8,0,0,8,250,75);try{drawShip(0,0,false,undefined,shipLabel(),shipModel());}finally{ctx=sv;}}
+function codeMsg(m,cls){codeEl.textContent=m;codeEl.className='sub'+(cls?' '+cls:'');}
+function renderHangar(){const n=playerName(),w=n?wal(n):null,en=LANG==='en';if(document.activeElement!==nameCfg)nameCfg.value=n;if(document.activeElement!==codeCfg)codeCfg.value=n&&codes[n]?codes[n]:'';
+  if(!n)codeMsg(en?'Choose a player name and a code of up to 8 letters and digits.':'Kies een spelersnaam en een code van maximaal 8 letters en cijfers.');
+  else if(!WONLINE)codeMsg(en?'In this version your FR-Coins stay on this device.':'In deze versie blijven je FR-Coins op dit toestel.');
+  else if(!codes[n])codeMsg(en?`Protect ${n} with a code, so nobody else can use your name and FR-Coins.`:`Bescherm ${n} met een code, zodat niemand anders je naam en FR-Coins kan gebruiken.`,'err');
+  else if(w.st==='locked')codeMsg(en?`${n} is protected with a different code. Enter the right code, or choose another name.`:`${n} is beschermd met een andere code. Vul de juiste code in, of kies een andere naam.`,'err');
+  else if(codeOK[n])codeMsg(en?`${n} is protected with your code. Use the same code on your other devices.`:`${n} is beschermd met jouw code. Gebruik dezelfde code op je andere toestellen.`,'ok');
+  else codeMsg(en?'Checking code…':'Code controleren…');
+  const st=!w||!WONLINE?'':w.st==='ok'?(en?' Saved online.':' Online opgeslagen.'):w.st==='wait'?(en?` ${w.pp} points still to be saved online.`:` Nog ${w.pp} punten online op te slaan.`)
+    :w.st==='off'?(en?' No connection right now.':' Nu geen verbinding.'):w.st==='nocode'||w.st==='locked'?(en?' Not saved online without the right code.':' Zonder de juiste code niet online opgeslagen.'):(en?' Loading…':' Laden…');
+  const tt=tot(n);coinsEl.textContent=w?(en?`${n}: ${tt.points} points in ${tt.games} games. You have ${coinsFor(n)} FR-COINS to spend.`:`${n}: ${tt.points} punten in ${tt.games} spellen. Je hebt ${coinsFor(n)} FR-COINS te besteden.`)+st
+    :(en?'Every 1000 points together is 1 FR-Coin.':'Elke 1000 punten bij elkaar is 1 FR-Coin.');
+  const canSpend=w&&(!WONLINE||(w.st==='ok'&&codeOK[n]));
+  shopEl.textContent='';for(const[k,price]of SHOP){const t=SHOPTXT[k],own=ownsW(w,k),d=document.createElement('div');d.className='shopit'+(own?' own':'');
+    const b=document.createElement('b');b.textContent=en?t[2]:t[0];const sp=document.createElement('span');sp.textContent=en?t[3]:t[1];const bt=document.createElement('button');bt.type='button';
+    bt.textContent=own?(en?'OWNED':'IN BEZIT'):`${price} FRC`;bt.disabled=own||!canSpend||coinsFor(n)<price;if(!own)bt.addEventListener('click',()=>buy(k,price,bt));d.append(b,sp,bt);shopEl.appendChild(d);}
+  const hc=ownsW(w,'colors'),hm=ownsW(w,'ship');document.getElementById('uiShipCols').hidden=!hc;document.getElementById('uiShipDef').hidden=!hc;
+  const mEl=document.getElementById('uiModels');mEl.hidden=!hm;for(const bt of mEl.querySelectorAll('button'))bt.setAttribute('aria-pressed',String((w&&w.model==='b'?'b':'a')===bt.dataset.m));
+  const C=w?w.colors:SHIPDEF;for(const k in SHIPDEF){const el=document.getElementById('sc_'+k);if(document.activeElement!==el)el.value=C[k];el.disabled=!hc;}
+  drawPreview();}
+const unlockSnd=()=>{if(ac&&!muted)[660,880,1320].forEach((f,i)=>setTimeout(()=>tone('triangle',f,f,.18,.05),i*110));};
+function buy(k,price,bt){const n=playerName(),w=wal(n);if(!w||ownsW(w,k)||coinsFor(n)<price)return;bt.disabled=true;
+  if(!WONLINE){w.spent+=price;w.items={...w.items,[k]:true};saveWallet();applyOwned();renderHangar();unlockSnd();return;}
+  syncWallet(n,async(w,srv,code)=>{if(!srv||ownsW(srv,k)||coinsFor(n)<price)return;const it={...srv.items,[k]:true};
+    const f={items:itemFields(it)},mask=['items'];if(k==='colors'){f.colors=colFields(w.colors,w.model);mask.push('colors');}
+    await fbCommit([ownerW(n,code),walletW(n,f,mask,[{fieldPath:'spent',increment:{integerValue:String(price)}}],true)]);})
+    .then(()=>{if(ownsW(w,k))unlockSnd();else say(LANG==='en'?'Buying did not work, try again in a moment.':'Kopen lukte niet, probeer het zo nog eens.');renderHangar();});}
 nameCfg.addEventListener('input',()=>{const c=cleanName(nameCfg.value);if(c!==nameCfg.value.trim().toUpperCase())nameCfg.value=c;});
 nameCfg.addEventListener('change',()=>{const c=cleanName(nameCfg.value);try{if(c)localStorage.setItem('fuelrun.name',c);else localStorage.removeItem('fuelrun.name');}catch(e){}
-  const w=c&&wal(c);if(w&&WONLINE&&!w.st)w.st='load';claimPending();renderHangar();});
-const unlockSnd=()=>{if(ac&&!muted)[660,880,1320].forEach((f,i)=>setTimeout(()=>tone('triangle',f,f,.18,.05),i*110));};
-unlockBt.addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||coinsFor(n)<UNLOCK_COST)return;
-  if(!WONLINE){w.spent+=UNLOCK_COST;w.unlocked=true;saveWallet();renderHangar();unlockSnd();return;}
-  unlockBt.disabled=true;syncWallet(n,async(w,srv)=>{if(!srv||srv.unlocked||coinsFor(n)<UNLOCK_COST)return;
-    await fbCommit([{update:{name:WDOC(n),fields:{name:{stringValue:n},unlocked:{booleanValue:true},colors:colFields(w.colors)}},updateMask:{fieldPaths:['name','unlocked','colors']},
-      updateTransforms:[{fieldPath:'spent',increment:{integerValue:String(UNLOCK_COST)}},{fieldPath:'at',setToServerValue:'REQUEST_TIME'}],currentDocument:{exists:true}}]);})
-    .then(()=>{if(w.unlocked)unlockSnd();else say(LANG==='en'?'Unlocking did not work, try again in a moment.':'Vrijspelen lukte niet, probeer het zo nog eens.');});});
-for(const k in SHIPDEF)document.getElementById('sc_'+k).addEventListener('input',e=>{const n=playerName(),w=wal(n);if(!w||!w.unlocked)return;w.colors[k]=e.target.value.toLowerCase();saveWallet();drawPreview();pushColors(n);});
-document.getElementById('uiShipDef').addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!w||!w.unlocked)return;w.colors={...SHIPDEF};saveWallet();renderHangar();pushColors(n);});
+  const w=c&&wal(c);if(w&&WONLINE&&!w.st)w.st='load';claimPending();applyOwned();renderHangar();});
+codeCfg.addEventListener('input',()=>{const c=cleanCode(codeCfg.value);if(c!==codeCfg.value)codeCfg.value=c;});
+codeCfg.addEventListener('change',()=>{const n=playerName(),c=cleanCode(codeCfg.value);if(!n)return;const old=codes[n];if(c===old)return;
+  if(!c){delete codes[n];saveCodes();delete codeOK[n];renderHangar();return;}
+  if(WONLINE&&old&&codeOK[n]){  // change the code: the old one proves it is you
+    syncWallet(n,async()=>{await fbCommit([ownerW(n,c,old)]);codes[n]=c;saveCodes();})
+      .then(()=>{codeMsg(codes[n]===c?(LANG==='en'?'New code saved.':'Nieuwe code opgeslagen.'):(LANG==='en'?'Changing the code did not work.':'Code wijzigen lukte niet.'),codes[n]===c?'ok':'err');});return;}
+  codes[n]=c;saveCodes();delete codeOK[n];const w=wal(n);w.st='load';renderHangar();syncWallet(n);});
+document.getElementById('uiModels').addEventListener('click',e=>{const m=e.target.dataset&&e.target.dataset.m;const n=playerName(),w=wal(n);if(!m||!w||!ownsW(w,'ship'))return;w.model=m;saveWallet();renderHangar();pushColors(n);});
+for(const k in SHIPDEF)document.getElementById('sc_'+k).addEventListener('input',e=>{const n=playerName(),w=wal(n);if(!ownsW(w,'colors'))return;w.colors[k]=e.target.value.toLowerCase();saveWallet();drawPreview();pushColors(n);});
+document.getElementById('uiShipDef').addEventListener('click',()=>{const n=playerName(),w=wal(n);if(!ownsW(w,'colors'))return;w.colors={...SHIPDEF};saveWallet();renderHangar();pushColors(n);});
+function applyOwned(){document.getElementById('bLaser').hidden=!owns('laser');document.getElementById('bEmp').hidden=!owns('emp');}
+applyOwned();
 
 
 /* ---------- god mode code ---------- */
@@ -988,18 +1061,18 @@ document.getElementById('setPin').addEventListener('click',()=>openPin('new'));
   addEventListener('appinstalled',()=>{deferred=null;box.hidden=true;});
   document.getElementById('instX').addEventListener('click',()=>{hideUntil=Date.now()+3*864e5;try{localStorage.setItem('fuelrun.instHide',String(hideUntil));}catch(e){}box.hidden=true;});
   let lastLang='';
-  setInterval(()=>{const can=(ios||deferred)&&Date.now()>hideUntil,onStart=(state==='title'||state==='intro')&&!setOpen&&!uiOpen&&!scOpen&&pinDlg.hidden&&!rootEl.classList.contains('modal');
+  setInterval(()=>{const can=(ios||deferred)&&Date.now()>hideUntil,onStart=(state==='title'||state==='intro')&&!setOpen&&!uiOpen&&!scOpen&&!hgOpen&&pinDlg.hidden&&!rootEl.classList.contains('modal');
     if(can&&onStart&&lastLang!==LANG+(deferred?1:0)){lastLang=LANG+(deferred?1:0);fill();}box.hidden=!(can&&onStart);},400);
 })();
 /* ---------- FR-Coin animations ---------- */
-const NAME_AT=250;  // from 250 FR-Coins earned your name is painted on the ship
 const earnedFor=n=>n?Math.floor(tot(n).points/1000):0;
-function shipLabel(){const n=playerName();return n&&earnedFor(n)>=NAME_AT?n:'';}
-function colsOf(n){if(n&&n===playerName())return shipCols();const e=WONLINE&&players.list.find(x=>x.name===n);if(e&&e.unlocked)return e.colors;
-  const w=wallet[n];return w&&w.unlocked?w.colors:SHIPDEF;}
+function shipLabel(){const n=playerName();return n&&owns('name',n)?n:'';}
+function infoOf(n){if(n&&n===playerName()){const w=wallet[n];return w||null;}const e=WONLINE&&players.list.find(x=>x.name===n);return e||wallet[n]||null;}
+function colsOf(n){if(n&&n===playerName())return shipCols();const w=infoOf(n);return ownsW(w,'colors')?w.colors:SHIPDEF;}
+const labelOf=n=>ownsW(infoOf(n),'name')?n:'',modelOf=n=>{const w=infoOf(n);return ownsW(w,'ship')&&w.model==='b'?'b':'a';};
 const coinCv=document.createElement('canvas');coinCv.id='coinFx';coinCv.setAttribute('aria-hidden','true');document.body.appendChild(coinCv);
 const cfx=coinCv.getContext('2d');let coinAnims=[],coinRaf=0,bigCoin=null;
-function drawCoin(c,cx,cy,R,ang,cols,label,back,shine){
+function drawCoin(c,cx,cy,R,ang,cols,label,back,shine,model){
   const sx=Math.cos(ang),w=Math.max(.03,Math.abs(sx)),th=R*.13,face=sx>=0,sn=Math.sin(ang);
   c.save();c.translate(cx,cy);
   for(let k=8;k>=1;k--){const o=-sn*th*k/8;c.fillStyle=k%2?'#7a4d0c':'#94620f';c.beginPath();c.ellipse(o,0,R*w,R,0,0,7);c.fill();}  // coin edge
@@ -1011,7 +1084,7 @@ function drawCoin(c,cx,cy,R,ang,cols,label,back,shine){
   c.fillStyle=fg;c.beginPath();c.arc(0,0,inner,0,7);c.fill();
   c.lineWidth=R*.06;c.strokeStyle=cols.accent;c.beginPath();c.arc(0,0,inner,0,7);c.stroke();
   c.lineWidth=R*.02;c.strokeStyle='rgba(255,240,190,.8)';c.beginPath();c.arc(0,0,inner*.9,0,7);c.stroke();
-  if(face){const sv=ctx;ctx=c;c.save();c.beginPath();c.arc(0,0,inner*.96,0,7);c.clip();c.translate(R*.04,-R*.06);c.scale(R/15,R/15);try{drawShip(0,0,true,cols,label);}finally{c.restore();ctx=sv;}
+  if(face){const sv=ctx;ctx=c;c.save();c.beginPath();c.arc(0,0,inner*.96,0,7);c.clip();c.translate(R*.04,-R*.06);c.scale(R/15,R/15);try{drawShip(0,0,true,cols,label,model);}finally{c.restore();ctx=sv;}
     c.fillStyle=inkFor(cols.body);c.font=`700 ${R*.17}px Silkscreen, monospace`;c.textAlign='center';c.textBaseline='middle';c.fillText('FR-COIN',0,inner*.6);}
   else{c.fillStyle=inkFor(cols.body);c.textAlign='center';c.textBaseline='middle';c.font=`700 ${R*.42}px Silkscreen, monospace`;c.fillText('FRC',0,-R*.08);
     if(back){c.font=`700 ${R*.16}px Silkscreen, monospace`;c.fillText(back,0,R*.36);}}
@@ -1036,7 +1109,7 @@ function coinLoop(now){const dpr=Math.min(2,window.devicePixelRatio||1),vw=inner
     for(const q of b.sp){const age=t-q.d;if(age<0||age>1.4)continue;const k=age/1.4,r=R*(.9+1.3*k);cfx.fillStyle=`rgba(255,${200+Math.round(55*q.h)},${120+Math.round(100*q.h)},${1-k})`;
       const px=cx+Math.cos(q.a)*r,py=cy+Math.sin(q.a)*r,s=2+3*(1-k);cfx.beginPath();cfx.moveTo(px,py-s*2);cfx.lineTo(px+s*.6,py);cfx.lineTo(px,py+s*2);cfx.lineTo(px-s*.6,py);cfx.fill();}
     cfx.globalCompositeOperation='source-over';
-    drawCoin(cfx,cx,cy,R*Math.max(.01,sc),ang,b.cols,b.label,b.back,t*.9);
+    drawCoin(cfx,cx,cy,R*Math.max(.01,sc),ang,b.cols,b.label,b.back,t*.9,b.model);
     const ta=Math.max(0,Math.min(1,(t-.8)/.5))*fade;cfx.globalAlpha=ta;cfx.textAlign='center';cfx.textBaseline='top';
     cfx.fillStyle='#ffd84f';cfx.font=`700 ${Math.round(R*.26)}px Silkscreen, monospace`;cfx.fillText(b.name,cx,cy+R*1.22);
     cfx.fillStyle='#eef1ff';cfx.font=`600 ${Math.round(R*.12)}px "Chakra Petch", system-ui, sans-serif`;cfx.fillText(b.sub,cx,cy+R*1.6);
@@ -1050,7 +1123,7 @@ function coinPop(el,burst){const r=el.getBoundingClientRect(),cols=shipCols(),x=
   if(burst)for(let i=0;i<7;i++){const a=-Math.PI/2+(i-3)*.42;coinAnims.push({k:'bit',x,y,R:6,cols,t0:now+i*25,dur:1100,vx:Math.cos(a)*170,vy:Math.sin(a)*240,spin:9+i});}
   kickCoins();}
 function openBigCoin(name){const n=cleanName(name),t=tot(n),frc=Math.floor(t.points/1000);
-  bigCoin={name:n,cols:colsOf(n),label:frc>=NAME_AT?n:'',back:`${frc} FRC`,sub:(LANG==='en'?`${frc} FR-COINS · ${t.points} POINTS · ${t.games} GAMES`:`${frc} FR-COINS · ${t.points} PUNTEN · ${t.games} SPELLEN`),
+  bigCoin={name:n,cols:colsOf(n),label:labelOf(n),model:modelOf(n),back:`${frc} FRC`,sub:(LANG==='en'?`${frc} FR-COINS · ${t.points} POINTS · ${t.games} GAMES`:`${frc} FR-COINS · ${t.points} PUNTEN · ${t.games} SPELLEN`),
     t0:performance.now(),a0:-Math.PI/2,out:0,sp:Array.from({length:46},(_,i)=>({a:Math.random()*Math.PI*2,d:.15+Math.random()*1.2+(i%3)*.4,h:Math.random()}))};
   coinCv.classList.add('big');kickCoins();
   if(ac&&!muted)[523,784,1046,1568].forEach((f,i)=>setTimeout(()=>tone('triangle',f,f*1.01,.22,.045),i*90));}
@@ -1059,7 +1132,7 @@ coinCv.addEventListener('click',closeBigCoin);
 addEventListener('keydown',e=>{if(bigCoin&&(e.key==='Escape'||e.key===' '||e.key==='Enter')){e.preventDefault();e.stopPropagation();closeBigCoin();}},true);
 function shipIcon(n){const b=document.createElement('button');b.type='button';b.className='shipic';b.title=LANG==='en'?`Show the coin of ${n}`:`Toon de coin van ${n}`;
   const cv=document.createElement('canvas');cv.width=72;cv.height=30;b.appendChild(cv);const c=cv.getContext('2d'),sv=ctx;ctx=c;c.setTransform(3,0,0,3,37,15);
-  try{drawShip(0,0,true,colsOf(n),earnedFor(n)>=NAME_AT?n:'');}finally{ctx=sv;}
+  try{drawShip(0,0,true,colsOf(n),labelOf(n),modelOf(n));}finally{ctx=sv;}
   b.addEventListener('click',e=>{e.preventDefault();openBigCoin(n);});return b;}
 
 /* ---------- players online right now ---------- */
@@ -1266,7 +1339,7 @@ function update(dt){
     scroll+=speed*dt;
     const col=Math.floor((scroll+p.x)/COL);
     {let s=0;for(let i=0;i<4;i++)if(col>=starts[i])s=i;if(s!==curStage){curStage=s;show(`${T('FASE')} ${s+1}  ${T(STAGES[s].name)}`,'');tone('square',440,880,.25,.04);}}
-    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;show(`${T('RONDE')} ${loop+1}`,T('SNELLER · WAPENS AANGEVULD'));}
+    if(scroll>=(total-W/COL-1)*COL){loop++;speed=.9*(1+loop*.15)*cfg.speed/100;genWorld();scroll=0;curStage=0;enemies=[];lasers=[];bombs=[];nukesFly=[];nukes=cfg.nukes;shields=cfg.shields;laserLeft=LASER_N;empLeft=EMP_N;bombsLeft=cfg.bombs;show(`${T('RONDE')} ${loop+1}`,T('SNELLER · WAPENS AANGEVULD'));}
 
     const vx=axisVel(inp.ax,mvx,dt),vy=axisVel(inp.ay,mvy,dt);
     const wf=nukes>=3?.8:nukes===2?.9:1;
@@ -1284,6 +1357,18 @@ function update(dt){
     if(inp.shield){if(shieldT>0){}else if(shields>0){shields--;shieldT=cfg.shieldSec*60;tone('sine',300,1200,.5,.07);tone('triangle',600,1800,.35,.03);}
         else pop(scroll+p.x+14,p.y-12,T('GEEN SCHILDEN MEER'),'#ff5f7a');}
     if(inp.fire&&fireCd<=0&&lasers.length<cfg.lasers){lasers.push(aimLaser());fireCd=9;tone('square',1400,300,.07,.035);}
+    if(inp.laser&&owns('laser')){if(beamT>0){}else if(laserLeft>0){laserLeft--;beamT=BEAM_T;tone('sawtooth',90,1400,.35,.05);}else pop(scroll+p.x+14,p.y-12,T('GEEN LASERS MEER'),'#ff5f7a');}
+    if(inp.emp&&owns('emp')){if(empFx){}else if(empLeft>0){empLeft--;empFx={x:scroll+p.x,y:p.y,t:0,r:0};flashW=.6;shake=8;tone('sawtooth',1800,60,.9,.07);tone('square',60,900,.5,.04);}else pop(scroll+p.x+14,p.y-12,T('GEEN EMP MEER'),'#ff5f7a');}
+    if(beamT>0){beamT-=dt;const y=p.y+.4,x0=scroll+p.x+8;let x1=x0;while(x1<scroll+W+12&&fAt(x1)>y&&cAt(x1)<y)x1+=2;beamEnd=x1;
+      const hitB=b=>b[0]<x1&&b[0]+b[2]>x0&&y>b[1]-2.5&&y<b[1]+b[3]+2.5;
+      for(const o of objs)if(o.alive&&o.t!=='core'&&hitB(box(o)))kill(o);
+      for(const e of enemies)if(e.alive&&hitB(box(e))){if(e.t==='fireball'){e.alive=false;burst(e.x,e.y,8,['#fff','#ff9ad9'],1);}else kill(e);}
+      if(Math.random()<.6*dt)parts.push({k:0,x:x1,y:y+(Math.random()-.5)*2,vx:-.5-Math.random()*1.5,vy:(Math.random()-.5)*2,life:14,max:14,r:.9,c:Math.random()<.5?'#ffffff':'#ff7ad9'});
+      if((beamSnd-=dt)<=0){beamSnd=7;tone('sawtooth',220+Math.random()*40,180,.09,.025);}}
+    if(empFx){const e=empFx;e.t+=dt;e.r=e.t*7;const inR=(x,y)=>Math.hypot(x-e.x,y-e.y)<e.r&&x>scroll-12&&x<scroll+W+12;
+      for(const o of objs)if(o.alive&&o.t!=='core'&&inR(o.wx??o.x,o.y))kill(o);
+      for(const q of enemies)if(q.alive&&inR(q.x,q.y)){if(q.t==='fireball'){q.alive=false;burst(q.x,q.y,8,['#fff','#9ad0ff'],1);}else kill(q);}
+      if(e.r>W*1.5)empFx=null;}
     if(inp.nuke){if(nukes>0&&!nukesFly.length){nukes--;nukesFly.push({x:scroll+p.x,y:p.y+4,vx:speed+1.6,vy:-.3});tone('sawtooth',220,70,.7,.06);}
       else if(!nukes)pop(scroll+p.x+14,p.y-10,T('GEEN NUKES MEER'),'#ff5f7a');}
     if(inp.bomb&&bombCd<=0&&bombs.length<cfg.bombAir){
@@ -1385,10 +1470,30 @@ function text(t,x,y,c,align='left',font=HUDF,shadow){ctx.font=font;ctx.textAlign
 function groundShadow(x,y,rx){ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x,y,rx,1.1,0,0,7);ctx.fill();}
 
 /* ---------- sprites ---------- */
+function drawShipB(x,y,noFlame,SC,FL,label){  // Interceptor: swept delta wing, twin tail, long canopy; 10% bigger
+  ctx.save();ctx.translate(x,y);ctx.scale(1.1,1.1);
+  if(!noFlame){const fl=4+Math.random()*3;ctx.globalCompositeOperation='lighter';
+    for(const oy of[-1.2,1.2]){ctx.fillStyle=lg(-8-fl,0,-7,0,[`rgba(${FL},0)`,[.6,`rgba(${FL},.9)`],[1,'#fff6d6']]);ctx.beginPath();ctx.moveTo(-7.4,oy-1);ctx.lineTo(-8-fl,oy);ctx.lineTo(-7.4,oy+1);ctx.fill();}
+    const rg=ctx.createRadialGradient(-8,0,0,-8,0,5);rg.addColorStop(0,`rgba(${FL},.45)`);rg.addColorStop(1,`rgba(${FL},0)`);ctx.fillStyle=rg;ctx.fillRect(-13,-5,10,10);ctx.globalCompositeOperation='source-over';}
+  ctx.fillStyle=lg(0,1,0,6,[hexMix(SC.body,'#000000',.25),hexMix(SC.body,'#000000',.6)]);ctx.beginPath();ctx.moveTo(4,1.2);ctx.lineTo(-6.5,6.4);ctx.lineTo(-8,6.4);ctx.lineTo(-5.5,1.6);ctx.closePath();ctx.fill();
+  ctx.fillStyle=SC.accent;ctx.beginPath();ctx.moveTo(-1,3.3);ctx.lineTo(-6.6,6);ctx.lineTo(-7.4,6);ctx.lineTo(-3.2,3.3);ctx.closePath();ctx.fill();
+  ctx.fillStyle=lg(0,-2.8,0,2.8,[hexMix(SC.body,'#ffffff',.75),[.45,SC.body],[1,hexMix(SC.body,'#000000',.6)]]);
+  ctx.beginPath();ctx.moveTo(10.5,.5);ctx.lineTo(6,-1.6);ctx.quadraticCurveTo(0,-2.9,-7.6,-2.3);ctx.lineTo(-7.6,2.3);ctx.quadraticCurveTo(1,2.8,6,1.7);ctx.closePath();ctx.fill();
+  ctx.fillStyle=lg(0,-7,0,-2,[hexMix(SC.accent,'#ffffff',.3),hexMix(SC.accent,'#000000',.35)]);
+  ctx.beginPath();ctx.moveTo(-7.4,-2.2);ctx.lineTo(-9.4,-6.6);ctx.lineTo(-7.2,-6.6);ctx.lineTo(-3.4,-2.5);ctx.fill();
+  ctx.globalAlpha=.75;ctx.beginPath();ctx.moveTo(-6.2,-2.2);ctx.lineTo(-7.6,-5.2);ctx.lineTo(-6.1,-5.2);ctx.lineTo(-3.6,-2.4);ctx.fill();ctx.globalAlpha=1;
+  ctx.fillStyle='#2b2f3b';ctx.fillRect(-8.2,-2.2,1,1.8);ctx.fillRect(-8.2,.4,1,1.8);
+  ctx.fillStyle=lg(0,-3,0,-.3,[hexMix(SC.glass,'#ffffff',.8),hexMix(SC.glass,'#000000',.45)]);ctx.beginPath();ctx.moveTo(7.6,-.6);ctx.quadraticCurveTo(4,-3.1,-1.6,-2.5);ctx.lineTo(-1.4,-.7);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.7)';ctx.fillRect(1.4,-2.1,2.4,.45);
+  ctx.fillStyle=SC.accent;ctx.fillRect(-7,-.25,9,.6);ctx.fillRect(7.2,.1,2,.45);
+  if(label){ctx.font='700 2px "Chakra Petch", system-ui, sans-serif';const tw=ctx.measureText(label).width,k=Math.min(1,9/Math.max(1,tw));
+    ctx.save();ctx.translate(1.2,1.45);ctx.scale(k,1);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=inkFor(SC.body)==='#ffffff'?'rgba(255,255,255,.92)':'rgba(20,17,47,.9)';ctx.fillText(label,0,0);ctx.restore();}
+  ctx.restore();}
 function hexRgb(h){const n=parseInt(String(h).slice(1),16);return[n>>16&255,n>>8&255,n&255];}
 function hexMix(a,b,k){const x=hexRgb(a),y=hexRgb(b);return`rgb(${x.map((v,i)=>Math.round(v+(y[i]-v)*k))})`;}
-function drawShip(x,y,noFlame,cols,label){
+function drawShip(x,y,noFlame,cols,label,model){
   const SC=cols||shipCols(),FL=hexRgb(SC.flame);
+  if((model===undefined?(cols?'a':shipModel()):model)==='b'){drawShipB(x,y,noFlame,SC,FL,label);return;}
   ctx.save();ctx.translate(x,y);
   if(!noFlame){const fl=4+Math.random()*3;
     ctx.globalCompositeOperation='lighter';
@@ -1708,6 +1813,15 @@ function drawNukeFx(n){
   ctx.globalCompositeOperation='source-over';
   if(t>22&&t<190){const a=.5*Math.min(1,(t-22)/20)*Math.max(0,1-(t-22)/168);ctx.strokeStyle=`rgba(235,235,245,${a})`;ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(x,(g+cy)/2+6,cr*.95,cr*.17,0,0,7);ctx.stroke();}
 }
+function drawEmp(e){const x=e.x-scroll,y=e.y,r=e.r,a=Math.max(0,1-r/(W*1.5));
+  ctx.globalCompositeOperation='lighter';
+  if(e.t<16){ctx.fillStyle=`rgba(120,190,255,${.35*(1-e.t/16)})`;ctx.fillRect(-10,TOP,W+20,H);}
+  for(const[k,c,w]of[[1,'170,220,255',3.2],[.86,'110,170,255',1.6],[.7,'220,240,255',.8]]){ctx.strokeStyle=`rgba(${c},${a*(k===1?.95:.6)})`;ctx.lineWidth=w;ctx.beginPath();ctx.arc(x,y,r*k,0,7);ctx.stroke();}
+  const g=ctx.createRadialGradient(x,y,r*.6,x,y,r);g.addColorStop(0,'rgba(90,160,255,0)');g.addColorStop(1,`rgba(140,200,255,${.25*a})`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();
+  ctx.strokeStyle=`rgba(235,245,255,${a})`;ctx.lineWidth=.8;
+  for(let i=0;i<9;i++){const an=i/9*Math.PI*2+e.t*.05+Math.random()*.2;let px=x+Math.cos(an)*r*.25,py=y+Math.sin(an)*r*.25;ctx.beginPath();ctx.moveTo(px,py);
+    for(let s2=1;s2<=6;s2++){const rr2=r*(.25+s2*.125),j=(Math.random()-.5)*.35;px=x+Math.cos(an+j)*rr2;py=y+Math.sin(an+j)*rr2;ctx.lineTo(px,py);}ctx.stroke();}
+  ctx.globalCompositeOperation='source-over';}
 function trefoil(x,y,r,on){const a=on?'#ffd84f':'#262a44',b=on?'#15161a':'#12142a';
   ctx.fillStyle=a;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.fillStyle=b;
   for(let k=0;k<3;k++){const q=-Math.PI/2+k*2*Math.PI/3;ctx.beginPath();ctx.moveTo(x,y);ctx.arc(x,y,r*.85,q-.52,q+.52);ctx.closePath();ctx.fill();}
@@ -1739,6 +1853,9 @@ function drawHUD(){
   shieldIcon(88,7,shields>0);text('×'+shields,92.4,3.6,shields>0?'#5fe6ff':'#5a5f80','left',SMALL);
   if(cfg.bombs>0){ctx.fillStyle=bombsLeft>0?'#c9cdd8':'#3a3f5a';ctx.beginPath();ctx.ellipse(107,7,2.6,1.6,0,0,7);ctx.fill();ctx.fillRect(103.6,5.4,1,3.2);
     text('×'+bombsLeft,111,3.6,bombsLeft>0?'#eef1ff':'#5a5f80','left',SMALL);}
+  if(owns('laser')){const on=laserLeft>0;ctx.fillStyle=on?'#ff7ad9':'#3a3f5a';rr(94,16,7,2.2,1);ctx.fill();if(on){ctx.fillStyle='#fff';ctx.fillRect(95,16.8,5,.6);}text('×'+laserLeft,102.5,14.6,on?'#ff9ae4':'#5a5f80','left',SMALL);}
+  if(owns('emp')){const on=empLeft>0,bx=owns('laser')?114:94;ctx.fillStyle=on?'#9ad0ff':'#3a3f5a';ctx.beginPath();ctx.moveTo(bx+2.6,13.6);ctx.lineTo(bx,17.6);ctx.lineTo(bx+1.8,17.6);ctx.lineTo(bx+1,20.6);ctx.lineTo(bx+3.8,16.2);ctx.lineTo(bx+2,16.2);ctx.lineTo(bx+3,13.6);ctx.closePath();ctx.fill();
+    text('×'+empLeft,bx+5,14.6,on?'#9ad0ff':'#5a5f80','left',SMALL);}
   text('HI',W/2-24,2.5,'#ff5fa8');textNum(pad6(hi),W/2-11,2.5,'#eef1ff','left',HUDF);
   const n=Math.min(lives-(state==='play'||state==='dying'?1:0),6);
   for(let i=0;i<n;i++){ctx.save();ctx.translate(W-12-i*14,7);ctx.scale(.6,.6);drawShip(0,0,true);ctx.restore();}
@@ -1781,8 +1898,17 @@ function draw(){
     ctx.fillStyle='rgba(255,80,160,.22)';ctx.fillRect(-6,-1.6,14,3.2);
     ctx.fillStyle=lg(-8,0,8,0,['rgba(255,80,160,0)',[.55,'rgba(255,90,170,.9)'],[1,'#ffffff']]);ctx.fillRect(-8,-.55,16,1.1);ctx.restore();}
   ctx.globalCompositeOperation='source-over';
-  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y,false,undefined,state==='play'?shipLabel():'');if(shieldT>0)drawShield(p.x,p.y);}
+  if(state==='play'||(state==='intro'&&p.x<W+20)){if(!m3)drawShip(p.x,p.y,false,undefined,state==='play'?shipLabel():'',state==='play'?shipModel():'a');if(shieldT>0)drawShield(p.x,p.y);}
   for(const n of nukeFx)drawNukeFx(n);
+  if(state==='play'&&beamT>0){const x0=p.x+8,x1=beamEnd-scroll,y=p.y+.4,f=Math.min(1,beamT/12,(BEAM_T-beamT)/6+.2),wv=1.6+Math.sin(frame*.9)*.4;
+    ctx.globalCompositeOperation='lighter';
+    ctx.fillStyle=`rgba(255,80,200,${.35*f})`;ctx.fillRect(x0,y-wv*2.2,x1-x0,wv*4.4);
+    ctx.fillStyle=`rgba(255,140,230,${.7*f})`;ctx.fillRect(x0,y-wv,x1-x0,wv*2);
+    ctx.fillStyle=`rgba(255,255,255,${.95*f})`;ctx.fillRect(x0,y-.45,x1-x0,.9);
+    const g=ctx.createRadialGradient(x0,y,0,x0,y,7);g.addColorStop(0,`rgba(255,255,255,${f})`);g.addColorStop(1,'rgba(255,80,200,0)');ctx.fillStyle=g;ctx.fillRect(x0-7,y-7,14,14);
+    const g2=ctx.createRadialGradient(x1,y,0,x1,y,6+Math.random()*3);g2.addColorStop(0,`rgba(255,255,255,${f})`);g2.addColorStop(1,'rgba(255,80,200,0)');ctx.fillStyle=g2;ctx.fillRect(x1-9,y-9,18,18);
+    ctx.globalCompositeOperation='source-over';}
+  if(empFx)drawEmp(empFx);
   drawFx();
   for(const q of pops){ctx.globalAlpha=Math.min(1,q.life/20);text(q.text,q.x-scroll,q.y,q.c,'center',SMALL,true);}ctx.globalAlpha=1;
   const v=ctx.createRadialGradient(W/2,H/2+12,90,W/2,H/2+12,230);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.5)');ctx.fillStyle=v;ctx.fillRect(-10,TOP,W+20,H);
@@ -1923,6 +2049,11 @@ function makeTemplates(T){
   {const cv=document.createElement('canvas');cv.width=512;cv.height=96;SM.labelCv=cv;SM.labelTex=new T.CanvasTexture(cv);
     SM.label=new T.MeshBasicMaterial({map:SM.labelTex,transparent:true,depthWrite:false});
     const pl=new T.Mesh(new T.PlaneGeometry(8.4,1.9),SM.label);pl.position.set(1.2,-.55,2.7);pl.name='label';SM.label.visible=false;t.ship.add(pl);}
+  SM.fin=std(0xd2345c,{roughness:.4});SM.wingB=std(0xd2345c,{roughness:.4});SM.wingB.visible=false;
+  {const fin=t.ship.children.find(c=>c.material===SM.accent&&c.geometry&&c.geometry.type==='BoxGeometry');if(fin)fin.material=SM.fin;
+    const dw=new T.Shape();dw.moveTo(4,0);dw.lineTo(-6.5,-7);dw.lineTo(-8,-7);dw.lineTo(-5.5,0);dw.closePath();
+    const wgeo=new T.ExtrudeGeometry(dw,{depth:.5,bevelEnabled:false});for(const sgn of[1,-1]){const wg=new T.Mesh(wgeo,SM.wingB);wg.rotation.x=sgn*Math.PI/2;wg.position.set(0,-1.2,0);wg.castShadow=true;t.ship.add(wg);}
+    for(const z of[-1.4,1.4]){const tf=new T.Mesh(new T.BoxGeometry(3,4.4,.5),SM.wingB);tf.position.set(-6.4,3,z);tf.rotation.z=-.35;t.ship.add(tf);}}
   t.shipMats=SM;
   {const fins=[];for(let i=0;i<4;i++){const a=i*H2,f=mk(new T.BoxGeometry(2.8,4,.35),M.red,Math.cos(a)*2.4,2,Math.sin(a)*2.4);f.rotation.y=-a;fins.push(f);}
    const fl=mk(new T.ConeGeometry(1.3,7,10),M.flame,0,-3.5,0,'flame',false);fl.rotation.z=Math.PI;fl.visible=false;
@@ -1986,10 +2117,11 @@ function render3d(){
     else{m.rotation.z=Math.atan2(-e.vy,2.6);m.getObjectByName('flame').scale.set(1,.8+Math.random()*.5,1);}}
   for(const b of bombs){const m=want(b,'bomb');m.position.set(b.x,-b.y,0);m.rotation.z=Math.atan2(-b.vy,b.vx);}
   for(const n of nukesFly){const m=want(n,'nuke');m.position.set(n.x,-n.y,0);m.rotation.z=Math.atan2(-n.vy,Math.max(.3,n.vx-speed));m.getObjectByName('blink').visible=(frame|0)%10<5;}
-  {const C=shipCols(),lb=state==='play'?shipLabel():'',k=C.body+C.accent+C.glass+C.flame+lb;if(k!==o.shipKey){o.shipKey=k;const SM=tpl.shipMats;SM.body.color.set(C.body);SM.accent.color.set(C.accent);SM.glass.color.set(C.glass);SM.flame.color.set(C.flame);
+  {const C=shipCols(),lb=state==='play'?shipLabel():'',mb=shipModel(),k=C.body+C.accent+C.glass+C.flame+lb+mb;if(k!==o.shipKey){o.shipKey=k;const SM=tpl.shipMats;SM.body.color.set(C.body);SM.accent.color.set(C.accent);SM.glass.color.set(C.glass);SM.flame.color.set(C.flame);
+    SM.fin.color.set(C.accent);SM.wingB.color.set(C.accent);SM.fin.visible=mb!=='b';SM.wingB.visible=mb==='b';
     const c=SM.labelCv.getContext('2d');c.clearRect(0,0,512,96);if(lb){c.font='800 78px "Chakra Petch", system-ui, sans-serif';const tw=c.measureText(lb).width,kk=Math.min(1,480/tw);c.save();c.translate(256,50);c.scale(kk,1);c.textAlign='center';c.textBaseline='middle';
       const lt=inkFor(C.body)==='#ffffff';c.lineWidth=10;c.lineJoin='round';c.strokeStyle=lt?'rgba(10,12,30,.55)':'rgba(255,255,255,.5)';c.strokeText(lb,0,0);c.fillStyle=lt?'#ffffff':'#14112f';c.fillText(lb,0,0);c.restore();}SM.labelTex.needsUpdate=true;SM.label.visible=!!lb;}}
-  if(state==='play'||(state==='intro'&&p.x<W+20)){const m=want('ship','ship');m.position.set(scroll+p.x,-p.y,0);
+  if(state==='play'||(state==='intro'&&p.x<W+20)){const m=want('ship','ship');m.position.set(scroll+p.x,-p.y,0);m.scale.setScalar(shipModel()==='b'?1.1:1);
     const vy=(mvy.d||0)*Math.min(1,mvy.t*2);m.rotation.z+=((-vy*.18)-m.rotation.z)*.15;m.rotation.x=Math.sin(frame*.05)*.12;
     m.getObjectByName('flame').scale.set(1,.7+Math.random()*.6,1);}
   for(const[k,m]of o.meshes)if(!seen.has(k)){o.dyn.remove(m);o.meshes.delete(k);}

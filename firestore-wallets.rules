@@ -1,23 +1,54 @@
-    // FR-Coins: plak dit blok binnen "match /databases/{database}/documents { ... }"
-    // (vervangt het eerdere match /wallets/{name}-blok)
+    // FR-Coins + naamcode. Plak dit binnen "match /databases/{database}/documents { ... }"
+    // en vervang daarmee het eerdere match /wallets/{name}-blok.
+
+    // De code van elke naam. Niemand kan deze lezen; schrijven mag alleen met de juiste code.
+    match /owners/{name} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(['c', 't'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[A-Z0-9]{1,8}')
+        && request.resource.data.t == request.time;
+      allow update: if request.resource.data.keys().hasOnly(['c', 't', 'o'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[A-Z0-9]{1,8}')
+        && request.resource.data.t == request.time
+        && (request.resource.data.c == resource.data.c
+            || request.resource.data.get('o', '') == resource.data.c);
+      allow delete: if false;
+    }
+
     match /wallets/{name} {
+      // in dezelfde schrijfactie moet owners/{name} met de juiste code zijn bijgewerkt
+      function owner() {
+        return getAfter(/databases/$(database)/documents/owners/$(name)).data.t == request.time;
+      }
       function okWallet() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'at', 'coins'])
+        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'items', 'at', 'coins'])
           && d.name == name && d.points is int && d.games is int && d.at == request.time
           && d.get('spent', 0) is int && d.get('spent', 0) >= 0
           && (!('colors' in d) || (d.colors is map
-              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame'])));
+              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame', 'model'])))
+          && (!('items' in d) || (d.items is map
+              && d.items.keys().hasOnly(['colors', 'name', 'ship', 'laser', 'emp'])));
       }
       function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function bought(k, p) {
+        return request.resource.data.items.diff(resource.data.get('items', {})).affectedKeys() == [k].toSet()
+          && request.resource.data.items[k] == true
+          && request.resource.data.spent == resource.data.get('spent', 0) + p;
+      }
+      function mayStyle() {
+        return resource.data.get('unlocked', false) == true
+          || resource.data.get('items', {}).get('colors', false) == true
+          || resource.data.get('items', {}).get('ship', false) == true;
+      }
       allow read: if true;
-      allow create: if okWallet()
+      allow create: if okWallet() && owner()
         && request.resource.data.games >= 1 && request.resource.data.games <= 10
         && request.resource.data.points >= 0
         && request.resource.data.points <= 100000 * request.resource.data.games
         && !('spent' in request.resource.data) && !('unlocked' in request.resource.data)
-        && !('colors' in request.resource.data);
-      allow update: if okWallet() && (
+        && !('colors' in request.resource.data) && !('items' in request.resource.data);
+      allow update: if okWallet() && owner() && (
           // punten erbij: 1 tot 10 spellen per keer, hooguit eens per 20 seconden
           (changed().hasOnly(['points', 'games', 'at'])
             && request.resource.data.games - resource.data.games >= 1
@@ -26,13 +57,11 @@
             && request.resource.data.points - resource.data.points
                <= 100000 * (request.resource.data.games - resource.data.games)
             && request.time > resource.data.at + duration.value(20, 's'))
-          // kleuren vrijspelen: kost precies 100 FRC
-          || (changed().hasOnly(['spent', 'at', 'unlocked', 'colors'])
-            && resource.data.get('unlocked', false) == false
-            && request.resource.data.get('unlocked', false) == true
-            && request.resource.data.spent == resource.data.get('spent', 0) + 100)
-          // kleuren aanpassen na vrijspelen
-          || (changed().hasOnly(['colors', 'at'])
-            && resource.data.get('unlocked', false) == true));
+          // iets kopen in de winkel
+          || (changed().hasOnly(['spent', 'at', 'items', 'colors'])
+            && (bought('colors', 100) || bought('name', 250) || bought('ship', 500)
+                || bought('laser', 750) || bought('emp', 1000)))
+          // kleuren of scheepsmodel aanpassen
+          || (changed().hasOnly(['colors', 'at']) && mayStyle()));
       allow delete: if false;
     }
