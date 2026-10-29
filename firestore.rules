@@ -1,0 +1,118 @@
+rules_version = "2";
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // beheercode voor de openbare highscores; niemand kan deze lezen
+    match /admin/{doc} {
+      allow read: if false;
+      allow create: if doc == 'key' && request.resource.data.keys().hasOnly(['c', 't'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[0-9]{4,8}')
+        && request.resource.data.t == request.time;
+      allow update: if doc == 'key' && request.resource.data.keys().hasOnly(['c', 't', 'o'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[0-9]{4,8}')
+        && request.resource.data.t == request.time
+        && (request.resource.data.c == resource.data.c
+            || request.resource.data.get('o', '') == resource.data.c);
+      allow delete: if false;
+    }
+
+    match /scores/{id} {
+      function admin() {
+        return getAfter(/databases/$(database)/documents/admin/key).data.t == request.time;
+      }
+      allow read: if true;
+      allow delete: if admin();
+      allow update: if admin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'score'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 10
+        && request.resource.data.score is int && request.resource.data.score >= 0
+        && request.resource.data.score < 10000000;
+      allow create: if request.resource.data.keys().hasOnly(["name", "score", "time", "at"])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 10
+        && request.resource.data.score is int
+        && request.resource.data.score >= 0
+        && request.resource.data.score < 10000000
+        && request.resource.data.time is int
+        && request.resource.data.time >= 0
+        && request.resource.data.time < 86400
+        && request.resource.data.at is int
+        && request.resource.data.at > request.time.toMillis() - 300000
+        && request.resource.data.at < request.time.toMillis() + 300000;
+    }
+
+    match /presence/{id} {
+      allow read: if true;
+      allow delete: if false;
+      allow create, update: if id.size() <= 32
+        && request.resource.data.keys().hasOnly(["t"])
+        && request.resource.data.t is int
+        && request.resource.data.t > request.time.toMillis() - 120000
+        && request.resource.data.t < request.time.toMillis() + 120000;
+    }
+
+    match /owners/{name} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasOnly(['c', 't'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[A-Z0-9]{1,8}')
+        && request.resource.data.t == request.time;
+      allow update: if request.resource.data.keys().hasOnly(['c', 't', 'o'])
+        && request.resource.data.c is string && request.resource.data.c.matches('[A-Z0-9]{1,8}')
+        && request.resource.data.t == request.time
+        && (request.resource.data.c == resource.data.c
+            || request.resource.data.get('o', '') == resource.data.c);
+      allow delete: if false;
+    }
+
+    match /wallets/{name} {
+      // in dezelfde schrijfactie moet owners/{name} met de juiste code zijn bijgewerkt
+      function owner() {
+        return getAfter(/databases/$(database)/documents/owners/$(name)).data.t == request.time;
+      }
+      function okWallet() {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'items', 'at', 'coins'])
+          && d.name == name && d.points is int && d.games is int && d.at == request.time
+          && d.get('spent', 0) is int && d.get('spent', 0) >= 0
+          && (!('colors' in d) || (d.colors is map
+              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame', 'model'])))
+          && (!('items' in d) || (d.items is map
+              && d.items.keys().hasOnly(['colors', 'name', 'ship', 'laser', 'emp'])));
+      }
+      function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+      function bought(k, p) {
+        return request.resource.data.items.diff(resource.data.get('items', {})).affectedKeys() == [k].toSet()
+          && request.resource.data.items[k] == true
+          && request.resource.data.spent == resource.data.get('spent', 0) + p;
+      }
+      function mayStyle() {
+        return resource.data.get('unlocked', false) == true
+          || resource.data.get('items', {}).get('colors', false) == true
+          || resource.data.get('items', {}).get('ship', false) == true;
+      }
+      allow read: if true;
+      allow create: if okWallet() && owner()
+        && request.resource.data.games >= 1 && request.resource.data.games <= 10
+        && request.resource.data.points >= 0
+        && request.resource.data.points <= 1000000 * request.resource.data.games
+        && !('spent' in request.resource.data) && !('unlocked' in request.resource.data)
+        && !('colors' in request.resource.data) && !('items' in request.resource.data);
+      allow update: if okWallet() && owner() && (
+          // punten erbij: 1 tot 10 spellen per keer, hooguit eens per 20 seconden
+          (changed().hasOnly(['points', 'games', 'at'])
+            && request.resource.data.games - resource.data.games >= 1
+            && request.resource.data.games - resource.data.games <= 10
+            && request.resource.data.points >= resource.data.points
+            && request.resource.data.points - resource.data.points
+               <= 1000000 * (request.resource.data.games - resource.data.games)
+            && request.time > resource.data.at + duration.value(20, 's'))
+          // iets kopen in de winkel
+          || (changed().hasOnly(['spent', 'at', 'items', 'colors'])
+            && (bought('colors', 100) || bought('name', 250) || bought('ship', 500)
+                || bought('laser', 750) || bought('emp', 1000)))
+          // kleuren of scheepsmodel aanpassen
+          || (changed().hasOnly(['colors', 'at']) && mayStyle()));
+      allow delete: if false;
+    }
+  }
+}
