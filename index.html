@@ -349,7 +349,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 50 · UDP-controller (poort 6001) via de Fuel Run-bridge</p>
+  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 51 · Android-app met ingebouwde UDP-luisteraar (poort 6001)</p>
 </div>
 
 <div class="install" id="install" hidden role="dialog" aria-labelledby="instTitle">
@@ -669,7 +669,8 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='p
 /* ---------- UDP controller via the Fuel Run bridge (a browser cannot listen on UDP itself) ----------
    messages: {"deviceNumber":1,"buttonNumber":0..4,"event":"pressStart"|"pressEnd"}  0 up, 1 left, 2 centre, 3 right, 4 down */
 const gp={up:false,left:false,center:false,right:false,down:false},GPK=['up','left','center','right','down'];
-const viaBridge=location.protocol==='http:'&&(location.port==='6002'||/[?&]udp=1/.test(location.search));
+const viaBridge=location.protocol==='http:'&&(location.port==='6002'||/[?&]udp=1/.test(location.search)),inApp=!!window.FuelRunNative;
+window.fuelUdp=t=>{try{udpMsg(String(t));}catch(e){}};  // the Android app calls this for every UDP message on port 6001
 const UDP={on:viaBridge,url:viaBridge?'ws://'+location.host:'ws://localhost:6002',dev:0};
 try{const u=JSON.parse(localStorage.getItem('fuelrun.udp')||'null');if(u&&typeof u==='object'){UDP.on=!!u.on||viaBridge;if(typeof u.url==='string'&&u.url)UDP.url=viaBridge&&/localhost/.test(u.url)?UDP.url:u.url.slice(0,200);UDP.dev=Math.max(0,Math.min(16,u.dev|0));}}catch(e){}
 const saveUdp=()=>{try{localStorage.setItem('fuelrun.udp',JSON.stringify(UDP));}catch(e){}};
@@ -680,7 +681,7 @@ function udpMsg(txt){let j;try{j=JSON.parse(txt);}catch(e){return;}if(!j||j.ping
   const ev=String(j.event||'').toLowerCase(),down=/start|down|pressed$|^press$/.test(ev)&&!/end|up|release/.test(ev),up=/end|up|release/.test(ev);
   if(down){gp[k]=true;ensureAudio();if(k==='center')tap=true;}else if(up)gp[k]=false;
   if(!udpSeen){udpSeen=1;renderUdp();}}
-function udpConnect(){clearTimeout(udpTimer);if(udpWs){try{udpWs.onclose=null;udpWs.close();}catch(e){}udpWs=null;}gpRelease();
+function udpConnect(){if(inApp){udpSt='app';renderUdp();return;}clearTimeout(udpTimer);if(udpWs){try{udpWs.onclose=null;udpWs.close();}catch(e){}udpWs=null;}gpRelease();
   if(!UDP.on){udpSt='off';renderUdp();return;}
   let ws;try{ws=new WebSocket(UDP.url);}catch(e){udpSt='err';renderUdp();return;}
   udpWs=ws;udpSt='conn';renderUdp();
@@ -688,7 +689,15 @@ function udpConnect(){clearTimeout(udpTimer);if(udpWs){try{udpWs.onclose=null;ud
   ws.onmessage=e=>udpMsg(e.data);
   ws.onclose=()=>{if(udpWs!==ws)return;udpWs=null;gpRelease();if(!UDP.on)return;udpSt='retry';renderUdp();udpTimer=setTimeout(udpConnect,Math.min(10000,1000*Math.pow(2,udpTry++)));};
   ws.onerror=()=>{};}
-function renderUdp(){const chk=document.getElementById('ui_udp');if(!chk)return;const en=LANG==='en';chk.checked=UDP.on;document.getElementById('udpBox').hidden=!UDP.on;
+function appInfo(){try{return JSON.parse(window.FuelRunNative.info())||{};}catch(e){return{};}}
+function renderUdp(){const chk=document.getElementById('ui_udp');if(!chk)return;const en=LANG==='en';
+  if(inApp){const i=appInfo(),m=document.getElementById('udpMsg');chk.checked=true;chk.disabled=true;document.getElementById('udpBox').hidden=false;document.getElementById('ui_udpurl').closest('label').hidden=true;
+    const sel=document.getElementById('ui_udpdev');if(!sel.options.length){const o=document.createElement('option');o.value='0';o.textContent=en?'All':'Alle';sel.appendChild(o);for(let k=1;k<=8;k++){const q=document.createElement('option');q.value=String(k);q.textContent=String(k);sel.appendChild(q);}}sel.value=String(UDP.dev);
+    m.className='sub'+(i.listening?' ok':' err');
+    m.textContent=(i.listening?(en?`The app listens on UDP port ${i.udp||6001}. `:`De app luistert op UDP-poort ${i.udp||6001}. `):(en?`The app cannot listen on UDP port ${i.udp||6001}${i.error?' ('+i.error+')':''}. `:`De app kan niet luisteren op UDP-poort ${i.udp||6001}${i.error?' ('+i.error+')':''}. `))
+      +(i.ip?(en?`Send the controller to ${i.ip}. `:`Laat de controller sturen naar ${i.ip}. `):'')+(udpSeen?(en?'Controller signals are coming in.':'Er komen signalen van de controller binnen.'):(en?'Waiting for the first button press…':'Wachten op de eerste knopdruk…'))
+      +(en?' Buttons: arrows to fly, centre fires and drops bombs; up+down shield, left+right nuke.':' Knoppen: pijlen om te vliegen, midden vuurt en bombardeert; omhoog+omlaag schild, links+rechts nuke.')+(i.version?` · App ${i.version}`:'');return;}
+  chk.checked=UDP.on;document.getElementById('udpBox').hidden=!UDP.on;
   const ui=document.getElementById('ui_udpurl');if(document.activeElement!==ui)ui.value=UDP.url;
   const sel=document.getElementById('ui_udpdev');if(!sel.options.length){const o=document.createElement('option');o.value='0';o.textContent=en?'All':'Alle';sel.appendChild(o);for(let i=1;i<=8;i++){const q=document.createElement('option');q.value=String(i);q.textContent=String(i);sel.appendChild(q);}}
   sel.value=String(UDP.dev);
@@ -701,7 +710,7 @@ document.getElementById('ui_udp').addEventListener('change',e=>{UDP.on=e.target.
 document.getElementById('ui_udpurl').addEventListener('change',e=>{let u=e.target.value.trim();if(u&&!/^wss?:\/\//i.test(u))u='ws://'+u;UDP.url=u||'ws://localhost:6002';saveUdp();udpTry=0;udpConnect();});
 document.getElementById('ui_udpdev').addEventListener('change',e=>{UDP.dev=+e.target.value||0;saveUdp();gpRelease();});
 addEventListener('blur',gpRelease);
-if(UDP.on)setTimeout(udpConnect,300);
+if(inApp){UDP.on=true;setTimeout(renderUdp,500);}else if(UDP.on)setTimeout(udpConnect,300);
 function input(){
   const kx=(keys.arrowright||keys.d||gp.right?1:0)-(keys.arrowleft||keys.a||gp.left?1:0),ky=(keys.arrowdown||keys.s||gp.down?1:0)-(keys.arrowup||keys.w||gp.up?1:0);
   const fire=!!(keys.z||keys[' ']||keys.j||touch.fire||gp.center);
@@ -1305,7 +1314,7 @@ document.getElementById('setPin').addEventListener('click',()=>openPin('new'));
   let topWin=true;try{topWin=window.top===window;}catch(e){topWin=false;}
   const box=document.getElementById('install'),txt=document.getElementById('instTxt'),btn=document.getElementById('instBtn');
   let deferred=null,hideUntil=0;try{hideUntil=+localStorage.getItem('fuelrun.instHide')||0;}catch(e){}
-  if(standalone||!topWin)return;
+  if(standalone||!topWin||window.FuelRunNative)return;
   const share='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5" fill="none" stroke="#3fe0d0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6v10h12V10h-2" fill="none" stroke="#3fe0d0" stroke-width="2" stroke-linejoin="round"/></svg>';
   function fill(){if(ios){const where=iPad?(LANG==='en'?'at the top right':'rechtsboven'):(LANG==='en'?'at the bottom':'onderin');
       txt.innerHTML=LANG==='en'?`Tap ${share}<b style="font-family:inherit;color:inherit;font-size:inherit;letter-spacing:0">Share</b> ${where} in Safari and choose <b style="font-family:inherit;color:inherit;font-size:inherit;letter-spacing:0">Add to Home Screen</b>. Then you play full screen.`

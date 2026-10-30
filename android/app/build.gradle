@@ -1,0 +1,22 @@
+plugins { id 'com.android.application' }
+def run = Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '1')
+android {
+  namespace 'nl.meerservices.fuelrun'
+  compileSdk 34
+  defaultConfig {
+    applicationId 'nl.meerservices.fuelrun'
+    minSdk 24
+    targetSdk 34
+    versionCode run
+    versionName "1.0.${run}"
+  }
+  signingConfigs {
+    release { storeFile file('fuelrun.keystore'); storePassword 'fuelrun-android'; keyAlias 'fuelrun'; keyPassword 'fuelrun-android' }
+  }
+  buildTypes {
+    release { minifyEnabled false; signingConfig signingConfigs.release }
+    debug { signingConfig signingConfigs.release }
+  }
+  buildFeatures { buildConfig true }
+  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}

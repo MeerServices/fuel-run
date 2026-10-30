@@ -1,0 +1,36 @@
+name: Android-app bouwen
+on:
+  push:
+    branches: [main]
+    paths: ['android/**', 'index.html', '.github/workflows/android.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.7' }
+      - name: Spel meeleveren (voor als er geen internet is)
+        run: mkdir -p android/app/src/main/assets && cp index.html android/app/src/main/assets/index.html && cp icon-*.png manifest.webmanifest android/app/src/main/assets/
+      - name: APK bouwen
+        working-directory: android
+        run: gradle assembleRelease --no-daemon --stacktrace
+      - name: Hernoemen
+        run: cp android/app/build/outputs/apk/release/app-release.apk fuel-run.apk
+      - name: Publiceren als release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android
+          name: Fuel Run Android-app
+          body: |
+            Fuel Run voor Android met ingebouwde UDP-luisteraar op poort 6001.
+            Download fuel-run.apk op de tablet of telefoon en installeer hem (sta installeren van onbekende bronnen toe).
+            Build ${{ github.run_number }} van ${{ github.sha }}.
+          files: fuel-run.apk
+          make_latest: true
