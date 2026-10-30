@@ -173,7 +173,7 @@ public class MainActivity extends Activity {
         for (InetAddress a : Collections.list(ni.getInetAddresses())) if (a instanceof Inet4Address) out.add(a.getHostAddress());
       }
     } catch (Exception ignored) {}
-    return String.join(", ", out);
+    return android.text.TextUtils.join(", ", out);
   }
 
   /** Available to the game as window.FuelRunNative */

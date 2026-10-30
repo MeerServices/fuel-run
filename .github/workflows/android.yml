@@ -10,8 +10,8 @@ jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '17' }
       - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
@@ -20,7 +20,7 @@ jobs:
         run: mkdir -p android/app/src/main/assets && cp index.html android/app/src/main/assets/index.html && cp icon-*.png manifest.webmanifest android/app/src/main/assets/
       - name: APK bouwen
         working-directory: android
-        run: gradle assembleRelease --no-daemon --stacktrace
+        run: set -o pipefail; gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../build.log
       - name: Hernoemen
         run: cp android/app/build/outputs/apk/release/app-release.apk fuel-run.apk
       - name: Publiceren als release
@@ -34,3 +34,16 @@ jobs:
             Build ${{ github.run_number }} van ${{ github.sha }}.
           files: fuel-run.apk
           make_latest: true
+      - name: Bouwlog bewaren (branch ci-logs)
+        if: always()
+        run: |
+          [ -f build.log ] || echo "geen log" > build.log
+          tail -c 200000 build.log > /tmp/android-build.log
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git checkout --orphan ci-logs-tmp
+          git rm -rfq . || true
+          cp /tmp/android-build.log android-build.log
+          echo "${{ job.status }} run ${{ github.run_number }} ${{ github.sha }}" > status.txt
+          git add android-build.log status.txt
+          git commit -qm "Android-bouwlog ${{ github.run_number }}"
+          git push -f origin HEAD:ci-logs
