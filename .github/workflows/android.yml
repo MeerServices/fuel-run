@@ -15,8 +15,6 @@ jobs:
       - id: java
         uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '17' }
-      - id: sdk
-        uses: android-actions/setup-android@v3
       - id: gradlesetup
         uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.7' }
@@ -26,7 +24,7 @@ jobs:
       - id: build
         name: APK bouwen
         working-directory: android
-        run: set -o pipefail; gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../build.log
+        run: set -o pipefail; echo "sdk.dir=$ANDROID_HOME" > local.properties; gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../build.log
       - id: rename
         run: cp android/app/build/outputs/apk/release/app-release.apk fuel-run.apk
       - id: release
@@ -45,7 +43,7 @@ jobs:
         if: always()
         run: |
           {
-            echo "checkout=${{ steps.checkout.outcome }} java=${{ steps.java.outcome }} sdk=${{ steps.sdk.outcome }} gradle=${{ steps.gradlesetup.outcome }} assets=${{ steps.assets.outcome }} build=${{ steps.build.outcome }} rename=${{ steps.rename.outcome }} release=${{ steps.release.outcome }}"
+            echo "checkout=${{ steps.checkout.outcome }} java=${{ steps.java.outcome }} gradle=${{ steps.gradlesetup.outcome }} assets=${{ steps.assets.outcome }} build=${{ steps.build.outcome }} rename=${{ steps.rename.outcome }} release=${{ steps.release.outcome }}"
             echo "--- java"; java -version 2>&1 || true
             echo "--- gradle"; gradle -v 2>&1 | head -5 || true
             echo "--- ANDROID_HOME=$ANDROID_HOME"; ls "$ANDROID_HOME" 2>&1 | head; ls "$ANDROID_HOME/platforms" 2>&1 | head
