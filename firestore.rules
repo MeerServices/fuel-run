@@ -44,11 +44,28 @@ service cloud.firestore {
     match /presence/{id} {
       allow read: if true;
       allow delete: if false;
+      // t = laatst gezien, n = spelersnaam, s = starttijd, cc = landcode,
+      // x = IP-adres en plaats, versleuteld met de IP-sleutel van de beheerder
       allow create, update: if id.size() <= 32
-        && request.resource.data.keys().hasOnly(["t"])
+        && request.resource.data.keys().hasOnly(["t", "n", "s", "cc", "x"])
         && request.resource.data.t is int
         && request.resource.data.t > request.time.toMillis() - 120000
-        && request.resource.data.t < request.time.toMillis() + 120000;
+        && request.resource.data.t < request.time.toMillis() + 120000
+        && (!('n' in request.resource.data) || (request.resource.data.n is string && request.resource.data.n.size() <= 10))
+        && (!('s' in request.resource.data) || request.resource.data.s is int)
+        && (!('cc' in request.resource.data) || (request.resource.data.cc is string && request.resource.data.cc.size() <= 2))
+        && (!('x' in request.resource.data) || (request.resource.data.x is string && request.resource.data.x.size() <= 1000));
+    }
+
+    // instellingen uit de god mode: volgorde van de knoppen, europrijzen, IP-sleutel (openbaar deel)
+    match /config/{doc} {
+      allow read: if true;
+      allow write: if getAfter(/databases/$(database)/documents/admin/key).data.t == request.time
+        && ((doc == 'site' && request.resource.data.keys().hasOnly(['order', 'eur'])
+              && request.resource.data.order is list && request.resource.data.order.size() <= 10
+              && request.resource.data.eur is map && request.resource.data.eur.size() <= 10)
+          || (doc == 'ipkey' && request.resource.data.keys().hasOnly(['k'])
+              && request.resource.data.k is string && request.resource.data.k.size() <= 1000));
     }
 
     match /owners/{name} {
