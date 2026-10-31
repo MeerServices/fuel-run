@@ -141,6 +141,21 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .udpbox{display:flex;flex-direction:column;gap:8px;margin:2px 0 6px 26px}
 .udpbox input,.udpbox select{font-family:var(--body);font-size:13px;background:#07081a;color:var(--ink);border:1px solid var(--rim);border-radius:4px;padding:6px 8px;min-width:0;text-transform:none;letter-spacing:0}
 #udpMsg.ok{color:#8be39b}#udpMsg.err{color:#ff7a9a}
+.gpfocus{outline:3px solid #ffd84f!important;outline-offset:2px;box-shadow:0 0 0 6px rgba(255,216,79,.22)!important;border-radius:6px}
+.gpdot{display:inline-block;width:.95em;height:.95em;border-radius:50%;vertical-align:-.12em;margin:0 .3em 0 .1em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+.gpdot.w{background:#f4f4f8}.gpdot.r{background:#ff4b5c}.gpdot.g{background:#36d17a}.gpdot.b{background:#3f8cff}.gpdot.y{background:#ffd23f}
+.gphint{position:fixed;z-index:58;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom,0px));background:rgba(10,12,30,.94);border:1px solid var(--rim);border-radius:999px;padding:7px 14px;font-size:12px;color:var(--ink);white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis}
+.gpwheel{position:fixed;inset:0;z-index:59;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.78)}
+.gw-box{background:#12142a;border:1px solid #3fe0d0;border-radius:14px;padding:16px 20px;min-width:min(88vw,340px);display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.gw-label{font-family:var(--display);font-size:12px;letter-spacing:.08em;color:#3fe0d0}
+.gw-text{font-family:var(--display);font-size:22px;letter-spacing:.12em;color:var(--ink);min-height:1.4em;border-bottom:2px solid var(--rim);padding:2px 6px;max-width:80vw;overflow:hidden;white-space:nowrap}
+.gw-text i{display:inline-block;width:.6em;border-bottom:3px solid #ffd84f;animation:gwb 1s steps(2) infinite;font-style:normal}
+@keyframes gwb{50%{opacity:0}}
+.gw-roll{display:flex;flex-direction:column;align-items:center;height:210px;justify-content:center;position:relative;width:110px;border-radius:10px;background:linear-gradient(#07081a,#161a3a 50%,#07081a)}
+.gw-roll span{font-family:var(--display);line-height:1;transition:transform .12s,opacity .12s;color:var(--dim)}
+.gw-roll span.c{font-size:44px;color:#ffd84f;padding:8px 0;border-top:1px solid #ffd84f55;border-bottom:1px solid #ffd84f55;width:100%;text-align:center}
+.gw-roll span.n1{font-size:26px;opacity:.75}.gw-roll span.n2{font-size:18px;opacity:.45}.gw-roll span.n3{font-size:13px;opacity:.25}
+.gw-help{font-size:12px;color:var(--dim);text-align:center;line-height:1.7}
 .fxv{display:flex;align-items:center;gap:10px;min-width:0}.fxv input{flex:1;min-width:0;accent-color:#3fe0d0}.fxv output{font-family:var(--display);font-size:11px;color:var(--dim);min-width:3.2em;text-align:right}
 .shop{display:flex;flex-direction:column;gap:8px}
 .shopit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:9px 10px;border:1px solid var(--rim);border-radius:6px;background:#0b0d22}
@@ -349,7 +364,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 53 · X-GamePad knoppen: vuur, bom, schild, nuke en laser</p>
+  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 54 · X-GamePad: gekleurde knoppen in beeld, menu’s met de joystick, letterwiel</p>
 </div>
 
 <div class="install" id="install" hidden role="dialog" aria-labelledby="instTitle">
@@ -358,6 +373,10 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <button type="button" id="instBtn" hidden data-i18n="INSTALLEER">INSTALLEER</button>
   <button type="button" id="instX" aria-label="Sluiten" data-i18n-aria="Sluiten">✕</button>
 </div>
+<div class="gpwheel" id="gpWheel" hidden role="dialog" aria-label="Letters kiezen">
+  <div class="gw-box"><div class="gw-label" id="gwLabel"></div><div class="gw-text" id="gwText"></div><div class="gw-roll" id="gwRoll"></div><div class="gw-help" id="gwHelp"></div></div>
+</div>
+<div class="gphint" id="gpHint" hidden></div>
 <script>
 (()=>{
 let LANG=(()=>{try{const u=JSON.parse(localStorage.getItem('fuelrun.ui')||'null');if(u&&(u.lang==='nl'||u.lang==='en'))return u.lang;}catch(e){}return /^nl/i.test(navigator.language||'')?'nl':'en';})();
@@ -683,6 +702,8 @@ function udpMsg(txt){let j;try{j=JSON.parse(txt);}catch(e){return;}if(!j||j.ping
     if(+j.joystickType===1){gpj.rx=x;gpj.ry=y;}else{gpj.x=x;gpj.y=y;}if(x||y)ensureAudio();if(!udpSeen){udpSeen=1;renderUdp();}return;}
   const k=GPK[+j.buttonNumber];if(!k)return;
   const ev=String(j.event||'').toLowerCase(),down=/start|down|pressed$|^press$/.test(ev)&&!/end|up|release/.test(ev),up=/end|up|release/.test(ev);
+  if(!udpSeen){udpSeen=1;renderUdp();}
+  if(down&&gpButton(k))return;
   if(down){gp[k]=true;ensureAudio();if(k==='fire')tap=true;}else if(up)gp[k]=false;
   if(!udpSeen){udpSeen=1;renderUdp();}}
 function udpConnect(){if(inApp){udpSt='app';renderUdp();return;}clearTimeout(udpTimer);if(udpWs){try{udpWs.onclose=null;udpWs.close();}catch(e){}udpWs=null;}gpRelease();
@@ -715,6 +736,72 @@ document.getElementById('ui_udpurl').addEventListener('change',e=>{let u=e.targe
 document.getElementById('ui_udpdev').addEventListener('change',e=>{UDP.dev=+e.target.value||0;saveUdp();gpRelease();});
 addEventListener('blur',gpRelease);
 if(inApp){UDP.on=true;setTimeout(renderUdp,500);}else if(UDP.on)setTimeout(udpConnect,300);
+
+/* ---------- X-GamePad menus: coloured buttons open menus, the joystick walks through them, a letter wheel fills in text ---------- */
+const gpMode=()=>!!udpSeen&&(inApp||udpSt==='ok');
+const GP_DLG=[['pinDlg','pinCancel'],['mgr','mgrDone'],['entry','eSkip'],['settings','setCancel'],['hangarDlg','hgDone'],['scorep','scDone'],['uicfg','uiDone']];
+let gpDlg=null,gpFocus=null,gpRep={x:0,y:0,nx:0,ny:0},gw=null;
+const dot=c=>`<i class="gpdot ${c}"></i>`;
+function gpActiveDlg(){for(const[id,close]of GP_DLG){const el=document.getElementById(id);if(el&&!el.hidden)return{el,close};}return null;}
+const visible=e=>!e.disabled&&!e.closest('[hidden]')&&e.offsetParent!==null&&e.type!=='hidden';
+function gpItems(d){return[...d.el.querySelectorAll('button,input,select,textarea')].filter(visible);}
+function gpSetFocus(e){if(gpFocus&&gpFocus!==e)gpFocus.classList.remove('gpfocus');gpFocus=e||null;if(e){e.classList.add('gpfocus');try{e.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_){}}}
+function gpMove(dl){const d=gpActiveDlg();if(!d)return;const l=gpItems(d);if(!l.length)return;let i=l.indexOf(gpFocus);i=i<0?0:(i+dl+l.length)%l.length;gpSetFocus(l[i]);tone('triangle',880,900,.04,.025);}
+const textLike=e=>e.tagName==='TEXTAREA'||(e.tagName==='INPUT'&&['text','url','email','password','number','search','tel',''].includes(e.type));
+function hexHue(h,deg){const n=parseInt(h.slice(1),16);let r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let H=0,S=0;
+  if(mx!==mn){const d=mx-mn;S=l>.5?d/(2-mx-mn):d/(mx+mn);H=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;H*=60;}H=(H+deg+360)%360;if(S<.15)S=.6;
+  const k=x=>{const q=(x+H/30)%12,a=S*Math.min(l,1-l);return Math.round(255*(l-a*Math.max(-1,Math.min(q-3,9-q,1))));};return'#'+[k(0),k(8),k(4)].map(v=>v.toString(16).padStart(2,'0')).join('');}
+function gpAdjust(dir){const e=gpFocus;if(!e){gpMove(dir);return;}
+  if(e.type==='range'){const st=+e.step||1,mn=+e.min||0,mx=+e.max||100,inc=st*Math.max(1,Math.round((mx-mn)/st/40));e.value=String(Math.max(mn,Math.min(mx,+e.value+dir*inc)));e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));return;}
+  if(e.tagName==='SELECT'){e.selectedIndex=Math.max(0,Math.min(e.options.length-1,e.selectedIndex+dir));e.dispatchEvent(new Event('change',{bubbles:true}));return;}
+  if(e.type==='color'){e.value=hexHue(e.value,dir*20);e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));return;}
+  gpMove(dir);}
+function gpActivate(){const e=gpFocus;if(!e)return;if(textLike(e)){gwOpen(e);return;}if(e.type==='range'||e.type==='color'||e.tagName==='SELECT')return;e.click();tone('triangle',660,990,.07,.04);}
+function gpClose(d){const b=document.getElementById(d.close);if(b&&!b.hidden)b.click();}
+/* letter wheel */
+function gwChars(e){if(e.type==='number'||e.inputMode==='numeric'||/0-9\]\*?$/.test(e.pattern||''))return'0123456789'.split('');
+  if(e.type==='url'||e.type==='email')return'abcdefghijklmnopqrstuvwxyz0123456789.:/-_?=&%#@+~'.split('');
+  return'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -'.split('');}
+function gwOpen(e){const ch=gwChars(e),lab=(e.closest('label')&&e.closest('label').querySelector('span'))||null;
+  gw={e,ch,i:0,text:String(e.value||''),max:e.maxLength>0?e.maxLength:80};const last=gw.text.slice(-1);const li=ch.indexOf(last);if(li>=0)gw.i=li;
+  document.getElementById('gwLabel').textContent=(lab?lab.textContent:e.getAttribute('aria-label')||e.placeholder||(LANG==='en'?'TEXT':'TEKST')).toUpperCase();
+  const en=LANG==='en';document.getElementById('gwHelp').innerHTML=(en?'Joystick ▲▼ choose · ':'Joystick ▲▼ kiezen · ')+dot('w')+(en?'add':'toevoegen')+' · '+dot('r')+(en?'delete':'wissen')+'<br>'+dot('g')+(en?'done':'klaar')+' · '+dot('b')+(en?'cancel':'annuleren');
+  document.getElementById('gpWheel').hidden=false;gwRender();}
+function gwRender(){if(!gw)return;const show=gw.e.type==='password'?'•'.repeat(gw.text.length):gw.text;const t=document.getElementById('gwText');t.textContent=show;const c=document.createElement('i');c.textContent=' ';t.appendChild(c);
+  const r=document.getElementById('gwRoll');r.textContent='';const n=gw.ch.length;for(let d=-3;d<=3;d++){const s=document.createElement('span');const k=gw.ch[(gw.i+d+n*4)%n];s.textContent=k===' '?'␣':k;s.className=d===0?'c':'n'+Math.abs(d);r.appendChild(s);}}
+function gwRoll(d){if(!gw)return;gw.i=(gw.i+d+gw.ch.length)%gw.ch.length;gwRender();tone('square',1200,1180,.02,.015);}
+function gwAdd(){if(!gw||gw.text.length>=gw.max)return;gw.text+=gw.ch[gw.i];gwRender();tone('triangle',700,1100,.06,.04);}
+function gwDel(){if(!gw)return;gw.text=gw.text.slice(0,-1);gwRender();tone('triangle',500,300,.06,.04);}
+function gwClose(ok){if(!gw)return;const e=gw.e;if(ok){e.value=gw.text;e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));}
+  gw=null;document.getElementById('gpWheel').hidden=true;if(ok&&e.id==='naam'){const f=e.form;if(f&&e.value.trim()){if(f.requestSubmit)f.requestSubmit();else f.submit();}}}
+/* coloured buttons: returns true when the press was used by a menu */
+function gpButton(k){
+  if(gw){if(k==='fire')gwAdd();else if(k==='laser')gwDel();else if(k==='bomb')gwClose(true);else if(k==='shield')gwClose(false);return true;}
+  const d=gpActiveDlg();
+  if(d){if(k==='fire')gpActivate();else if(k==='laser')gpClose(d);return true;}
+  const playing=state==='play'||state==='dying';
+  if(!playing&&state!=='name'){if(k==='nuke'){openHangar();return true;}if(k==='bomb'){openScores();return true;}if(k==='shield'){openUI();return true;}if(k==='laser')return true;}
+  return false;}
+/* joystick repeat for menus and the wheel */
+function gpAxis(v,key,act){const now=performance.now(),dir=v>.55?1:v<-.55?-1:0;
+  if(dir!==gpRep[key]){gpRep[key]=dir;if(dir){act(dir);gpRep['n'+key]=now+380;}}
+  else if(dir&&now>gpRep['n'+key]){act(dir);gpRep['n'+key]=now+(gw?90:150);}}
+setInterval(()=>{const on=gpMode(),hint=document.getElementById('gpHint');
+  if(!on){if(gpFocus)gpSetFocus(null);hint.hidden=true;return;}
+  if(gw){gpAxis(gpj.y,'y',d=>gwRoll(d));gpAxis(gpj.x,'x',d=>d>0?gwAdd():gwDel());hint.hidden=true;return;}
+  const d=gpActiveDlg();
+  if(!d){if(gpFocus)gpSetFocus(null);gpDlg=null;hint.hidden=true;return;}
+  if(!gpDlg||gpDlg.el!==d.el||!gpFocus||!d.el.contains(gpFocus)||!visible(gpFocus)){gpDlg=d;const l=gpItems(d);gpSetFocus(l[0]||null);}
+  const en=LANG==='en';hint.innerHTML=(en?'Joystick ▲▼ choose · ◀▶ adjust · ':'Joystick ▲▼ kiezen · ◀▶ schuiven · ')+dot('w')+(en?'select':'selecteren')+' · '+dot('r')+(en?'back':'terug');hint.hidden=false;
+  gpAxis(gpj.y,'y',dir=>gpMove(dir));gpAxis(gpj.x,'x',dir=>gpAdjust(dir));},60);
+/* canvas legend while not playing */
+function drawGpLegend(){const playing=state==='play'||state==='dying';if(playing||state==='name')return;const en=LANG==='en';
+  const items=[['#f4f4f8',state==='intro'?(en?'SKIP':'OVERSLAAN'):state==='scores'?(en?'CONTINUE':'VERDER'):'START',true],['#ffd23f','HANGAR'],['#36d17a','SCORES'],['#3f8cff','CONFIG']];
+  ctx.font=SMALL;const gap=7,r=3.6;let w=0;const ws=items.map(([,l])=>ctx.measureText(l).width+r*2+3);w=ws.reduce((a,b)=>a+b,0)+gap*(items.length-1);
+  const y=H-11;let x=W/2-w/2;ctx.fillStyle='rgba(6,7,15,.78)';rr(x-6,y-6.5,w+12,13,6.5);ctx.fill();
+  items.forEach(([c,l,blink],i)=>{const pul=blink?.55+.45*Math.abs(Math.sin(frame*.09)):1;ctx.globalAlpha=pul;ctx.fillStyle=c;ctx.beginPath();ctx.arc(x+r,y,r*(blink?1+.12*Math.sin(frame*.09):1),0,7);ctx.fill();
+    ctx.globalAlpha=1;text(l,x+r*2+3,y-3.4,blink?'#ffffff':'#c9cdf0','left',SMALL);x+=ws[i]+gap;});}
+
 function input(){
   const kx=(keys.arrowright||keys.d?1:0)-(keys.arrowleft||keys.a?1:0),ky=(keys.arrowdown||keys.s?1:0)-(keys.arrowup||keys.w?1:0);
   const rj=Math.hypot(gpj.rx,gpj.ry),fire=!!(keys.z||keys[' ']||keys.j||touch.fire||gp.fire||(rj>.5&&gpj.ry<.5));
@@ -2129,7 +2216,7 @@ function drawHUD(){
   if(state==='intro'){
     text(T('INTRO'),5,2.5,'#ff5fa8');
     for(let i=0;i<5;i++){const c=i<4?STAGES[i].hud:'#ff5fa8';ctx.fillStyle=i<=introSeg?c:'#1a1d33';rr(5+i*21,14,19,6,1.5);ctx.fill();}
-    {const msg=matchMedia('(pointer:coarse)').matches?T('TIK OM OVER TE SLAAN'):T('DRUK OP VUUR OM OVER TE SLAAN');ctx.font=SMALL;const tw=Math.ceil(ctx.measureText(msg).width)+8,x1=W-6,x0=x1-tw;
+    if(!gpMode()){const msg=matchMedia('(pointer:coarse)').matches?T('TIK OM OVER TE SLAAN'):T('DRUK OP VUUR OM OVER TE SLAAN');ctx.font=SMALL;const tw=Math.ceil(ctx.measureText(msg).width)+8,x1=W-6,x0=x1-tw;
       const al=.55+.45*Math.abs(Math.sin(frame*.05));ctx.globalAlpha=al;ctx.fillStyle='rgba(20,23,48,.9)';rr(x0,6.2,tw,9.4,4.7);ctx.fill();ctx.strokeStyle='rgba(141,147,189,.55)';ctx.lineWidth=.4;ctx.stroke();
       text(msg,x0+tw/2,8,'#c9cdf0','center',SMALL);ctx.globalAlpha=1;}
     return;}
@@ -2203,7 +2290,7 @@ function draw(){
   drawHUD();
   if(state==='scores'||(state==='title'&&Math.floor(titleIdle/300)%3===1)){
     if(state==='scores')drawBoard(boardView.src,boardView.per,true);else{const cb=attractBoards(),v=cb[Math.floor(titleIdle/900)%cb.length];drawBoard(v.src,v.per,false);}
-    if((frame|0)%60<38)text(state==='scores'?T('DRUK OP VUUR OM VERDER TE GAAN'):(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN')),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
+    if(!gpMode()&&(frame|0)%60<38)text(state==='scores'?T('DRUK OP VUUR OM VERDER TE GAAN'):(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN')),W/2,181+(H-200)/2,'#eef1ff','center',MID);}
   else if(state==='title'&&!(bonusOn&&Math.floor(titleIdle/300)%3===2)){
     ctx.fillStyle='rgba(4,6,15,.74)';ctx.fillRect(0,TOP,W,H-TOP);
     ctx.save();ctx.translate((W-320)/2,(H-200)/2);
@@ -2213,9 +2300,10 @@ function draw(){
     rows.forEach(([t,s,c],i)=>{const y=75+i*12.7;{const k=t==='core'?.2:.8,cy=y-4;ctx.save();ctx.translate(104,cy);ctx.scale(k,k);ctx.translate(-104,-cy);if(t==='saucer'||t==='missile')drawEnemy({t,y:y-5,vx:-1,vy:0,warn:0},104);else drawObj({t,y,launched:false},104);ctx.restore();}text(s,124,y-9,c,'left',HUDF);});
     {const y=75+6*12.7;trefoil(104,y-5.4,3.8,true);text(`NUKE  ·  ${cfg.nukes} ${T('PER RONDE')}  ·  ${T('NODIG VOOR DE BASIS')}`,124,y-9,'#d7ff3f','left',HUDF);}
     {const y=75+7*12.7;ctx.save();ctx.translate(104,y-5.6);ctx.scale(1.15,1.15);shieldIcon(0,0,true);ctx.restore();text(`${T('SCHILD')}  ·  ${cfg.shields} ${T('PER RONDE')}  ·  ${cfg.shieldSec} SEC`,124,y-9,'#5fe6ff','left',HUDF);}
-    if((frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN'),160,180,'#eef1ff','center',MID);
+    if(!gpMode()&&(frame|0)%60<38)text(matchMedia('(pointer:coarse)').matches?T('TIK OP VUUR OM TE STARTEN'):T('DRUK OP VUUR OM TE STARTEN'),160,180,'#eef1ff','center',MID);
     ctx.restore();
   }
+  if(gpMode())drawGpLegend();
   if(banner&&state==='play'){panel(84,banner.sub?30:20,150);text(banner.text,W/2,89,'#eef1ff','center',MID);if(banner.sub)text(banner.sub,W/2,101,'#ffb23e','center',SMALL);}
   if(state==='name'){ctx.fillStyle='rgba(4,6,15,.6)';ctx.fillRect(0,TOP,W,H-TOP);}
   if(state==='over'){const ce=lastEarned>0||!!playerName();panel(84,ce?50:40,ce?230:190);text(T('SPEL VOORBIJ'),W/2,89,'#ff5fa8','center',BIG);text(score>=hi&&score>0?T('NIEUWE TOPSCORE'):`SCORE ${pad6(score)}`,W/2,110,'#ffd84f','center',HUDF);
