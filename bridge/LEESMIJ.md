@@ -8,7 +8,8 @@ Ook serveert hij het spel zelf op **poort 6002**.
 1. Installeer Node.js (versie 16 of nieuwer) via https://nodejs.org als dat nog niet op de computer staat.
 2. Zet deze map op de computer die de UDP-berichten van de controller ontvangt.
 3. Windows: dubbelklik `start-windows.bat`. Mac/Linux: `./start-mac-linux.sh`.
-4. Open het spel:
+4. Het spel opent vanzelf in je browser op http://localhost:6002 (gebruik `--no-open` als je dat niet wilt).
+   Open het spel:
    - op die computer: http://localhost:6002
    - op een telefoon of tablet in hetzelfde netwerk: http://<ip-adres-van-die-computer>:6002
      (het adres staat in het venster van de bridge)

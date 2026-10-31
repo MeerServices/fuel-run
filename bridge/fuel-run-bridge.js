@@ -13,6 +13,7 @@
   Start:   node fuel-run-bridge.js
   Options: --udp 6001   UDP port of the controller
            --port 6002  web + WebSocket port for the game
+           --no-open    do not open the game in the browser automatically
   No extra packages needed (Node.js 16 or newer).
 */
 const dgram = require('dgram'), http = require('http'), https = require('https'), crypto = require('crypto'),
@@ -59,7 +60,7 @@ udp.on('message', (msg, from) => {
   last = text;
   broadcast(text);
 });
-udp.on('error', e => { console.error('[udp] ' + e.message); process.exit(1); });
+udp.on('error', e => { console.error('[udp] ' + e.message + (e.code === 'EADDRINUSE' ? ' (port ' + UDP_PORT + ' is already in use, is the bridge already running?)' : '')); });
 udp.bind(UDP_PORT, '0.0.0.0', () => { try { udp.setBroadcast(true); } catch (e) {} console.log(`[udp] listening on port ${UDP_PORT}`); });
 
 /* ---------- serve the game ---------- */
@@ -89,5 +90,17 @@ web.listen(WEB_PORT, '0.0.0.0', () => {
   const ips = Object.values(os.networkInterfaces()).flat().filter(i => i && i.family === 'IPv4' && !i.internal).map(i => i.address);
   console.log(`[web] game:  http://localhost:${WEB_PORT}` + ips.map(ip => `   http://${ip}:${WEB_PORT}`).join(''));
   console.log(`[web] or connect the game to  ws://localhost:${WEB_PORT}  (CONFIG > Controller)`);
+  if (!process.argv.includes('--no-open')) openBrowser(`http://localhost:${WEB_PORT}`);
 });
+web.on('error', e => {
+  if (e.code === 'EADDRINUSE') {  // the bridge is probably already running: just open the game
+    console.log(`[web] port ${WEB_PORT} is already in use (is the bridge already running?). Opening the game.`);
+    openBrowser(`http://localhost:${WEB_PORT}`);
+  } else console.error('[web] ' + e.message);
+});
+function openBrowser(url) {
+  const { exec } = require('child_process');
+  const cmd = process.platform === 'win32' ? `start "" "${url}"` : process.platform === 'darwin' ? `open "${url}"` : `xdg-open "${url}"`;
+  exec(cmd, err => { if (err) console.log(`[web] open ${url} in your browser`); else console.log(`[web] opened ${url} in your browser`); });
+}
 setInterval(() => broadcast('{"ping":1}'), 15000);
