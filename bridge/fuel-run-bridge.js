@@ -80,7 +80,10 @@ const web = http.createServer(async (req, res) => {
   try {
     let body;
     if (fs.existsSync(local) && fs.statSync(local).isFile()) body = fs.readFileSync(local);  // a copy next to this file wins
-    else { if (!cache[p]) cache[p] = await fetchSite(p); body = cache[p]; }                    // otherwise the online version
+    else {                                                                                   // otherwise the newest online version
+      try { cache[p] = await fetchSite(p); } catch (e) { if (!cache[p]) throw e; }           // offline: use the last copy we had
+      body = cache[p];
+    }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(body);
   } catch (e) { res.writeHead(404, { 'Content-Type': 'text/plain' }); res.end('Not found: ' + p + ' (' + e.message + ')'); }
