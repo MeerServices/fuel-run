@@ -46,7 +46,7 @@ html.land .btn{opacity:.6}
 html.modal .pad{visibility:hidden}
 html.land.modal header{display:none}
 .entry{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:8px;background:rgba(4,6,15,.55);border-radius:8px}
-.entry form{background:var(--panel);border:1px solid var(--rim);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(100%,300px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.entry form{background:var(--panel);border:1px solid var(--rim);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(100%,360px);box-sizing:border-box;box-shadow:0 10px 30px rgba(0,0,0,.5)}
 .entry h2{font-family:var(--display);font-weight:400;font-size:15px;margin:0;color:var(--amber);letter-spacing:.06em;text-align:center}
 .entry p{font-size:13px;color:var(--dim);margin:0;text-align:center;font-variant-numeric:tabular-nums}
 .entry p b{color:var(--ink)}
@@ -176,6 +176,7 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .ib-ver{font-size:11px!important;opacity:.55;margin:12px 0 6px;text-align:center}
 @media (max-width:440px){.ib-pad{grid-template-columns:1fr}}
 .prepname{z-index:9;background:rgba(4,6,15,.35)}.prepname form{max-width:360px}
+:root.gpmode .entry form{gap:10px;padding:14px 16px}:root.gpmode .entry h2{font-size:17px}:root.gpmode .entry p,:root.gpmode .entry label{font-size:14px}:root.gpmode .entry button{font-size:13px;padding:11px 8px}
 #prep_name{font-family:var(--display);font-size:18px;letter-spacing:.12em;text-transform:uppercase}
 .fxv{display:flex;align-items:center;gap:10px;min-width:0}.fxv input{flex:1;min-width:0;accent-color:#3fe0d0}.fxv output{font-family:var(--display);font-size:11px;color:var(--dim);min-width:3.2em;text-align:right}
 .shop{display:flex;flex-direction:column;gap:8px}
@@ -376,7 +377,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🪙</i><span data-i18n="Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.">Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.</span></li>
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
-      <p class="hint ver ib-ver">Versie 66 · aparte sliders voor vliegtuiggeluid en startbasis, vliegen tot helemaal rechts</p>
+      <p class="hint ver ib-ver">Versie 67 · high score invoer even groot als de naamkeuze bij de start (gamepad)</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
