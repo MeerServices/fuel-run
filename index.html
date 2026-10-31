@@ -424,7 +424,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 72 · VIPWARE-badge opent de info</p>
+      <p class="hint ver ib-ver">Versie 73 · vleugelkleur wordt bewaard</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -1476,7 +1476,7 @@ const walletW=(n,fields,mask,tr,exists)=>({update:{name:WDOC(n),fields:{name:{st
 function wDecode(doc){const f=doc.fields||{},cm=f.colors&&f.colors.mapValue&&f.colors.mapValue.fields||{},im=f.items&&f.items.mapValue&&f.items.mapValue.fields||{};
   return{name:cleanName((f.name||{}).stringValue||''),points:fInt(f.points),games:fInt(f.games),spent:fInt(f.spent),unlocked:!!(f.unlocked||{}).booleanValue,
     items:okItems(Object.fromEntries(Object.keys(im).map(k=>[k,im[k].booleanValue===true]))),model:(cm.model||{}).stringValue==='b'?'b':'a',
-    colors:okCols(Object.fromEntries(Object.keys(cm).map(k=>[k,cm[k].stringValue])))};}
+    colors:okCols(Object.fromEntries(Object.keys(cm).map(k=>[k,cm[k].stringValue]))),hasWing:!!cm.wing};}
 async function fbWalletGet(n){const r=await fetch(FBURL+'/wallets/'+encodeURIComponent(n));if(r.status===404)return null;if(!r.ok)throw new Error('fb '+r.status);return wDecode(await r.json());}
 async function fbPlayers(){if(!WONLINE)return;try{const r=await fetch(FBURL+':runQuery',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({structuredQuery:{from:[{collectionId:'wallets'}],orderBy:[{field:{fieldPath:'points'},direction:'DESCENDING'}],limit:50}})});
@@ -1493,14 +1493,14 @@ function syncWallet(n,extra){if(!WONLINE||!n)return Promise.resolve();const run=
         try{await fbCommit([ownerW(n,code),walletW(n,{},[],[{fieldPath:'points',increment:{integerValue:String(k)}},{fieldPath:'games',increment:{integerValue:String(g)}}])]);
           w.pp-=k;w.pg-=g;srv=await fbWalletGet(n);}
         catch(e){/* too soon after the previous write, or offline: try again later */}}}
-    if(srv){w.points=srv.points+w.pp;w.games=srv.games+w.pg;w.spent=srv.spent;w.unlocked=srv.unlocked;w.items=srv.items;if(ownsW(srv,'colors'))w.colors=srv.colors;if(ownsW(srv,'ship'))w.model=srv.model;}
+    if(srv){w.points=srv.points+w.pp;w.games=srv.games+w.pg;w.spent=srv.spent;w.unlocked=srv.unlocked;w.items=srv.items;if(ownsW(srv,'colors')&&!colDirty[n]){const lw=w.colors&&w.colors.wing;w.colors=srv.colors;if(!srv.hasWing&&lw)w.colors={...w.colors,wing:lw};}if(ownsW(srv,'ship'))w.model=srv.model;}
     w.st=!code?'nocode':codeOK[n]===false?'locked':w.pg>0?'wait':'ok';}
   catch(e){w.st='off';}
   saveWallet();if(n===playerName()){applyOwned();if(hgOpen)renderHangar();}if(scOpen&&scView.src==='frc')fbPlayers();};
   return wQ[n]=(wQ[n]||Promise.resolve()).then(run,run);}
-let colTimer=0;
-function pushColors(n){if(!WONLINE)return;clearTimeout(colTimer);colTimer=setTimeout(()=>syncWallet(n,async(w,srv,code)=>{if(!srv||!(ownsW(srv,'colors')||ownsW(srv,'ship')))return;
-  await fbCommitCol(()=>[ownerW(n,code),walletW(n,{colors:colFields(w.colors,w.model)},['colors'],[],true)]);}),900);}
+let colTimer=0;const colDirty={};  // name -> colours changed here and not yet saved online
+function pushColors(n){if(!WONLINE)return;colDirty[n]=true;clearTimeout(colTimer);colTimer=setTimeout(()=>syncWallet(n,async(w,srv,code)=>{if(!srv||!(ownsW(srv,'colors')||ownsW(srv,'ship')))return;
+  await fbCommitCol(()=>[ownerW(n,code),walletW(n,{colors:colFields(w.colors,w.model)},['colors'],[],true)]);colDirty[n]=false;}).finally(()=>{colDirty[n]=false;}),900);}
 async function fbCommitCol(mk){try{await fbCommit(mk());}catch(e){if(e.status===403&&wingOK){wingOK=false;await fbCommit(mk());}else throw e;}}
 if(WONLINE){const n=playerName();if(n)syncWallet(n);setInterval(()=>{const n=playerName(),w=n&&wallet[n];if(w&&w.pg>0&&!document.hidden)syncWallet(n);},60000);}
 
