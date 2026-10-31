@@ -158,7 +158,12 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .gw-roll span{font-family:var(--display);line-height:1;transition:transform .12s,opacity .12s;color:var(--dim)}
 .gw-roll span.c{font-size:44px;color:#ffd84f;padding:8px 0;border-top:1px solid #ffd84f55;border-bottom:1px solid #ffd84f55;width:100%;text-align:center}
 .gw-roll span.n1{font-size:26px;opacity:.75}.gw-roll span.n2{font-size:18px;opacity:.45}.gw-roll span.n3{font-size:13px;opacity:.25}
-.gw-help{font-size:15px;color:var(--dim);text-align:center;line-height:1.7}
+.gw-help{font-size:15px;color:var(--dim);text-align:center;line-height:1.7;width:100%}
+.gw-btns{display:flex;gap:12px;width:100%;margin-top:6px}.gw-btns button{font-family:var(--display);letter-spacing:.08em;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.gw-ok{flex:2;font-size:26px;padding:16px 12px;background:#ff4b5c;color:#fff;border:3px solid #ffd0d5;box-shadow:0 0 22px rgba(255,75,92,.55),inset 0 -4px 0 rgba(0,0,0,.25);animation:gwok 1.2s ease-in-out infinite}
+.gw-ok .gpdot{width:1em;height:1em;background:#fff;box-shadow:0 0 0 4px #b8202f}
+.gw-cancel{flex:1;font-size:15px;padding:12px 8px;background:#152448;color:#cfe0ff;border:2px solid #3f8cff}
+@keyframes gwok{50%{box-shadow:0 0 34px rgba(255,75,92,.9),inset 0 -4px 0 rgba(0,0,0,.25)}}
 .brand h1{cursor:pointer}.brand h1:hover,.brand h1:focus-visible{text-shadow:2px 2px 0 #5a1640,0 0 14px rgba(255,79,163,.7);outline:none}
 .infodlg form{background:linear-gradient(180deg,#141632,#0b0c20);border:1px solid #ff4fa3;box-shadow:0 0 0 1px #3fe0d055 inset,0 0 30px rgba(255,79,163,.25);position:relative;overflow:auto}
 .infodlg form::before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);border-radius:inherit}
@@ -377,7 +382,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🪙</i><span data-i18n="Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.">Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.</span></li>
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
-      <p class="hint ver ib-ver">Versie 67 · high score invoer even groot als de naamkeuze bij de start (gamepad)</p>
+      <p class="hint ver ib-ver">Versie 68 · grote rode KLAAR-knop in het letterwiel (gamepad)</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -843,10 +848,11 @@ function gwChars(e){if(e.type==='number'||e.inputMode==='numeric'||/0-9\]\*?$/.t
 function gwOpen(e){const ch=gwChars(e),lab=(e.closest('label')&&e.closest('label').querySelector('span'))||null;
   gw={e,ch,i:0,text:String(e.value||''),max:e.maxLength>0?e.maxLength:80};const last=gw.text.slice(-1);const li=ch.indexOf(last);if(li>=0)gw.i=li;
   document.getElementById('gwLabel').textContent=(lab?lab.textContent:e.getAttribute('aria-label')||e.placeholder||(LANG==='en'?'TEXT':'TEKST')).toUpperCase();
-  const en=LANG==='en';document.getElementById('gwHelp').innerHTML=(en?'Joystick ▲▼ choose · ':'Joystick ▲▼ kiezen · ')+dot('w')+(en?'add':'toevoegen')+' · '+dot('g')+(en?'delete':'wissen')+'<br>'+dot('r')+'<b>'+(en?'DONE':'KLAAR')+'</b> · '+dot('b')+(en?'cancel':'annuleren');
+  const en=LANG==='en';document.getElementById('gwHelp').innerHTML=(en?'Joystick ▲▼ choose · ':'Joystick ▲▼ kiezen · ')+dot('w')+(en?'add':'toevoegen')+' · '+dot('g')+(en?'delete':'wissen')+'<div class="gw-btns"><button type="button" class="gw-ok" data-gw="ok">'+dot('r')+(en?'DONE':'KLAAR')+'</button><button type="button" class="gw-cancel" data-gw="no">'+dot('b')+(en?'CANCEL':'ANNULEREN')+'</button></div>';
   document.getElementById('gpWheel').hidden=false;gwRender();}
 function gwRender(){if(!gw)return;const show=gw.e.type==='password'?'•'.repeat(gw.text.length):gw.text;const t=document.getElementById('gwText');t.textContent=show;const c=document.createElement('i');c.textContent=' ';t.appendChild(c);
   const r=document.getElementById('gwRoll');r.textContent='';const n=gw.ch.length;for(let d=-3;d<=3;d++){const s=document.createElement('span');const k=gw.ch[(gw.i+d+n*4)%n];s.textContent=k===' '?'␣':k;s.className=d===0?'c':'n'+Math.abs(d);r.appendChild(s);}}
+document.getElementById('gwHelp').addEventListener('click',e=>{const b=e.target.closest('[data-gw]');if(b)gwClose(b.dataset.gw==='ok');});
 function gwRoll(d){if(!gw)return;gw.i=(gw.i+d+gw.ch.length)%gw.ch.length;gwRender();tone('square',1200,1180,.02,.015);}
 function gwAdd(){if(!gw||gw.text.length>=gw.max)return;gw.text+=gw.ch[gw.i];gwRender();tone('triangle',700,1100,.06,.04);}
 function gwDel(){if(!gw)return;gw.text=gw.text.slice(0,-1);gwRender();tone('triangle',500,300,.06,.04);}
