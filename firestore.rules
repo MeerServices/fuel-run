@@ -61,7 +61,7 @@ service cloud.firestore {
     match /config/{doc} {
       allow read: if true;
       allow write: if getAfter(/databases/$(database)/documents/admin/key).data.t == request.time
-        && ((doc == 'site' && request.resource.data.keys().hasOnly(['order', 'eur'])
+        && ((doc == 'site' && request.resource.data.keys().hasOnly(['order', 'eur', 'packs', 'pay'])
               && request.resource.data.order is list && request.resource.data.order.size() <= 10
               && request.resource.data.eur is map && request.resource.data.eur.size() <= 10)
           || (doc == 'ipkey' && request.resource.data.keys().hasOnly(['k'])
@@ -88,7 +88,7 @@ service cloud.firestore {
       }
       function okWallet() {
         let d = request.resource.data;
-        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'items', 'at', 'coins'])
+        return d.keys().hasOnly(['name', 'points', 'games', 'spent', 'unlocked', 'colors', 'items', 'at', 'coins', 'bonus', 'paid'])
           && d.name == name && d.points is int && d.games is int && d.at == request.time
           && d.get('spent', 0) is int && d.get('spent', 0) >= 0
           && (!('colors' in d) || (d.colors is map
@@ -129,6 +129,16 @@ service cloud.firestore {
                 || bought('laser', 750) || bought('emp', 1000)))
           // kleuren of scheepsmodel aanpassen
           || (changed().hasOnly(['colors', 'at']) && mayStyle()));
+      // betaald met Mollie: alleen de betaalserver (met de beheercode) mag dit boeken,
+      // per betaling precies één keer
+      allow update: if getAfter(/databases/$(database)/documents/admin/key).data.t == request.time
+        && changed().hasOnly(['bonus', 'items', 'paid'])
+        && request.resource.data.get('bonus', 0) is int
+        && request.resource.data.get('bonus', 0) >= resource.data.get('bonus', 0)
+        && request.resource.data.get('bonus', 0) <= resource.data.get('bonus', 0) + 100000
+        && request.resource.data.paid is map
+        && request.resource.data.paid.size() == resource.data.get('paid', {}).size() + 1
+        && (!('items' in request.resource.data) || request.resource.data.items.keys().hasOnly(['colors', 'name', 'ship', 'laser', 'emp']));
       allow delete: if false;
     }
   }
