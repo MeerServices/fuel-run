@@ -143,6 +143,7 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 #udpMsg.ok{color:#8be39b}#udpMsg.err{color:#ff7a9a}
 :root.gpmode .settings input:not([type=checkbox]):not([type=range]):not([type=color]),:root.gpmode .settings select,:root.gpmode .entry input{font-size:20px!important;padding:9px 10px!important}
 :root.gpmode .gphint{font-size:15px}
+.gphint.inl{position:sticky;bottom:0;left:auto;transform:none;margin-top:12px;display:block;text-align:center;border-radius:8px;white-space:normal;max-width:none;z-index:2;line-height:1.8}
 .gpfocus{outline:3px solid #ffd84f!important;outline-offset:2px;box-shadow:0 0 0 6px rgba(255,216,79,.22)!important;border-radius:6px}
 .gpdot{display:inline-block;width:.95em;height:.95em;border-radius:50%;vertical-align:-.12em;margin:0 .3em 0 .1em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
 .gpdot.w{background:#f4f4f8}.gpdot.r{background:#ff4b5c}.gpdot.g{background:#36d17a}.gpdot.b{background:#3f8cff}.gpdot.y{background:#ffd23f}
@@ -366,7 +367,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 55 · letterwiel groter, rode knop is klaar</p>
+  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 56 · bedieningsuitleg onderaan in het menuvenster zelf</p>
 </div>
 
 <div class="install" id="install" hidden role="dialog" aria-labelledby="instTitle">
@@ -793,7 +794,9 @@ setInterval(()=>{const on=gpMode(),hint=document.getElementById('gpHint');rootEl
   if(gw){gpAxis(gpj.y,'y',d=>gwRoll(d));gpAxis(gpj.x,'x',d=>d>0?gwAdd():gwDel());hint.hidden=true;return;}
   const d=gpActiveDlg();
   if(!d){if(gpFocus)gpSetFocus(null);gpDlg=null;hint.hidden=true;return;}
+  if(hint.closest('[hidden]')&&hint.parentNode!==document.body)document.body.appendChild(hint);
   if(!gpDlg||gpDlg.el!==d.el||!gpFocus||!d.el.contains(gpFocus)||!visible(gpFocus)){gpDlg=d;const l=gpItems(d);gpSetFocus(l[0]||null);}
+  const host=d.el.querySelector('form')||d.el;if(hint.parentNode!==host||host.lastElementChild!==hint){host.appendChild(hint);hint.classList.add('inl');}
   const en=LANG==='en';hint.innerHTML=(en?'Joystick ▲▼ choose · ◀▶ adjust · ':'Joystick ▲▼ kiezen · ◀▶ schuiven · ')+dot('w')+(en?'select':'selecteren')+' · '+dot('r')+(en?'done':'klaar');hint.hidden=false;
   gpAxis(gpj.y,'y',dir=>gpMove(dir));gpAxis(gpj.x,'x',dir=>gpAdjust(dir));},60);
 /* canvas legend while not playing */
