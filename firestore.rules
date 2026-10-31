@@ -92,7 +92,7 @@ service cloud.firestore {
           && d.name == name && d.points is int && d.games is int && d.at == request.time
           && d.get('spent', 0) is int && d.get('spent', 0) >= 0
           && (!('colors' in d) || (d.colors is map
-              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame', 'model'])))
+              && d.colors.keys().hasOnly(['body', 'accent', 'glass', 'flame', 'wing', 'model'])))
           && (!('items' in d) || (d.items is map
               && d.items.keys().hasOnly(['colors', 'name', 'ship', 'laser', 'emp'])));
       }
