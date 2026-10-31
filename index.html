@@ -189,7 +189,7 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .namerow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;font-size:13px;color:var(--ink)}
 .namerow input{font-family:var(--display);font-size:15px;letter-spacing:.12em;text-transform:uppercase;background:#07081a;color:var(--ink);border:1px solid var(--rim);border-radius:4px;padding:6px 8px;min-width:0}
 .namerow input:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
-#shipPrev{width:100%;max-width:320px;height:auto;aspect-ratio:480/150;align-self:center;background:radial-gradient(ellipse at center,#1a1d3d,#07081a 70%);border:1px solid var(--rim);border-radius:6px}
+#shipPrev,#shipPrev3d{width:100%;max-width:320px;height:auto;aspect-ratio:480/150;align-self:center;background:radial-gradient(ellipse at center,#1a1d3d,#07081a 70%);border:1px solid var(--rim);border-radius:6px}
 .hangar .save,.hangar .skip{font-family:var(--display);font-size:11px;letter-spacing:.06em;padding:9px 8px;border-radius:4px;cursor:pointer}
 .hangar .save{background:#d7ff3f;color:#1d2408;border:1px solid #d7ff3f}.hangar .save:disabled{opacity:.45;cursor:not-allowed}
 .hangar .skip{background:transparent;color:var(--dim);border:1px solid var(--rim)}
@@ -372,7 +372,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🪙</i><span data-i18n="Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.">Elke 1000 punten is 1 FR-Coin. Koop er extra's mee in de HANGAR.</span></li>
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
-      <p class="hint ver ib-ver">Versie 61 · gedetailleerde toren, nuke uit de grond, radio bedient de muziek, straalmotor bij vertrek</p>
+      <p class="hint ver ib-ver">Versie 62 · draaiend 3D-schip in de hangar, Toccata standaard, spannende geluiden op de basis</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -871,7 +871,7 @@ let prep=null,prevPrepBomb=false,prevPrepAx=0;
 const PREP_T=72;  // frames per loading animation
 const PREPTXT={fire:['KOGELS','BULLETS','Z'],bomb:['BOMMEN','BOMBS','X'],nuke:['NUKE','NUKE','N'],shield:['SCHILD','SHIELD','V'],emp:['EMP','EMP','E'],laser:['SUPERLASER','SUPER LASER','L']};
 const PREPDOT={fire:'#f4f4f8',bomb:'#36d17a',nuke:'#ffd23f',shield:'#3f8cff',laser:'#ff4b5c',emp:'#9ad0ff'};
-function startPrep(){newGame();{const wx=scroll+p.x;let g=1e9;for(let dx=-27;dx<=27;dx+=3)g=Math.min(g,fAt(wx+dx));launchPad={wx,top:g-3};for(const o of objs)if(o.alive&&o.t!=='core'&&o.wx>wx-80&&o.wx<wx+40)o.alive=false;}const items=['fire','bomb','nuke','shield'];if(owns('emp'))items.push('emp');if(owns('laser'))items.push('laser');
+function startPrep(){if(muted){muted=false;try{localStorage.setItem('fuelrun.mute','0');}catch(e){}const sb=document.getElementById('ui_snd');if(sb)sb.checked=true;}baseAmb(true);newGame();{const wx=scroll+p.x;let g=1e9;for(let dx=-27;dx<=27;dx+=3)g=Math.min(g,fAt(wx+dx));launchPad={wx,top:g-3};for(const o of objs)if(o.alive&&o.t!=='core'&&o.wx>wx-80&&o.wx<wx+40)o.alive=false;}const items=['fire','bomb','nuke','shield'];if(owns('emp'))items.push('emp');if(owns('laser'))items.push('laser');
   prep={phase:playerName()?'load':'name',t:0,items,done:{},anim:{},radio:!muted,rt:0,lt:0,flash:0};state='prep';banner=null;
   if(prep.phase==='name')openPrepName();else tone('triangle',520,780,.18,.05);}
 function openPrepName(){const d=document.getElementById('prepName'),i=document.getElementById('prep_name');i.value='';d.hidden=false;if(!matchMedia('(pointer:coarse)').matches)setTimeout(()=>{try{i.focus();}catch(e){}},60);}
@@ -889,7 +889,33 @@ function jetSound(){if(!ac||muted)return;const t=ac.currentTime,out=ac.createGai
   for(const[f0,f1,v,d]of[[420,2600,.035,0],[630,3900,.02,7],[210,1300,.03,-5]]){const o=ac.createOscillator(),g=ac.createGain();o.type=f0===420?'sawtooth':'triangle';o.detune.value=d;
     o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+1.8);o.frequency.exponentialRampToValueAtTime(f1*.7,t+5.5);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+1);o.connect(g).connect(out);o.start(t);o.stop(t+6.1);}
   src.start(t);src.stop(t+6.1);}
-function prepSound(k){if(k==='fire'){for(let i=0;i<6;i++)setTimeout(()=>tone('square',1800,900,.03,.03),i*90);setTimeout(()=>tone('square',300,120,.12,.06),620);}
+/* launch base ambience: deep machine drone, ventilation hiss, radio chatter, sonar pings, distant klaxon */
+let amb=null;
+function hiss(dur,vol,f,type,t0){if(!ac)return;const t=(t0||ac.currentTime),s=ac.createBufferSource(),fl=ac.createBiquadFilter(),g=ac.createGain();s.buffer=windBuf();fl.type=type||'highpass';fl.frequency.value=f||3000;
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+dur);s.connect(fl).connect(g).connect(bus());s.start(t,Math.random());s.stop(t+dur+.05);}
+function sweep(type,f1,f2,dur,vol,t0){if(!ac)return;const t=(t0||ac.currentTime),o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(.05,dur/4));g.gain.setValueAtTime(vol,t+dur*.7);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g).connect(bus());o.start(t);o.stop(t+dur+.05);}
+function baseAmb(on){if(!on){if(amb){clearTimeout(amb.tm);try{const t=ac.currentTime;amb.out.gain.setTargetAtTime(0,t,.4);setTimeout(()=>{try{amb.nodes.forEach(n=>n.stop());}catch(e){}},2500);}catch(e){}amb=null;}return;}
+  ensureAudio();if(!ac||amb)return;const t=ac.currentTime,out=ac.createGain();out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(1,t+1.5);out.connect(bus());
+  const nodes=[];for(const[f,v]of[[46,.09],[69,.05],[92.5,.03]]){const o=ac.createOscillator(),g=ac.createGain(),lp=ac.createBiquadFilter();o.type='sawtooth';o.frequency.value=f;lp.type='lowpass';lp.frequency.value=180;g.gain.value=v;
+    const lfo=ac.createOscillator(),lg3=ac.createGain();lfo.frequency.value=.13+Math.random()*.1;lg3.gain.value=v*.5;lfo.connect(lg3).connect(g.gain);o.connect(lp).connect(g).connect(out);o.start();lfo.start();nodes.push(o,lfo);}
+  const n=ac.createBufferSource();n.buffer=windBuf();n.loop=true;const bp=ac.createBiquadFilter();bp.type='bandpass';bp.frequency.value=900;bp.Q.value=.4;const ng=ac.createGain();ng.gain.value=.035;n.connect(bp).connect(ng).connect(out);n.start();nodes.push(n);
+  amb={out,nodes,tm:0};
+  const ev=()=>{if(!amb||state!=='prep')return;const r=Math.random(),t2=ac.currentTime;
+    if(r<.4){for(let i=0;i<5+Math.random()*6;i++){const d=i*.07+Math.random()*.03;sweep('square',700+Math.random()*900,600+Math.random()*700,.05,.025,t2+d);}hiss(.5,.05,1400,'bandpass',t2);}   // radio chatter
+    else if(r<.65){sweep('sine',1250,1180,1.1,.07,t2);sweep('sine',1250,1180,.9,.03,t2+.35);}                                                         // sonar ping
+    else if(r<.85){hiss(.9,.07,2500,'highpass',t2);}                                                                                                   // hydraulic hiss
+    else{for(let i=0;i<3;i++){sweep('sawtooth',420,560,.32,.05,t2+i*.42);}}                                                                            // klaxon
+    amb.tm=setTimeout(ev,1300+Math.random()*1900);};amb.tm=setTimeout(ev,900);}
+function prepSound(k){const t=ac?ac.currentTime:0;if(!ac||muted)return;
+  if(k==='fire'){for(let i=0;i<8;i++){hiss(.06,.16,3500,'bandpass',t+i*.075);sweep('square',2200,900,.04,.06,t+i*.075);}hiss(.25,.2,900,'bandpass',t+.7);sweep('square',260,90,.18,.14,t+.72);hiss(.12,.22,1800,'bandpass',t+.95);sweep('square',180,70,.15,.14,t+.97);boom(.4,.12);return;}
+  if(k==='bomb'){sweep('sawtooth',110,420,.95,.12,t);sweep('square',55,140,.95,.06,t);hiss(.3,.15,2000,'bandpass',t+.95);sweep('square',600,160,.12,.16,t+.98);setTimeout(()=>boom(.35,.16),1000);return;}
+  if(k==='nuke'){hiss(.7,.18,2500,'highpass',t);sweep('sawtooth',80,320,1.1,.11,t+.1);for(let i=0;i<16;i++)sweep('square',2600+Math.random()*900,2200,.012,.08,t+i*.06+Math.random()*.03);
+    sweep('sine',220,220,.5,.1,t+.5);sweep('sine',165,165,.5,.1,t+.75);setTimeout(()=>{boom(.9,.2);sweep('sine',70,35,.9,.2);},1150);return;}
+  if(k==='shield'){sweep('sine',180,1600,.9,.14,t);sweep('triangle',360,3200,.9,.07,t+.05);sweep('sawtooth',90,90,1,.04,t);hiss(.4,.1,6000,'highpass',t+.85);sweep('sine',2400,4800,.25,.1,t+.9);return;}
+  if(k==='emp'){sweep('sawtooth',50,50,1.1,.12,t);sweep('square',100,100,1.1,.04,t);for(let i=0;i<14;i++){hiss(.05,.22,4000+Math.random()*3000,'bandpass',t+i*.075+Math.random()*.03);}setTimeout(()=>{boom(.5,.15);sweep('sawtooth',1800,60,.6,.14);},1050);return;}
+  if(k==='laser'){sweep('sawtooth',90,2200,1.15,.1,t);sweep('sine',180,4400,1.15,.08,t);for(let i=0;i<6;i++)sweep('square',600+i*250,620+i*250,.06,.05,t+i*.17);setTimeout(()=>{sweep('square',1800,900,.22,.15);hiss(.3,.15,5000,'highpass');},1150);return;}}
+function prepSoundOld(k){if(k==='fire'){for(let i=0;i<6;i++)setTimeout(()=>tone('square',1800,900,.03,.03),i*90);setTimeout(()=>tone('square',300,120,.12,.06),620);}
   else if(k==='bomb'){tone('sawtooth',90,220,.6,.04);setTimeout(()=>tone('square',600,200,.08,.06),650);}
   else if(k==='nuke'){for(let i=0;i<10;i++)setTimeout(()=>tone('square',2400+Math.random()*800,2000,.012,.03),i*70+Math.random()*40);setTimeout(()=>tone('sine',60,40,.6,.08),700);}
   else if(k==='shield'){tone('sine',300,1200,.5,.06);tone('triangle',600,1800,.35,.03);}
@@ -906,7 +932,7 @@ function updatePrep(dt,inp){const P=prep;if(!P)return;P.t+=dt;P.flash=Math.max(0
     for(const k in P.anim){P.anim[k]+=dt;if(P.anim[k]>=PREP_T){delete P.anim[k];P.done[k]=true;P.flash=10;tone('triangle',990,1320,.08,.05);}}
     if(P.items.every(k=>P.done[k])){P.rt+=dt;if(P.rt>40){P.phase='radio';P.t=0;boom(.35,.05);}}
   }else if(P.phase==='radio'){
-    if(axEdge){P.radio=axEdge<0;boom(.18,.03);tone('square',P.radio?900:500,P.radio?900:500,.05,.04);}
+    if(axEdge){P.radio=axEdge<0;if(P.radio&&MUS.mood==='none'){MUS.mood='toccata';saveMus();}boom(.18,.03);tone('square',P.radio?900:500,P.radio?900:500,.05,.04);}
     if(inp.press&&P.t>12){MUS.off=!P.radio;saveMus();
       if(P.radio){boom(.4,.06);setTimeout(()=>{tone('sine',880,880,.12,.06);setTimeout(()=>tone('sine',1320,1320,.16,.06),160);},420);}
       P.phase='launch';P.lt=0;}
@@ -915,7 +941,7 @@ function updatePrep(dt,inp){const P=prep;if(!P)return;P.t+=dt;P.flash=Math.max(0
     if(lt>30&&lt-dt<=30)jetSound();
     if(lt>75&&lt-dt<=75)boom(1.2,.08);
     if(lt>75&&lt<185){shake=Math.max(shake,1.2);const pos=prepPos();if(Math.random()<.9*dt)parts.push({k:1,x:scroll+pos.x-7+(Math.random()-.5)*8,y:Math.min(launchPad?launchPad.top-1:pos.y,pos.y+4)+(Math.random()-.2)*3,vx:-.6-Math.random(),vy:.4+Math.random()*.6,life:60,max:60,r:2+Math.random()*3,g:-.01,a:.35});}
-    if(lt>=200){prep=null;state='play';show(`${T('FASE')} 1  ${T(STAGES[0].name)}`,T('GOEDE VLUCHT!'));tone('square',440,880,.25,.04);}}}
+    if(lt>=200){prep=null;baseAmb(false);state='play';show(`${T('FASE')} 1  ${T(STAGES[0].name)}`,T('GOEDE VLUCHT!'));tone('square',440,880,.25,.04);}}}
 let launchPad=null;  // the launch base stays in the world after take-off and scrolls away
 const PE=x=>x<0?0:x>1?1:x*x*(3-2*x);
 function prepZ0(){return Math.max(2.3,Math.min(3.4,(H-TOP)/52));}
@@ -1041,7 +1067,7 @@ function addScore(n){if(state==='intro')return;score+=n;if(score>=nextLife){live
 function show(text,sub){banner={text,sub,t:130};}
 function newGame(){gyroZero();playTime=0;laserLeft=LASER_N;empLeft=EMP_N;beamT=0;empFx=null;nukes=cfg.nukes;shields=cfg.shields;bombsLeft=cfg.bombs;score=0;lives=cfg.lives;nextLife=10000;flags=0;loop=0;curStage=0;speed=.9*cfg.speed/100;respawn(0);}
 function respawn(s){
-  beamT=0;empFx=null;launchPad=null;genWorld();curStage=s;
+  beamT=0;empFx=null;launchPad=null;if(typeof baseAmb==='function'&&state!=='prep')baseAmb(false);genWorld();curStage=s;
   scroll=Math.max(0,starts[s]*COL-48);p.x=48;
   let lo=TOP,hiF=H;const c0=Math.floor((scroll+p.x-12)/COL);
   for(let c=c0;c<c0+6;c++){lo=Math.max(lo,ceilA[c]);hiF=Math.min(hiF,floorA[c]);}
@@ -1385,7 +1411,7 @@ document.getElementById('logoBtn').addEventListener('keydown',e=>{if(e.key==='En
 document.getElementById('infoDone').addEventListener('click',closeInfo);
 infoEl.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeInfo();}});
 addEventListener('keydown',e=>{if(e.key.toLowerCase()==='i'&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))&&state!=='play'){infoOpen?closeInfo():openInfo();}});
-function openHangar(){if(hgOpen)return;hgOpen=true;renderHangar();renderMusUI();hgEl.hidden=false;pauseFor();const n=playerName();if(n&&WONLINE)syncWallet(n);}
+function openHangar(){if(hgOpen)return;hgOpen=true;renderHangar();renderMusUI();hgStart3d();hgEl.hidden=false;pauseFor();const n=playerName();if(n&&WONLINE)syncWallet(n);}
 function closeHangar(){hgOpen=false;hgEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
 document.getElementById('bhg').addEventListener('click',e=>{e.currentTarget.blur();hgOpen?closeHangar():openHangar();});
 document.getElementById('hgDone').addEventListener('click',closeHangar);
@@ -1395,6 +1421,26 @@ const SHOPTXT={colors:['KLEUREN','Kies zelf de kleuren van je vliegtuig.','COLOU
   ship:['ANDER SCHIP','Interceptor: een nieuw ontwerp, 10% groter.','DIFFERENT SHIP','Interceptor: a new design, 10% bigger.'],
   laser:['SUPERLASER','Toets L of de knop LASER: 3 seconden een straal; beweeg op en neer en hij lasert alles kapot. 3 per ronde.','SUPER LASER','Key L or the LASER button: a beam for 3 seconds; move up and down and it destroys everything. 3 per round.'],
   emp:['EMP-EXPLOSIE','Toets E of de knop EMP: een elektronische schokgolf vernietigt alles in beeld, behalve de basis. 2 per ronde.','EMP EXPLOSION','Key E or the EMP button: an electronic shock wave destroys everything on screen except the base. 2 per round.']};
+/* hangar: the ship turns in real 3D when three.js is available (2D picture as fallback) */
+let hg3=null,hg3Raf=0;
+function styleShipMats(SM,C,lb,mb){SM.body.color.set(C.body);SM.accent.color.set(C.accent);SM.glass.color.set(C.glass);SM.flame.color.set(C.flame);SM.fin.color.set(C.accent);SM.wingB.color.set(C.accent);SM.fin.visible=mb!=='b';SM.wingB.visible=mb==='b';
+  const c=SM.labelCv.getContext('2d');c.clearRect(0,0,512,96);if(lb){c.font='800 78px "Chakra Petch", system-ui, sans-serif';const tw=c.measureText(lb).width,kk=Math.min(1,480/tw);c.save();c.translate(256,50);c.scale(kk,1);c.textAlign='center';c.textBaseline='middle';
+    const lt=inkFor(C.body)==='#ffffff';c.lineWidth=10;c.lineJoin='round';c.strokeStyle=lt?'rgba(10,12,30,.55)':'rgba(255,255,255,.5)';c.strokeText(lb,0,0);c.fillStyle=lt?'#ffffff':'#14112f';c.fillText(lb,0,0);c.restore();}SM.labelTex.needsUpdate=true;SM.label.visible=!!lb;}
+async function hgStart3d(){if(hg3===false)return;if(!hg3){hg3='load';try{await loadThree();}catch(e){hg3=false;return;}
+    try{const T=window.THREE,cv=document.createElement('canvas');cv.id='shipPrev3d';cv.setAttribute('aria-hidden','true');prevCv.after(cv);
+      const ren=new T.WebGLRenderer({canvas:cv,alpha:true,antialias:true});ren.setPixelRatio(Math.min(2,window.devicePixelRatio||1));ren.setSize(480,150,false);ren.setClearColor(0,0);
+      const sc=new T.Scene(),cam=new T.PerspectiveCamera(30,480/150,1,600);cam.position.set(0,9,62);cam.lookAt(0,0,0);
+      sc.add(new T.AmbientLight(0x8a80c0,.65));const key=new T.DirectionalLight(0xfff0c8,1.15);key.position.set(25,40,50);sc.add(key);
+      const r1=new T.PointLight(0xff4fa3,1.8,140);r1.position.set(-35,-6,15);sc.add(r1);const r2=new T.PointLight(0x3fe0d0,1.4,140);r2.position.set(35,8,-20);sc.add(r2);
+      const tp=makeTemplates(T),ship=tp.ship;ship.scale.setScalar(2.1);sc.add(ship);
+      const ring=new T.Mesh(new T.TorusGeometry(24,.3,8,90),new T.MeshBasicMaterial({color:0x3fe0d0,transparent:true,opacity:.55,blending:T.AdditiveBlending,depthWrite:false}));ring.rotation.x=Math.PI/2;ring.position.y=-9;sc.add(ring);
+      hg3={ren,sc,cam,ship,SM:tp.shipMats,cv,ring,key:''};cv.addEventListener('webglcontextlost',e=>{e.preventDefault();hg3=false;cv.remove();prevCv.hidden=false;},{once:true});}
+    catch(e){hg3=false;return;}}
+  if(!hg3||hg3==='load')return;prevCv.hidden=true;hg3.cv.hidden=false;
+  if(!hg3Raf){const loop=()=>{if(!hgOpen||!hg3||hg3==='load'){hg3Raf=0;return;}const C=shipCols(),lb=shipLabel(),mb=shipModel(),k=C.body+C.accent+C.glass+C.flame+lb+mb;
+      if(k!==hg3.key){hg3.key=k;styleShipMats(hg3.SM,C,lb,mb);hg3.ship.scale.setScalar(mb==='b'?2.3:2.1);}
+      const tt=performance.now()/1000;hg3.ship.rotation.y=tt*.8;hg3.ship.rotation.x=Math.sin(tt*1.3)*.12;hg3.ship.position.y=Math.sin(tt*1.7)*.8;hg3.ring.rotation.z=tt*.5;
+      const f=hg3.ship.getObjectByName('flame');if(f)f.scale.set(1,.7+Math.random()*.6,1);hg3.ren.render(hg3.sc,hg3.cam);hg3Raf=requestAnimationFrame(loop);};hg3Raf=requestAnimationFrame(loop);}}
 function drawPreview(){const sv=ctx;ctx=prevCtx;prevCtx.setTransform(1,0,0,1,0,0);prevCtx.clearRect(0,0,480,150);prevCtx.setTransform(8,0,0,8,250,75);try{drawShip(0,0,false,undefined,shipLabel(),shipModel());}finally{ctx=sv;}}
 function codeMsg(m,cls){codeEl.textContent=m;codeEl.className='sub'+(cls?' '+cls:'');}
 function renderHangar(){const n=playerName(),w=n?wal(n):null,en=LANG==='en';if(document.activeElement!==nameCfg)nameCfg.value=n;if(document.activeElement!==codeCfg)codeCfg.value=n&&codes[n]?codes[n]:'';
@@ -1442,9 +1488,9 @@ function renderFx(){fxIn.value=String(Math.round(fxVol*100));fxOut.textContent=M
 fxIn.addEventListener('input',()=>{ensureAudio();setFxVol(+fxIn.value/100);fxOut.textContent=fxIn.value+'%';const now=performance.now();if(now-fxBeep>140){fxBeep=now;tone('triangle',660,880,.12,.06);}});
 
 /* ---------- music: rock arrangements of Handel, generated live with WebAudio; or your own file (set in god mode) ---------- */
-const MUS={vol:.5,mood:'auto',src:'gen',url:'',yt:'',off:false};
+const MUS={vol:.5,mood:'toccata',src:'gen',url:'',yt:'',off:false,v:2};
 try{const m=JSON.parse(localStorage.getItem('fuelrun.music')||'null');if(m&&typeof m==='object'){if(isFinite(+m.vol))MUS.vol=Math.max(0,Math.min(1,+m.vol));
-  if(['auto','toccata','hallelujah','storm','night','hornpipe'].includes(m.mood))MUS.mood=m.mood;if(['gen','url','yt','off'].includes(m.src))MUS.src=m.src;MUS.off=!!m.off;if(typeof m.yt==='string')MUS.yt=m.yt.slice(0,500);if(typeof m.url==='string')MUS.url=m.url.slice(0,500);}}catch(e){}
+  if(['auto','toccata','hallelujah','storm','night','hornpipe','none'].includes(m.mood))MUS.mood=m.mood;if(m.v!==2&&MUS.mood==='auto')MUS.mood='toccata';if(['gen','url','yt','off'].includes(m.src))MUS.src=m.src;MUS.off=!!m.off;if(typeof m.yt==='string')MUS.yt=m.yt.slice(0,500);if(typeof m.url==='string')MUS.url=m.url.slice(0,500);}}catch(e){}
 const saveMus=()=>{try{localStorage.setItem('fuelrun.music',JSON.stringify(MUS));}catch(e){}};
 /* pieces: per bar [bass root (midi), chord tones for arpeggios or null, lead notes [step,midi,len] in 16ths] */
 const L1=(a,b,c,d)=>[[0,a,4],[4,b,3],[7,c,1],[8,b,4]];  // the "Hal-le-lu-jah" figure
@@ -1481,7 +1527,7 @@ const PIECES={
 // hornpipe melody: running eighths with the dotted hornpipe lilt, built from the chord tones of each bar
 PIECES.hornpipe.bars.forEach((b,i)=>{if(b[2])return;const t=b[1].map(x=>x+12),seq=i%2?[2,1,0,1,2,0,1,2]:[0,1,2,1,0,2,1,0];b[2]=seq.map((k,j)=>[j*2,t[k]+(j===4&&i%4===3?12:0),j%2?1:2]);});
 const ARP=[0,1,2,1,3,2,1,2,0,1,2,3,4,3,2,1];
-const MOODS=['auto','toccata','hallelujah','storm','hornpipe','night'];
+const MOODS=['toccata','hallelujah','storm','hornpipe','night','auto','none'];
 let mBus=null,mComp=null,mDelay=null,mDist=null,mNoise=null,mNext=0,mStep=0,mPiece='toccata',mEl=null,mElUrl='',mErr='';
 const mf=m=>440*Math.pow(2,(m-69)/12);
 function mBusInit(){if(mBus)return;mComp=ac.createDynamicsCompressor();mComp.threshold.value=-14;mComp.ratio.value=4;mComp.connect(ac.destination);
@@ -1535,8 +1581,8 @@ function mStepPlay(P,i,t,sd){const nb=P.bars.length,bi=Math.floor(i/16),s=i%16,B
 function moodPiece(){if(MUS.mood!=='auto')return MUS.mood;if(state!=='play')return'toccata';
   if(baseWarned)return'storm';if(env&&env.L<.3)return'night';return['toccata','hallelujah','toccata','hornpipe'][curStage%4]||'toccata';}
 function musDuck(){if(muted||MUS.src==='off')return 0;
-  if(state==='prep'&&prep){if(prep.phase==='radio')return prep.radio?.7:0;if(prep.phase==='launch')return MUS.off?0:.7;return 0;}  // silent at the base until the radio check
-  if(MUS.off)return 0;if(state==='play')return paused?.28:1;return .6;}
+  if(state==='prep'&&prep){if(MUS.mood==='none'&&!prep.radio)return 0;if(prep.phase==='radio')return prep.radio?.7:0;if(prep.phase==='launch')return MUS.off?0:.7;return 0;}  // silent at the base until the radio check
+  if(MUS.off||MUS.mood==='none')return 0;if(state==='play')return paused?.28:1;return .6;}
 /* YouTube as music source: a small visible player (YouTube's rules do not allow hiding it) that loops the video or playlist */
 let yt=null,ytReady=false,ytKey='',ytWant=false,ytApi=0,ytErr='';
 function ytParse(u){u=String(u||'').trim();const v=u.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([A-Za-z0-9_-]{11})/),l=u.match(/[?&]list=([A-Za-z0-9_-]{10,})/);return{v:v?v[1]:'',l:l?l[1]:''};}
@@ -1574,11 +1620,11 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){if(mBus&&a
 /* music UI: volume + mood in the hangar, source in god mode */
 const musIn=document.getElementById('ui_mus'),musOut=document.getElementById('ui_musv'),moodEl=document.getElementById('uiMood');
 function renderMusUI(){const en=LANG==='en';musIn.value=String(Math.round(MUS.vol*100));musOut.textContent=Math.round(MUS.vol*100)+'%';
-  moodEl.textContent='';for(const k of MOODS){const b=document.createElement('button');b.type='button';b.dataset.v=k;b.textContent=k==='auto'?(en?'AUTOMATIC':'AUTOMATISCH'):PIECES[k].name[en?1:0].toUpperCase();
-    b.title=k==='auto'?(en?'Changes with the stage, the base and day or night':'Wisselt met de fase, de basis en dag of nacht'):PIECES[k].by[en?1:0];b.setAttribute('aria-pressed',String(MUS.mood===k));moodEl.appendChild(b);}
+  moodEl.textContent='';for(const k of MOODS){const b=document.createElement('button');b.type='button';b.dataset.v=k;b.textContent=k==='auto'?(en?'AUTOMATIC':'AUTOMATISCH'):k==='none'?(en?'NONE':'GEEN'):PIECES[k].name[en?1:0].toUpperCase();
+    b.title=k==='auto'?(en?'Changes with the stage, the base and day or night':'Wisselt met de fase, de basis en dag of nacht'):k==='none'?(en?'No music':'Geen muziek'):PIECES[k].by[en?1:0];b.setAttribute('aria-pressed',String(MUS.mood===k));moodEl.appendChild(b);}
   moodEl.hidden=MUS.src!=='gen';
   document.getElementById('uiMusNote').textContent=MUS.off&&MUS.src!=='off'?(en?'Music is off (radio check at the launch base). Move the music slider to switch it on again.':'Muziek staat uit (radiocheck op de startbasis). Schuif de muziekschuif om hem weer aan te zetten.'):MUS.src==='off'?(en?'Music is switched off in god mode.':'Muziek staat uit in de god mode.'):MUS.src==='yt'?(en?'Plays a YouTube video (set in god mode).':'Speelt een YouTube-video (ingesteld in de god mode).')+(ytErr?' '+ytErr:''):MUS.src==='url'?(en?'Plays your own music file (set in god mode).':'Speelt je eigen muziekbestand (ingesteld in de god mode).')+(mErr?' '+mErr:'')
-    :(en?'Bach and Handel in rock and modern beats, played live.':'Bach en Händel als rock en moderne beat, live gespeeld.')+' '+(MUS.mood==='auto'?'':PIECES[MUS.mood].name[en?1:0]+' · '+PIECES[MUS.mood].by[en?1:0]+'.');
+    :(en?'Bach and Handel in rock and modern beats, played live.':'Bach en Händel als rock en moderne beat, live gespeeld.')+' '+(MUS.mood==='auto'?'':MUS.mood==='none'?(en?'No music chosen.':'Geen muziek gekozen.'):PIECES[MUS.mood].name[en?1:0]+' · '+PIECES[MUS.mood].by[en?1:0]+'.');
   for(const b of document.querySelectorAll('#setMusSrc button'))b.setAttribute('aria-pressed',String(b.dataset.v===MUS.src));
   const ui=document.getElementById('set_musurl');if(document.activeElement!==ui)ui.value=MUS.url;document.getElementById('setMusUrlRow').hidden=MUS.src!=='url';const yi=document.getElementById('set_yturl');if(document.activeElement!==yi)yi.value=MUS.yt;document.getElementById('setYtRow').hidden=MUS.src!=='yt';
   document.getElementById('setMusNote').textContent=MUS.src==='yt'?(en?'Paste a link to a YouTube video or playlist. It plays in a small window at the bottom of the screen (YouTube does not allow hiding it) and loops. Tap the screen once if it does not start. Only works on meerservices.github.io, not inside the Claude app.':'Plak een link naar een YouTube-video of afspeellijst. Die speelt in een klein venster onderin beeld (YouTube staat verbergen niet toe) en herhaalt zich. Tik één keer op het scherm als hij niet start. Werkt alleen op meerservices.github.io, niet in de Claude-app.')+(ytErr?' '+ytErr:''):MUS.src==='url'?(en?'Link to an MP3 or other audio file that the browser can play. It loops during the game. On iPhone the volume slider may not work for your own file.':'Link naar een MP3 of ander geluidsbestand dat de browser kan afspelen. Het speelt in een lus tijdens het spel. Op de iPhone werkt de volumeschuif mogelijk niet voor een eigen bestand.')+(mErr?' '+mErr:'')
