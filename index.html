@@ -424,7 +424,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 73 · vleugelkleur wordt bewaard</p>
+      <p class="hint ver ib-ver">Versie 74 · meldingen uit de god mode verdwijnen weer vanzelf</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -734,6 +734,7 @@ function axisVel(a,st,dt){if(!a){st.t=0;st.d=0;return 0;}const d=Math.sign(a);if
 /* ---------- gyro ---------- */
 const gyroChk=document.getElementById('ui_gyro'),gstat=document.getElementById('gstat');
 const gyro={on:false,ax:0,ay:0,zx:0,zy:0,need:true,got:false};
+function toast(m,ms){say(m);clearTimeout(toast.t);toast.t=setTimeout(()=>{if(gstat.textContent===m)say('');},ms||4500);}
 function say(m){gstat.textContent=m;gstat.hidden=!m;delete gstat.dataset.ios;const um=document.getElementById('uiMsg');if(um){um.textContent=m;um.hidden=!m;}}
 function gyroZero(){gyro.need=true;}
 function onOri(e){if(e.beta==null||e.gamma==null)return;gyro.got=true;
@@ -759,7 +760,7 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;en
 addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
 addEventListener('keydown',e=>{if(e.repeat||e.key.toLowerCase()!=='m'||(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)))return;if(state==='prep'&&prep&&prep.phase==='radio')return;
   ensureAudio();MUS.off=!MUS.off;if(!MUS.off&&MUS.mood==='none')MUS.mood='toccata';saveMus();if(!MUS.off)musKick();try{renderMusUI();}catch(_){}
-  say(MUS.off?(LANG==='en'?'Radio off (M)':'Radio uit (M)'):(LANG==='en'?'Radio on (M)':'Radio aan (M)'));setTimeout(()=>say(''),1500);});  // always release, also when focus moved into a text field
+  toast(MUS.off?(LANG==='en'?'Radio off (M)':'Radio uit (M)'):(LANG==='en'?'Radio on (M)':'Radio aan (M)'),1500);});  // always release, also when focus moved into a text field
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;});
 addEventListener('pointerdown',ensureAudio);
 cv.addEventListener('pointerdown',()=>{tap=true;});
@@ -1938,10 +1939,10 @@ function renderEurEd(){const box=document.getElementById('setEur'),en=LANG==='en
     const i=document.createElement('input');i.id='eur_'+k;i.type='number';i.min='0';i.step='0.01';i.inputMode='decimal';i.placeholder='€ 0,00';i.value=SITE.eur[k]?(+SITE.eur[k]).toFixed(2):'';box.append(lb,em,i);}}
 function siteNote(m,cls){const e=document.getElementById('setSiteNote');e.textContent=m;e.className='sub'+(cls?' '+cls:'');}
 async function saveSite(){const en=LANG==='en',eu={};for(const[k]of SHOP){const v=parseFloat(String(document.getElementById('eur_'+k).value).replace(',','.'));if(isFinite(v)&&v>0)eu[k]=Math.round(Math.min(9999,v)*100)/100;}
-  SITE={order:fixOrder(ordTmp||SITE.order),eur:eu};ordTmp=null;try{localStorage.setItem('fuelrun.site',JSON.stringify(SITE));}catch(e){}applySite();
-  if(window.claude)return;if(!adminCode){say(en?'Saved on this device. Enter the admin code under MANAGE HIGH SCORES to save it for everyone.':'Opgeslagen op dit toestel. Vul de beheercode in bij HIGHSCORES BEHEREN om het voor iedereen op te slaan.');return;}
-  try{await fbCommit([adminW(adminCode),siteW(SITE)]);say(en?'Order and prices saved for everyone.':'Volgorde en prijzen voor iedereen opgeslagen.');}
-  catch(e){say(e.status===403||e.status===400?(en?'Saved on this device only: wrong admin code or the database rules are not updated yet.':'Alleen op dit toestel opgeslagen: verkeerde beheercode of de databaseregels zijn nog niet bijgewerkt.'):(en?'Saved on this device; no connection right now.':'Op dit toestel opgeslagen; nu geen verbinding.'));}}
+  const before=JSON.stringify(SITE);SITE={order:fixOrder(ordTmp||SITE.order),eur:eu};ordTmp=null;const changed=JSON.stringify(SITE)!==before;try{localStorage.setItem('fuelrun.site',JSON.stringify(SITE));}catch(e){}applySite();
+  if(window.claude||!changed)return;if(!adminCode){toast(en?'Saved on this device. Enter the admin code under MANAGE HIGH SCORES to save it for everyone.':'Opgeslagen op dit toestel. Vul de beheercode in bij HIGHSCORES BEHEREN om het voor iedereen op te slaan.');return;}
+  try{await fbCommit([adminW(adminCode),siteW(SITE)]);toast(en?'Order and prices saved for everyone.':'Volgorde en prijzen voor iedereen opgeslagen.');}
+  catch(e){toast(e.status===403||e.status===400?(en?'Saved on this device only: wrong admin code or the database rules are not updated yet.':'Alleen op dit toestel opgeslagen: verkeerde beheercode of de databaseregels zijn nog niet bijgewerkt.'):(en?'Saved on this device; no connection right now.':'Op dit toestel opgeslagen; nu geen verbinding.'));}}
 /* IP addresses: encrypted with a key that only the admin device can open */
 const b64=buf=>{const a=new Uint8Array(buf);let s='';for(let i=0;i<a.length;i++)s+=String.fromCharCode(a[i]);return btoa(s);},unb64=t=>Uint8Array.from(atob(t),c=>c.charCodeAt(0));
 const ipPriv=()=>{try{return localStorage.getItem('fuelrun.ipkey')||'';}catch(e){return'';}};
@@ -1959,15 +1960,15 @@ function ipNote(){const en=LANG==='en',e=document.getElementById('setIpNote');co
   document.getElementById('setIpCopy').hidden=!has;}
 let ipArm=0;
 document.getElementById('setIpMake').addEventListener('click',async ev=>{const en=LANG==='en',bt=ev.currentTarget;
-  if(!adminCode){say(en?'Enter the admin code under MANAGE HIGH SCORES first.':'Vul eerst de beheercode in bij HIGHSCORES BEHEREN.');return;}
+  if(!adminCode){toast(en?'Enter the admin code under MANAGE HIGH SCORES first.':'Vul eerst de beheercode in bij HIGHSCORES BEHEREN.');return;}
   if(ipPub&&Date.now()-ipArm>4000){ipArm=Date.now();bt.textContent=en?'SURE? OLD IPs BECOME UNREADABLE':'ZEKER? OUDE IP\'S WORDEN ONLEESBAAR';return;}ipArm=0;bt.textContent=T('IP-SLEUTEL MAKEN');
   try{const kp=await crypto.subtle.generateKey({name:'RSA-OAEP',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['encrypt','decrypt']);
     const pub=b64(await crypto.subtle.exportKey('spki',kp.publicKey)),prv=b64(await crypto.subtle.exportKey('pkcs8',kp.privateKey));
     await fbCommit([adminW(adminCode),{update:{name:CDOC('ipkey'),fields:{k:{stringValue:pub}}}}]);
-    try{localStorage.setItem('fuelrun.ipkey',prv);}catch(e){}ipPub=pub;ipEnc='';ipNote();say(en?'IP key made. From now on new players are stored with IP and place.':'IP-sleutel gemaakt. Vanaf nu worden spelers met IP en plaats opgeslagen.');presenceBeat();}
-  catch(e){say(e.status===403||e.status===400?(en?'Not possible: wrong admin code or the database rules are not updated yet.':'Lukt niet: verkeerde beheercode of de databaseregels zijn nog niet bijgewerkt.'):(en?'Making the key did not work.':'Sleutel maken lukte niet.'));}});
-document.getElementById('setIpCopy').addEventListener('click',async()=>{const t=ipPriv();if(!t)return;try{await navigator.clipboard.writeText(t);say(LANG==='en'?'Key copied. Keep it secret.':'Sleutel gekopieerd. Houd hem geheim.');}catch(e){const i=document.getElementById('set_ipkey');i.value=t;i.select();}});
-document.getElementById('set_ipkey').addEventListener('change',async e=>{const t=e.target.value.replace(/\s+/g,'');if(!t)return;try{await crypto.subtle.importKey('pkcs8',unb64(t),{name:'RSA-OAEP',hash:'SHA-256'},false,['decrypt']);localStorage.setItem('fuelrun.ipkey',t);e.target.value='';ipNote();say(LANG==='en'?'Key saved on this device.':'Sleutel opgeslagen op dit toestel.');}catch(_){say(LANG==='en'?'That is not a valid key.':'Dat is geen geldige sleutel.');}});
+    try{localStorage.setItem('fuelrun.ipkey',prv);}catch(e){}ipPub=pub;ipEnc='';ipNote();toast(en?'IP key made. From now on new players are stored with IP and place.':'IP-sleutel gemaakt. Vanaf nu worden spelers met IP en plaats opgeslagen.');presenceBeat();}
+  catch(e){toast(e.status===403||e.status===400?(en?'Not possible: wrong admin code or the database rules are not updated yet.':'Lukt niet: verkeerde beheercode of de databaseregels zijn nog niet bijgewerkt.'):(en?'Making the key did not work.':'Sleutel maken lukte niet.'));}});
+document.getElementById('setIpCopy').addEventListener('click',async()=>{const t=ipPriv();if(!t)return;try{await navigator.clipboard.writeText(t);toast(LANG==='en'?'Key copied. Keep it secret.':'Sleutel gekopieerd. Houd hem geheim.');}catch(e){const i=document.getElementById('set_ipkey');i.value=t;i.select();}});
+document.getElementById('set_ipkey').addEventListener('change',async e=>{const t=e.target.value.replace(/\s+/g,'');if(!t)return;try{await crypto.subtle.importKey('pkcs8',unb64(t),{name:'RSA-OAEP',hash:'SHA-256'},false,['decrypt']);localStorage.setItem('fuelrun.ipkey',t);e.target.value='';ipNote();toast(LANG==='en'?'Key saved on this device.':'Sleutel opgeslagen op dit toestel.');}catch(_){toast(LANG==='en'?'That is not a valid key.':'Dat is geen geldige sleutel.');}});
 
 /* ---------- players online right now ---------- */
 const onlineEl=document.getElementById('online');let onlineN=0;
