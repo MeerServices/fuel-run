@@ -28,7 +28,7 @@ h1{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.08e
 .hbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 #menuBtn,#binfo,.hbtns .vip{display:none}
 html.compact #menuBtn{display:inline-flex;align-items:center;gap:6px}html.compact .hbtns>.snd:not(#menuBtn){display:none}
-html.compact .hbtns.open>.snd:not(#menuBtn){display:inline-block}html.compact .hbtns.open .vip{display:inline-flex}html.compact .brand .vip{display:none}
+html.compact .hbtns.open>.snd:not(#menuBtn):not([hidden]){display:inline-block}html.compact .hbtns.open .vip{display:inline-flex}html.compact .brand .vip{display:none}
 html.compact #menuBtn[aria-expanded=true]{background:var(--cyan);color:#06221f;border-color:var(--cyan);opacity:1}
 html.land .brand{flex:none}html.land .online{background:rgba(18,20,42,.8);font-size:11px;padding:4px 10px}
 html.land .hbtns{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;min-width:0;max-width:100%;padding:2px}html.land .hbtns::-webkit-scrollbar{display:none}
@@ -192,7 +192,7 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .gw-btns .gpdot{width:28px;height:28px;margin:0;vertical-align:middle;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 .gw-btns .gw-ok{color:#fff}.gw-btns .gw-ok .gpdot{animation:gwok 1.2s ease-in-out infinite}
 @keyframes gwok{50%{box-shadow:0 0 14px 3px rgba(255,75,92,.8),inset 0 -3px 0 rgba(0,0,0,.25)}}
-.brand h1{cursor:pointer}.brand h1:hover,.brand h1:focus-visible{text-shadow:2px 2px 0 #5a1640,0 0 14px rgba(255,79,163,.7);outline:none}
+.vipbtn{cursor:pointer;transition:box-shadow .2s,border-color .2s}.vipbtn:hover,.vipbtn:focus-visible{border-color:#f2c440;box-shadow:0 0 12px rgba(242,196,64,.45);outline:none}
 .infodlg form{background:linear-gradient(180deg,#141632,#0b0c20);border:1px solid #ff4fa3;box-shadow:0 0 0 1px #3fe0d055 inset,0 0 30px rgba(255,79,163,.25);position:relative;overflow:auto}
 .infodlg form::before{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);border-radius:inherit}
 .ib-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:1px solid #ff4fa366;padding-bottom:8px;margin-bottom:4px}
@@ -271,7 +271,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
 
 <div class="cab">
   <header>
-    <div class="brand"><h1 id="logoBtn" role="button" tabindex="0" title="Info" data-i18n-title="Info en uitleg">FUEL RUN</h1><span class="online" id="online" hidden role="button" tabindex="0" title="Wie spelen er nu?" data-i18n-title="Wie spelen er nu?"><i aria-hidden="true"></i><b>1</b> <span>spelers online</span><em id="onlineMe"></em></span><span class="vip" title="Fuel Run is gemaakt door VIPWARE" data-i18n-title="Fuel Run is gemaakt door VIPWARE"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg1)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
+    <div class="brand"><h1 id="logoBtn">FUEL RUN</h1><span class="online" id="online" hidden role="button" tabindex="0" title="Wie spelen er nu?" data-i18n-title="Wie spelen er nu?"><i aria-hidden="true"></i><b>1</b> <span>spelers online</span><em id="onlineMe"></em></span><span class="vip vipbtn" role="button" tabindex="0" title="Info en uitleg" data-i18n-title="Info en uitleg"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg1)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
     <div class="hbtns" id="hbtns">
       <button class="snd" id="menuBtn" aria-expanded="false" aria-controls="hbtns"><span aria-hidden="true">☰</span><span data-i18n="MENU">MENU</span></button>
       <button class="snd" id="bhg" title="Hangar: naam, code, geluid en je vliegtuig" data-i18n-title="Hangar: naam, code, geluid en je vliegtuig">HANGAR</button>
@@ -279,8 +279,8 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
       <button class="snd" id="bsc" title="Highscores per dag, week, maand en jaar" data-i18n-title="Highscores per dag, week, maand en jaar" data-i18n="SCORES">SCORES</button>
       <button class="snd" id="bcfg" title="Knoppen en joystick naar je hand zetten" data-i18n-title="Knoppen en joystick naar je hand zetten" data-i18n="CONFIG">CONFIG</button>
       <button class="snd" id="fsb" title="Volledig scherm aan of uit" data-i18n-title="Volledig scherm aan of uit" aria-pressed="false" data-i18n="SCHERM">SCHERM</button>
-      <button class="snd" id="binfo" data-i18n="INFO">INFO</button>
-      <span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg3)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span>
+      <button class="snd" id="binfo" hidden data-i18n="INFO">INFO</button>
+      <span class="vip vipbtn" role="button" tabindex="0" title="Info en uitleg" data-i18n-title="Info en uitleg"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg3)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span>
     </div>
   </header>
   <p class="hint gstat" id="gstat" hidden></p>
@@ -424,7 +424,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 71 · eigen kleur voor de vleugels</p>
+      <p class="hint ver ib-ver">Versie 72 · VIPWARE-badge opent de info</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -1511,8 +1511,7 @@ let hgOpen=false,shOpen=false,plOpen=false;
 let infoOpen=false;const infoEl=document.getElementById('infoDlg');
 function openInfo(){if(infoOpen)return;infoOpen=true;infoEl.hidden=false;pauseFor();}
 function closeInfo(){infoOpen=false;infoEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
-document.getElementById('logoBtn').addEventListener('click',()=>infoOpen?closeInfo():openInfo());
-document.getElementById('logoBtn').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();infoOpen?closeInfo():openInfo();}});
+for(const vb of document.querySelectorAll('.vipbtn')){vb.addEventListener('click',()=>infoOpen?closeInfo():openInfo());vb.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();infoOpen?closeInfo():openInfo();}});}
 document.getElementById('infoDone').addEventListener('click',closeInfo);
 infoEl.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closeInfo();}});
 addEventListener('keydown',e=>{if(e.key.toLowerCase()==='i'&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))&&state!=='play'){infoOpen?closeInfo():openInfo();}});
