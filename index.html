@@ -141,21 +141,23 @@ html.land #ytBox{bottom:max(70px,env(safe-area-inset-bottom,0px))}
 .udpbox{display:flex;flex-direction:column;gap:8px;margin:2px 0 6px 26px}
 .udpbox input,.udpbox select{font-family:var(--body);font-size:13px;background:#07081a;color:var(--ink);border:1px solid var(--rim);border-radius:4px;padding:6px 8px;min-width:0;text-transform:none;letter-spacing:0}
 #udpMsg.ok{color:#8be39b}#udpMsg.err{color:#ff7a9a}
+:root.gpmode .settings input:not([type=checkbox]):not([type=range]):not([type=color]),:root.gpmode .settings select,:root.gpmode .entry input{font-size:20px!important;padding:9px 10px!important}
+:root.gpmode .gphint{font-size:15px}
 .gpfocus{outline:3px solid #ffd84f!important;outline-offset:2px;box-shadow:0 0 0 6px rgba(255,216,79,.22)!important;border-radius:6px}
 .gpdot{display:inline-block;width:.95em;height:.95em;border-radius:50%;vertical-align:-.12em;margin:0 .3em 0 .1em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
 .gpdot.w{background:#f4f4f8}.gpdot.r{background:#ff4b5c}.gpdot.g{background:#36d17a}.gpdot.b{background:#3f8cff}.gpdot.y{background:#ffd23f}
 .gphint{position:fixed;z-index:58;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom,0px));background:rgba(10,12,30,.94);border:1px solid var(--rim);border-radius:999px;padding:7px 14px;font-size:12px;color:var(--ink);white-space:nowrap;max-width:96vw;overflow:hidden;text-overflow:ellipsis}
 .gpwheel{position:fixed;inset:0;z-index:59;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.78)}
-.gw-box{background:#12142a;border:1px solid #3fe0d0;border-radius:14px;padding:16px 20px;min-width:min(88vw,340px);display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
-.gw-label{font-family:var(--display);font-size:12px;letter-spacing:.08em;color:#3fe0d0}
-.gw-text{font-family:var(--display);font-size:22px;letter-spacing:.12em;color:var(--ink);min-height:1.4em;border-bottom:2px solid var(--rim);padding:2px 6px;max-width:80vw;overflow:hidden;white-space:nowrap}
+.gw-box{background:#12142a;border:1px solid #3fe0d0;border-radius:14px;padding:18px 22px;min-width:min(92vw,380px);display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 18px 50px rgba(0,0,0,.6)}
+.gw-label{font-family:var(--display);font-size:15px;letter-spacing:.08em;color:#3fe0d0}
+.gw-text{font-family:var(--display);font-size:clamp(28px,6vw,44px);letter-spacing:.14em;color:#ffffff;min-height:1.5em;min-width:min(78vw,300px);text-align:center;background:#07081a;border:2px solid #3fe0d0;border-radius:10px;padding:8px 14px;max-width:86vw;overflow:hidden;white-space:nowrap;text-shadow:0 0 12px rgba(63,224,208,.45)}
 .gw-text i{display:inline-block;width:.6em;border-bottom:3px solid #ffd84f;animation:gwb 1s steps(2) infinite;font-style:normal}
 @keyframes gwb{50%{opacity:0}}
 .gw-roll{display:flex;flex-direction:column;align-items:center;height:210px;justify-content:center;position:relative;width:110px;border-radius:10px;background:linear-gradient(#07081a,#161a3a 50%,#07081a)}
 .gw-roll span{font-family:var(--display);line-height:1;transition:transform .12s,opacity .12s;color:var(--dim)}
 .gw-roll span.c{font-size:44px;color:#ffd84f;padding:8px 0;border-top:1px solid #ffd84f55;border-bottom:1px solid #ffd84f55;width:100%;text-align:center}
 .gw-roll span.n1{font-size:26px;opacity:.75}.gw-roll span.n2{font-size:18px;opacity:.45}.gw-roll span.n3{font-size:13px;opacity:.25}
-.gw-help{font-size:12px;color:var(--dim);text-align:center;line-height:1.7}
+.gw-help{font-size:15px;color:var(--dim);text-align:center;line-height:1.7}
 .fxv{display:flex;align-items:center;gap:10px;min-width:0}.fxv input{flex:1;min-width:0;accent-color:#3fe0d0}.fxv output{font-family:var(--display);font-size:11px;color:var(--dim);min-width:3.2em;text-align:right}
 .shop{display:flex;flex-direction:column;gap:8px}
 .shopit{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:9px 10px;border:1px solid var(--rim);border-radius:6px;background:#0b0d22}
@@ -364,7 +366,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
   <div class="edbar" id="edbar" hidden><span data-i18n="Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.">Sleep de knoppen naar de plek die je fijn vindt. Liggend en staand onthoudt het spel apart.</span><button type="button" class="skip" id="edReset" data-i18n="STANDAARD">STANDAARD</button><button type="button" class="save" id="edDone" data-i18n="KLAAR">KLAAR</button></div>
   <p class="hint keys" data-i18n-html="hintKeys"><b>Pijltjes / WASD</b> vliegen · <b>Z of spatie</b> laser · <b>X</b> bommen · <b>N</b> nuke · <b>V</b> schild · <b>P</b> pauze</p>
   <p class="hint" data-i18n-html="hintMain">Raak brandstoftanks om bij te tanken. Je hebt 3 nukes per ronde; alleen een nuke vernietigt de basis aan het eind, dus bewaar er een. Met de knop SCHILD (toets V) krijg je een schild van 5 seconden, ook 3 keer per ronde. Met 3 nukes aan boord reageert je schip 20% trager, met 2 nukes 10%. Zoekende raketten komen alleen in het oerwoud. Is je tank leeg, dan stort je neer. Vier fases, bombardeer daarna de basis en ga sneller opnieuw. In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</p>
-  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 54 · X-GamePad: gekleurde knoppen in beeld, menu’s met de joystick, letterwiel</p>
+  <p class="hint ver" style="font-size:12px;opacity:.6">Versie 55 · letterwiel groter, rode knop is klaar</p>
 </div>
 
 <div class="install" id="install" hidden role="dialog" aria-labelledby="instTitle">
@@ -765,7 +767,7 @@ function gwChars(e){if(e.type==='number'||e.inputMode==='numeric'||/0-9\]\*?$/.t
 function gwOpen(e){const ch=gwChars(e),lab=(e.closest('label')&&e.closest('label').querySelector('span'))||null;
   gw={e,ch,i:0,text:String(e.value||''),max:e.maxLength>0?e.maxLength:80};const last=gw.text.slice(-1);const li=ch.indexOf(last);if(li>=0)gw.i=li;
   document.getElementById('gwLabel').textContent=(lab?lab.textContent:e.getAttribute('aria-label')||e.placeholder||(LANG==='en'?'TEXT':'TEKST')).toUpperCase();
-  const en=LANG==='en';document.getElementById('gwHelp').innerHTML=(en?'Joystick ▲▼ choose · ':'Joystick ▲▼ kiezen · ')+dot('w')+(en?'add':'toevoegen')+' · '+dot('r')+(en?'delete':'wissen')+'<br>'+dot('g')+(en?'done':'klaar')+' · '+dot('b')+(en?'cancel':'annuleren');
+  const en=LANG==='en';document.getElementById('gwHelp').innerHTML=(en?'Joystick ▲▼ choose · ':'Joystick ▲▼ kiezen · ')+dot('w')+(en?'add':'toevoegen')+' · '+dot('g')+(en?'delete':'wissen')+'<br>'+dot('r')+'<b>'+(en?'DONE':'KLAAR')+'</b> · '+dot('b')+(en?'cancel':'annuleren');
   document.getElementById('gpWheel').hidden=false;gwRender();}
 function gwRender(){if(!gw)return;const show=gw.e.type==='password'?'•'.repeat(gw.text.length):gw.text;const t=document.getElementById('gwText');t.textContent=show;const c=document.createElement('i');c.textContent=' ';t.appendChild(c);
   const r=document.getElementById('gwRoll');r.textContent='';const n=gw.ch.length;for(let d=-3;d<=3;d++){const s=document.createElement('span');const k=gw.ch[(gw.i+d+n*4)%n];s.textContent=k===' '?'␣':k;s.className=d===0?'c':'n'+Math.abs(d);r.appendChild(s);}}
@@ -776,7 +778,7 @@ function gwClose(ok){if(!gw)return;const e=gw.e;if(ok){e.value=gw.text;e.dispatc
   gw=null;document.getElementById('gpWheel').hidden=true;if(ok&&e.id==='naam'){const f=e.form;if(f&&e.value.trim()){if(f.requestSubmit)f.requestSubmit();else f.submit();}}}
 /* coloured buttons: returns true when the press was used by a menu */
 function gpButton(k){
-  if(gw){if(k==='fire')gwAdd();else if(k==='laser')gwDel();else if(k==='bomb')gwClose(true);else if(k==='shield')gwClose(false);return true;}
+  if(gw){if(k==='fire')gwAdd();else if(k==='laser')gwClose(true);else if(k==='bomb')gwDel();else if(k==='shield')gwClose(false);return true;}
   const d=gpActiveDlg();
   if(d){if(k==='fire')gpActivate();else if(k==='laser')gpClose(d);return true;}
   const playing=state==='play'||state==='dying';
@@ -786,13 +788,13 @@ function gpButton(k){
 function gpAxis(v,key,act){const now=performance.now(),dir=v>.55?1:v<-.55?-1:0;
   if(dir!==gpRep[key]){gpRep[key]=dir;if(dir){act(dir);gpRep['n'+key]=now+380;}}
   else if(dir&&now>gpRep['n'+key]){act(dir);gpRep['n'+key]=now+(gw?90:150);}}
-setInterval(()=>{const on=gpMode(),hint=document.getElementById('gpHint');
+setInterval(()=>{const on=gpMode(),hint=document.getElementById('gpHint');rootEl.classList.toggle('gpmode',on);
   if(!on){if(gpFocus)gpSetFocus(null);hint.hidden=true;return;}
   if(gw){gpAxis(gpj.y,'y',d=>gwRoll(d));gpAxis(gpj.x,'x',d=>d>0?gwAdd():gwDel());hint.hidden=true;return;}
   const d=gpActiveDlg();
   if(!d){if(gpFocus)gpSetFocus(null);gpDlg=null;hint.hidden=true;return;}
   if(!gpDlg||gpDlg.el!==d.el||!gpFocus||!d.el.contains(gpFocus)||!visible(gpFocus)){gpDlg=d;const l=gpItems(d);gpSetFocus(l[0]||null);}
-  const en=LANG==='en';hint.innerHTML=(en?'Joystick ▲▼ choose · ◀▶ adjust · ':'Joystick ▲▼ kiezen · ◀▶ schuiven · ')+dot('w')+(en?'select':'selecteren')+' · '+dot('r')+(en?'back':'terug');hint.hidden=false;
+  const en=LANG==='en';hint.innerHTML=(en?'Joystick ▲▼ choose · ◀▶ adjust · ':'Joystick ▲▼ kiezen · ◀▶ schuiven · ')+dot('w')+(en?'select':'selecteren')+' · '+dot('r')+(en?'done':'klaar');hint.hidden=false;
   gpAxis(gpj.y,'y',dir=>gpMove(dir));gpAxis(gpj.x,'x',dir=>gpAdjust(dir));},60);
 /* canvas legend while not playing */
 function drawGpLegend(){const playing=state==='play'||state==='dying';if(playing||state==='name')return;const en=LANG==='en';
