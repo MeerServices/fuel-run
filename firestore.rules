@@ -85,7 +85,9 @@ service cloud.firestore {
         && request.resource.data.c is string && request.resource.data.c.matches('[A-Z0-9]{1,8}')
         && request.resource.data.t == request.time
         && (request.resource.data.c == resource.data.c
-            || request.resource.data.get('o', '') == resource.data.c);
+            || request.resource.data.get('o', '') == resource.data.c
+            // de beheerder (god mode) mag een vergeten naamcode opnieuw instellen
+            || getAfter(/databases/$(database)/documents/admin/key).data.t == request.time);
       allow delete: if false;
     }
 
