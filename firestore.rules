@@ -2,17 +2,25 @@ rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // beheercode voor de openbare highscores; niemand kan deze lezen
+    // beheercode (god mode, highscores, prijzen, betaalserver); niemand kan deze lezen.
+    // c = beheercode, r = herstelcode. Wijzigen kan alleen met de huidige code (o)
+    // of met de herstelcode (rr); na herstellen komt er altijd een nieuwe herstelcode.
     match /admin/{doc} {
+      function okKey(d) {
+        return d.keys().hasOnly(['c', 't', 'o', 'r', 'rr'])
+          && d.c is string && d.c.matches('[A-Za-z0-9]{4,32}')
+          && d.t == request.time
+          && (!('r' in d) || (d.r is string && d.r.matches('[A-Z0-9]{20}')));
+      }
       allow read: if false;
-      allow create: if doc == 'key' && request.resource.data.keys().hasOnly(['c', 't'])
-        && request.resource.data.c is string && request.resource.data.c.matches('[0-9]{4,8}')
-        && request.resource.data.t == request.time;
-      allow update: if doc == 'key' && request.resource.data.keys().hasOnly(['c', 't', 'o'])
-        && request.resource.data.c is string && request.resource.data.c.matches('[0-9]{4,8}')
-        && request.resource.data.t == request.time
+      allow create: if doc == 'key' && okKey(request.resource.data)
+        && request.resource.data.keys().hasOnly(['c', 't', 'r']);
+      allow update: if doc == 'key' && okKey(request.resource.data)
         && (request.resource.data.c == resource.data.c
-            || request.resource.data.get('o', '') == resource.data.c);
+            || request.resource.data.get('o', '') == resource.data.c
+            || (resource.data.get('r', '') != ''
+                && request.resource.data.get('rr', '') == resource.data.get('r', '')
+                && request.resource.data.get('r', '') != resource.data.get('r', '')));
       allow delete: if false;
     }
 
