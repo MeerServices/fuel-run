@@ -439,7 +439,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 79 · duidelijke meldingen bij betalen in de winkel</p>
+      <p class="hint ver ib-ver">Versie 80 · FR-COINS-lijst werkt weer; betaalserver tolerant voor spaties in de Mollie-sleutel</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -2043,7 +2043,7 @@ function renderPayEd(){const en=LANG==='en';document.getElementById('set_pay').v
     const c=document.createElement('input');c.id='pk_c_'+id;c.type='number';c.min='1';c.step='1';c.value=pk.c;c.title='FRC';c.style.width='6em';
     const e=document.createElement('input');e.id='pk_e_'+id;e.type='number';e.min='0';e.step='0.01';e.inputMode='decimal';e.placeholder='€ 0,00';e.value=pk.e?(+pk.e).toFixed(2):'';box.append(lb,c,e);}
   const n=document.getElementById('setPayNote');n.textContent=en?'Fill in the address of your Cloudflare Worker and the prices. Packs or items without a price (minimum € 0.50) cannot be bought with money.':'Vul het adres van je Cloudflare Worker en de prijzen in. Pakketten of artikelen zonder prijs (minimaal € 0,50) zijn niet met geld te koop.';
-  if(SITE.pay)fetch(SITE.pay.replace(/\/+$/,'')+'/health').then(r=>r.json()).then(j=>{n.textContent=(j.mollie&&j.admin?(en?'Payment server connected':'Betaalserver gekoppeld'):(en?'Payment server found, but MOLLIE_KEY or ADMIN_CODE is missing':'Betaalserver gevonden, maar MOLLIE_KEY of ADMIN_CODE ontbreekt'))+(j.test?(en?' · TEST mode':' · TESTMODUS'):'')+'.';n.className='sub '+(j.mollie&&j.admin?'ok':'err');}).catch(()=>{n.textContent=en?'Payment server not reachable.':'Betaalserver niet bereikbaar.';n.className='sub err';});}
+  if(SITE.pay)fetch(SITE.pay.replace(/\/+$/,'')+'/health').then(r=>r.json()).then(j=>{n.textContent=(j.mollie&&j.admin?(en?'Payment server connected':'Betaalserver gekoppeld'):(!j.admin?(en?'Payment server found, but ADMIN_CODE is missing':'Betaalserver gevonden, maar ADMIN_CODE ontbreekt'):(en?'Payment server found, but the Mollie key is not right: ':'Betaalserver gevonden, maar de Mollie-sleutel klopt niet: ')+(j.key||'')))+(j.test?(en?' · TEST mode':' · TESTMODUS'):'')+(j.mollie&&j.key?' · '+j.key:'')+'.';n.className='sub '+(j.mollie&&j.admin?'ok':'err');}).catch(()=>{n.textContent=en?'Payment server not reachable.':'Betaalserver niet bereikbaar.';n.className='sub err';});}
 function renderEurEd(){const box=document.getElementById('setEur'),en=LANG==='en';box.textContent='';
   for(const[k,price]of SHOP){const t=SHOPTXT[k],lb=document.createElement('label');lb.htmlFor='eur_'+k;lb.textContent=en?t[2]:t[0];const em=document.createElement('em');em.textContent=price+' FRC';
     const i=document.createElement('input');i.id='eur_'+k;i.type='number';i.min='0';i.step='0.01';i.inputMode='decimal';i.placeholder='€ 0,00';i.value=SITE.eur[k]?(+SITE.eur[k]).toFixed(2):'';box.append(lb,em,i);}}
@@ -2110,7 +2110,7 @@ async function loadPlayersOnline(){const t=Date.now();const r=await fetch(FBURL+
 const flagOf=cc=>/^[A-Z]{2}$/.test(cc||'')?String.fromCodePoint(...[...cc].map(c=>127397+c.charCodeAt(0))):'';
 const countryOf=cc=>{try{return new Intl.DisplayNames([LANG==='en'?'en':'nl'],{type:'region'}).of(cc);}catch(e){return cc;}};
 const protectedName=n=>!!n&&((n===playerName()&&!!codes[n])||players.list.some(x=>x.name===n));
-async function renderPlayers(){const en=LANG==='en',body=document.getElementById('plBody'),note=document.getElementById('plNote'),admin=godOK&&!!ipPriv();
+async function renderOnline(){const en=LANG==='en',body=document.getElementById('plBody'),note=document.getElementById('plNote'),admin=godOK&&!!ipPriv();
   document.getElementById('plHead').innerHTML='<th>'+(en?'NAME':'NAAM')+'</th><th>START</th><th>'+(en?'LOCATION':'LOCATIE')+'</th>'+(admin?'<th>IP</th>':'');
   if(window.claude){body.innerHTML='<tr><td class="empty" colspan="3">'+(en?'The player list is in the online version (website or app).':'De spelerslijst staat in de online versie (website of app).')+'</td></tr>';note.textContent='';return;}
   body.innerHTML='<tr><td class="empty" colspan="4">'+(en?'Loading…':'Laden…')+'</td></tr>';
@@ -2125,11 +2125,11 @@ async function renderPlayers(){const en=LANG==='en',body=document.getElementById
   if(!list.length)body.innerHTML='<tr><td class="empty" colspan="4">'+(en?'Nobody online right now.':'Nu niemand online.')+'</td></tr>';
   note.textContent=admin?(en?'Admin view: IP address and place are decrypted with the key on this device.':'Beheerweergave: IP-adres en plaats zijn ontsleuteld met de sleutel op dit toestel.')
     :(en?'Everyone who played in the last 2 minutes. The place is shown per country.':'Iedereen die de afgelopen 2 minuten speelde. De plaats staat per land.');}
-function openPlayers(){if(plOpen)return;plOpen=true;plEl.hidden=false;pauseFor();renderPlayers();}
+function openPlayers(){if(plOpen)return;plOpen=true;plEl.hidden=false;pauseFor();renderOnline();}
 function closePlayers(){plOpen=false;plEl.hidden=true;unpause();try{document.activeElement.blur();}catch(e){}}
 onlineEl.addEventListener('click',()=>plOpen?closePlayers():openPlayers());
 onlineEl.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();plOpen?closePlayers():openPlayers();}});
-document.getElementById('plDone').addEventListener('click',closePlayers);document.getElementById('plRef').addEventListener('click',renderPlayers);
+document.getElementById('plDone').addEventListener('click',closePlayers);document.getElementById('plRef').addEventListener('click',renderOnline);
 plEl.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();closePlayers();}});
 if(!window.claude){presenceBeat();setInterval(()=>{if(!document.hidden)presenceBeat();},45000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)presenceBeat();});}
 (async()=>{try{if(!window.claude||!window.claude.use)return;const room=await window.claude.use('room');if(!room)return;

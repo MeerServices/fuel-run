@@ -28,8 +28,10 @@ async function siteConfig() {
   }
   return { eur, packs };
 }
+// The key as pasted in Cloudflare, without spaces, line breaks, quotes or a leading "Bearer".
+const mollieKey = env => String(env.MOLLIE_KEY || '').replace(/^\s*bearer\s+/i, '').replace(/["'\s]/g, '');
 async function mollie(env, path, init = {}) {
-  const r = await fetch('https://api.mollie.com/v2/' + path, { ...init, headers: { Authorization: 'Bearer ' + env.MOLLIE_KEY, 'Content-Type': 'application/json' } });
+  const r = await fetch('https://api.mollie.com/v2/' + path, { ...init, headers: { Authorization: 'Bearer ' + mollieKey(env), 'Content-Type': 'application/json' } });
   const j = await r.json(); if (!r.ok) throw new Error('mollie ' + r.status + ' ' + (j.detail || ''));
   return j;
 }
@@ -67,7 +69,9 @@ export default {
     const url = new URL(req.url);
     if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
     try {
-      if (url.pathname === '/' || url.pathname === '/health') return json({ ok: true, mollie: !!env.MOLLIE_KEY, admin: !!env.ADMIN_CODE, test: String(env.MOLLIE_KEY || '').startsWith('test_') });
+      if (url.pathname === '/' || url.pathname === '/health') { const k = mollieKey(env), good = /^(test|live)_[A-Za-z0-9]{20,}$/.test(k);
+        return json({ ok: true, mollie: good, admin: !!env.ADMIN_CODE, test: k.startsWith('test_'),
+          key: k ? (good ? k.slice(0, 5) + '…' + ' (' + k.length + ' tekens)' : 'ongeldig: moet beginnen met test_ of live_ (nu: "' + k.slice(0, 5) + '…", ' + k.length + ' tekens)') : 'ontbreekt' }); }
 
       if (url.pathname === '/create' && req.method === 'POST') {
         const b = await req.json();
