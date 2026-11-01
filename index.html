@@ -439,7 +439,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 78 · beheerder kan een vergeten naamcode opnieuw instellen</p>
+      <p class="hint ver ib-ver">Versie 79 · duidelijke meldingen bij betalen in de winkel</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
@@ -1620,14 +1620,19 @@ function renderShop(){const n=playerName(),w=n?wal(n):null,en=LANG==='en',coins=
   document.getElementById('shNote').textContent=SITE.pay?(en?'Paying with money goes safely via Mollie (iDEAL, card and more). Your purchase is added to your name automatically.':'Betalen met geld gaat veilig via Mollie (iDEAL, creditcard en meer). Je aankoop komt vanzelf bij je naam.'):Object.values(SITE.eur).some(v=>+v>0)?(en?'Euro prices are for information; paying with money is not possible yet.':'De europrijzen zijn ter informatie; met geld betalen kan nog niet.'):'';}
 const escH=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* paying with money: the payment server (Cloudflare Worker) talks to Mollie */
-async function payStart(kind,id,bt){const en=LANG==='en',n=playerName();
-  if(!n||!codes[n]||!codeOK[n]){toast(en?'First protect your name with a number code in the hangar.':'Bescherm eerst je naam met een cijfercode in de hangar.');return;}
+function payMsg(m,err){const e=document.getElementById('shNote');e.textContent=m;e.className='sub'+(err?' err':' ok');try{e.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_){}}
+async function payStart(kind,id,bt){const en=LANG==='en',n=playerName(),w=n?wallet[n]:null;
+  if(!n){payMsg(en?'Choose a player name in the hangar first.':'Kies eerst een spelersnaam in de hangar.',true);return;}
+  if(!codes[n]){payMsg(en?`First protect ${n} with a number code in the hangar. Then your purchase always lands on your name.`:`Bescherm ${n} eerst met een cijfercode in de hangar. Dan komt je aankoop altijd bij jouw naam.`,true);return;}
+  if(!codeOK[n]||(w&&w.st==='locked')){payMsg(en?`The number code for ${n} on this device is not right. Enter the right code in the hangar first.`:`De cijfercode van ${n} op dit toestel klopt niet. Vul eerst de juiste code in bij de hangar.`,true);return;}
   bt.disabled=true;const old=bt.textContent;bt.textContent=en?'ONE MOMENT…':'EVEN GEDULD…';
-  try{const back=location.href.split('#')[0].replace(/([?&])pay=1(&|$)/,'$1').replace(/[?&]$/,'');
-    const r=await fetch(SITE.pay.replace(/\/+$/,'')+'/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,kind,id,back})});const j=await r.json();
+  payMsg(en?'Connecting to Mollie…':'Verbinden met Mollie…');
+  try{const back=location.href.split('#')[0].replace(/([?&])pay=1(&|$)/,'$1').replace(/[?&]$/,'');const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),15000);
+    let r;try{r=await fetch(SITE.pay.replace(/\/+$/,'')+'/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,kind,id,back}),signal:ctl.signal});}catch(e){throw new Error(en?'the payment server does not answer (check the address in the god mode)':'de betaalserver antwoordt niet (controleer het adres in de god mode)');}finally{clearTimeout(tm);}
+    let j={};try{j=await r.json();}catch(e){}
     if(!r.ok||!j.url)throw new Error(j.error||('HTTP '+r.status));
-    try{localStorage.setItem('fuelrun.pay',JSON.stringify({id:j.id,name:n,at:Date.now()}));}catch(e){}location.href=j.url;}
-  catch(e){toast((en?'Paying is not possible right now: ':'Betalen lukt nu niet: ')+(e.message||e),6000);bt.disabled=false;bt.textContent=old;}}
+    try{localStorage.setItem('fuelrun.pay',JSON.stringify({id:j.id,name:n,at:Date.now()}));}catch(e){}payMsg(en?'Opening the Mollie payment page…':'De betaalpagina van Mollie wordt geopend…');location.href=j.url;}
+  catch(e){payMsg((en?'Paying is not possible right now: ':'Betalen lukt nu niet: ')+(e.message||e),true);bt.disabled=false;bt.textContent=old;}}
 async function payReturn(){let pend=null;try{pend=JSON.parse(localStorage.getItem('fuelrun.pay')||'null');}catch(e){}
   const back=/[?&]pay=1/.test(location.search);if(back)try{history.replaceState(null,'',location.href.replace(/([?&])pay=1(&|$)/,'$1').replace(/[?&]$/,''));}catch(e){}
   if(!pend||!pend.id||!SITE.pay||Date.now()-pend.at>86400000)return;const en=LANG==='en';
