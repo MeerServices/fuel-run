@@ -69,7 +69,7 @@ service cloud.firestore {
     match /config/{doc} {
       allow read: if true;
       allow write: if getAfter(/databases/$(database)/documents/admin/key).data.t == request.time
-        && ((doc == 'site' && request.resource.data.keys().hasOnly(['order', 'eur', 'packs', 'pay'])
+        && ((doc == 'site' && request.resource.data.keys().hasOnly(['order', 'eur', 'packs', 'pay', 'xb'])
               && request.resource.data.order is list && request.resource.data.order.size() <= 10
               && request.resource.data.eur is map && request.resource.data.eur.size() <= 10)
           || (doc == 'ipkey' && request.resource.data.keys().hasOnly(['k'])
