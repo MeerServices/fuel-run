@@ -21,7 +21,7 @@ const dgram = require('dgram'), http = require('http'), https = require('https')
 
 const arg = (k, d) => { const i = process.argv.indexOf('--' + k); return i > 0 ? process.argv[i + 1] : d; };
 const UDP_PORT = +arg('udp', 6001), WEB_PORT = +arg('port', 6002);
-const SITE = 'https://meerservices.github.io/fuel-run/';
+const SITE = process.env.FUELRUN_SITE || 'https://meerservices.github.io/fuel-run/';
 const clients = new Set();
 let last = '';
 
@@ -67,6 +67,12 @@ udp.bind(UDP_PORT, '0.0.0.0', () => { try { udp.setBroadcast(true); } catch (e) 
 const cache = {};
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.png': 'image/png', '.webmanifest': 'application/manifest+json', '.json': 'application/json', '.css': 'text/css' };
 function fetchSite(p) {
+  if (typeof fetch === 'function') {   // Node 18+: follows redirects, 10 s timeout
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 10000);
+    return fetch(SITE + p + (p.endsWith('.html') ? '?t=' + Date.now() : ''), { signal: ctl.signal, cache: 'no-store' })
+      .then(async r => { if (!r.ok) throw new Error('HTTP ' + r.status); return Buffer.from(await r.arrayBuffer()); })
+      .finally(() => clearTimeout(t));
+  }
   return new Promise((res, rej) => https.get(SITE + p, r => {
     if (r.statusCode !== 200) { rej(new Error('HTTP ' + r.statusCode)); r.resume(); return; }
     const ch = []; r.on('data', d => ch.push(d)); r.on('end', () => res(Buffer.concat(ch)));
@@ -79,10 +85,13 @@ const web = http.createServer(async (req, res) => {
   const local = path.join(__dirname, p);
   try {
     let body;
-    if (fs.existsSync(local) && fs.statSync(local).isFile()) body = fs.readFileSync(local);  // a copy next to this file wins
-    else {                                                                                   // otherwise the newest online version
-      try { cache[p] = await fetchSite(p); } catch (e) { if (!cache[p]) throw e; }           // offline: use the last copy we had
-      body = cache[p];
+    // 1. the newest online version  2. the last copy fetched  3. a copy next to this file (works without internet)
+    try { cache[p] = await fetchSite(p); body = cache[p]; }
+    catch (e) {
+      if (cache[p]) body = cache[p];
+      else if (fs.existsSync(local) && fs.statSync(local).isFile()) body = fs.readFileSync(local);
+      else throw e;
+      console.log(`[web] ${p}: online version not reachable (${e.message}), using ${cache[p] ? 'the last copy' : 'the local copy'}`);
     }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(p)] || 'application/octet-stream', 'Cache-Control': 'no-cache' });
     res.end(body);
