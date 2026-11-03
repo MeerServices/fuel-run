@@ -152,6 +152,15 @@ html.three .lay{display:block}
 .stick.floating{position:fixed;z-index:9;margin:0;opacity:.9}
 .uicfg{position:fixed;inset:0;z-index:8;border-radius:0;background:rgba(4,6,15,.4);padding:12px max(12px,env(safe-area-inset-right,0px)) 12px max(12px,env(safe-area-inset-left,0px))}
 .uicfg form{max-height:calc(100dvh - 24px)}
+/* phones: dialogs fill the whole screen, the action buttons stay at the bottom */
+@media (max-width:640px){.settings{position:fixed;inset:0;z-index:20;padding:0;border-radius:0;background:var(--panel)}
+  .settings form{width:100%;height:100%;max-height:100dvh;border:0;border-radius:0;box-shadow:none;padding:max(14px,env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) max(14px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px))}
+  .settings form>.row:last-child{position:sticky;bottom:calc(-1 * max(14px,env(safe-area-inset-bottom,0px)));background:var(--panel);margin:auto -14px calc(-1 * max(14px,env(safe-area-inset-bottom,0px)));padding:10px 14px max(14px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--rim);z-index:3}}
+@media (max-width:640px){#pinDlg,#prepName{background:rgba(4,6,15,.88);padding:16px}#pinDlg form,#prepName form{height:auto;border:1px solid var(--rim);border-radius:10px}}
+html.land .settings{position:fixed;inset:0;z-index:20;padding:0;border-radius:0;background:var(--panel)}
+html.land .settings form{width:100%;height:100%;max-height:100dvh;border:0;border-radius:0;box-shadow:none;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+html.land #pinDlg,html.land #prepName{background:rgba(4,6,15,.88);padding:12px}html.land #pinDlg form,html.land #prepName form{height:auto;max-height:calc(100dvh - 24px);width:min(100%,480px);border:1px solid var(--rim);border-radius:10px}
+html.land .settings form>.row:last-child{position:sticky;bottom:-10px;background:var(--panel);margin:auto calc(-1 * max(16px,env(safe-area-inset-right,0px))) -10px;padding:8px max(16px,env(safe-area-inset-right,0px));border-top:1px solid var(--rim);z-index:3}
 .uicfg .chk{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--ink);line-height:1.4;cursor:pointer}
 .uicfg .chk .dim{color:var(--dim)}
 .uicfg .chk input{width:20px;height:20px;flex:none;accent-color:var(--cyan);margin-top:1px}
@@ -447,7 +456,7 @@ html.editing .btn{outline:2px dashed rgba(255,255,255,.7);outline-offset:3px;opa
           <li><i>🌗</i><span data-i18n="In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.">In CONFIG zet je gyro-besturing aan en kies je dag, nacht of automatisch volgens de echte zon en maan.</span></li>
         </ul></section>
       <div class="ib-vip"><span class="vip"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="vipg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".5" stop-color="#f2c440"/><stop offset="1" stop-color="#b9780f"/></linearGradient></defs><path d="M12 1.5 22.5 9 12 22.5 1.5 9z" fill="url(#vipg2)" stroke="#7a4d0c" stroke-width="1"/><path d="M7.2 8.2h2.4L12 14l2.4-5.8h2.4L13.2 16.6h-2.4z" fill="#1a1205"/></svg>© VIPWARE 2026</span></div>
-      <p class="hint ver ib-ver">Versie 82 · god mode met uitklapmenu's, alle X-GamePad-knoppen instelbaar</p>
+      <p class="hint ver ib-ver">Versie 83 · op de telefoon vullen de vensters (god mode, hangar, winkel …) het hele scherm</p>
       <div class="row"><button type="button" class="save" id="infoDone" data-i18n="KLAAR">KLAAR</button></div>
     </form>
   </div>
